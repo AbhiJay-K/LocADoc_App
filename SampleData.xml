@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- created with XMLSpear -->
+<User>
+  <EmailID>str1234</EmailID>
+  <Name>str1234</Name>
+  <Password>
+    <PasswordID>???</PasswordID>
+    <pwd>str1234</pwd>
+    <salt>str1234</salt>
+    <UserID />
+  </Password>
+  <File>
+    <CurrentFileName>str1234</CurrentFileName>
+    <OriginalFileName>str1234</OriginalFileName>
+    <LongitudeCreated>123.45</LongitudeCreated>
+    <LatitudeCreated>123.45</LatitudeCreated>
+    <PwdDigest>str1234</PwdDigest>
+    <BackedUp>str1234</BackedUp>
+    <Password>
+      <PasswordID>???</PasswordID>
+      <pwd>str1234</pwd>
+      <salt>str1234</salt>
+      <UserID />
+    </Password>
+    <Area>
+      <AreaID>str1234</AreaID>
+      <Longitude>123.45</Longitude>
+      <Latitude>123.45</Latitude>
+      <Radius>123.45</Radius>
+    </Area>
+  </File>
+</User>
