@@ -11,10 +11,9 @@
 				<xsd:element name="Password" minOccurs="1" maxOccurs="1">
 					<xsd:complexType>
 						<xsd:sequence>
-							<xsd:element name="PasswordID" type="xsd:ID"/>
+							<xsd:element name="PasswordID" type="xsd:string"/>
 							<xsd:element name="pwd" type="xsd:string"/>
 							<xsd:element name="salt" type="xsd:string"/>
-							<xsd:element name="UserID" maxOccurs="1"/>
 						</xsd:sequence>
 					</xsd:complexType>
 					<xsd:key name="PK_Password">
@@ -34,10 +33,9 @@
 							<xsd:element name="Password">
 								<xsd:complexType>
 									<xsd:sequence>
-										<xsd:element name="PasswordID" type="xsd:ID"/>
+										<xsd:element name="PasswordID" type="xsd:string"/>
 										<xsd:element name="pwd" type="xsd:string"/>
 										<xsd:element name="salt" type="xsd:string"/>
-										<xsd:element name="UserID" maxOccurs="1"/>
 									</xsd:sequence>
 								</xsd:complexType>
 							</xsd:element>
