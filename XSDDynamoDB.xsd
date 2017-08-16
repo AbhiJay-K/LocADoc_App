@@ -46,6 +46,7 @@
 										<xsd:element name="Longitude" type="xsd:decimal"/>
 										<xsd:element name="Latitude" type="xsd:decimal"/>
 										<xsd:element name="Radius" type="xsd:decimal"/>
+										<xsd:element name="AreaType" type="xsd:boolean"/>
 									</xsd:sequence>
 								</xsd:complexType>
 								<xsd:key name="PK_AREA">
