@@ -21,6 +21,8 @@
 						<xsd:field xpath="PasswordID"/>
 					</xsd:key>
 				</xsd:element>
+				<xsd:element name="MacAddress" type="xsd:string"/>
+				<xsd:element name="LogedIn" type="xsd:boolean"/>
 				<xsd:element name="File">
 					<xsd:complexType>
 						<xsd:sequence>
