@@ -23,6 +23,20 @@
 				</xsd:element>
 				<xsd:element name="MacAddress" type="xsd:string"/>
 				<xsd:element name="LogedIn" type="xsd:boolean"/>
+				<xsd:element name="Admin_Area">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="AreaID" type="xsd:string"/>
+							<xsd:element name="Longitude" type="xsd:decimal"/>
+							<xsd:element name="Latitude" type="xsd:decimal"/>
+							<xsd:element name="Radius" type="xsd:decimal"/>
+						</xsd:sequence>
+					</xsd:complexType>
+					<xsd:key name="PK_AdminArea">
+						<xsd:selector xpath="User/Administrative_Area"/>
+						<xsd:field xpath="AreaID"/>
+					</xsd:key>
+				</xsd:element>
 				<xsd:element name="File">
 					<xsd:complexType>
 						<xsd:sequence>
@@ -48,7 +62,6 @@
 										<xsd:element name="Longitude" type="xsd:decimal"/>
 										<xsd:element name="Latitude" type="xsd:decimal"/>
 										<xsd:element name="Radius" type="xsd:decimal"/>
-										<xsd:element name="AreaType" type="xsd:boolean"/>
 									</xsd:sequence>
 								</xsd:complexType>
 								<xsd:key name="PK_AREA">
