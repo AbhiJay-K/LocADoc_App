@@ -3,4 +3,12 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="primary_material_light">#1d8668</color>
+    <color name="accent_material_light">#1d8668</color>
+    <color name="LocadocC">#1d8668</color>
+    <color name="Background_App">#bdbdbd</color>
+    <color name="foreground_material_dark">#000000</color>
+    <color name="Text1">#ffffff</color>
+    <color name="background_material_dark">#565555</color>
+    <color name="LocadocC2">#42be9a</color>
 </resources>

@@ -3,9 +3,29 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/LocadocC</item>
+        <item name="colorPrimaryDark">@android:color/background_dark</item>
+        <item name="colorAccent">@color/LocadocC2</item>
+    </style>
+
+    <style name="LocAdoc_Theme" parent="Theme.AppCompat.NoActionBar" >
+        <item name="android:textColorPrimary">@android:color/primary_text_dark_nodisable</item>
+        <item name="android:colorBackground">@color/Background_App</item>
+        <item name="colorAccent">@color/LocadocC</item>
+        <item name="colorPrimaryDark">@color/LocadocC</item>
+        <item name="colorPrimary">@color/LocadocC</item>
+        <item name="android:textColorSecondary">@color/LocadocC</item>
+        <item name="android:textColorSecondaryInverse">@color/LocadocC</item>
+    </style>
+
+    <style name="LocAdoc_2" parent="Theme.AppCompat.NoActionBar" >
+        <item name="android:textColorPrimary">@color/Text1</item>
+        <item name="android:navigationBarColor">@color/LocadocC</item>
+        <item name="colorPrimary">@color/LocadocC</item>
+        <item name="android:windowBackground">@color/Background_App</item>
+        <item name="android:colorBackground">@color/background_material_dark</item>
+        <item name="android:statusBarColor">@color/LocadocC</item>
+        <item name="colorAccent">@color/LocadocC2</item>
     </style>
 
 </resources>
