@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">LocAdoc</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">Password is 8-10 charecters. Contains A-Z, a-z, 0-9</string>
+    <string name="error_invalid_contact">Invalid contact number</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_RePassword_noMatch">Password does not match</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="title_activity_sign_up">SignUp</string>
+    <string name="prompt_emailID">Email ID</string>
+    <string name="prompt_fname">First Name</string>
+    <string name="prompt_lname">Last Name</string>
+    <string name="prompt_pwd">Password</string>
+    <string name="prompt_rpwd">Re-Enter Password</string>
+    <string name="prompt_cnum">Contact number</string>
+    <string name="action_sign_up_short">Sign up</string>
+    <string name="SignUp_success_title">"Sign up Successful"</string>
+    <string name="SignUp_success_body">"You have successfully registered your LocAdoc account"</string>
+</resources>
