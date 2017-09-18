@@ -25,4 +25,12 @@
     <string name="action_sign_up_short">Sign up</string>
     <string name="SignUp_success_title">"Sign up Successful"</string>
     <string name="SignUp_success_body">"You have successfully registered your LocAdoc account"</string>
+    <string name="logo_label">Save Document in Safe Location</string>
+    <string name="prompt_userId">User ID</string>
+    <string name="login_button">Log in</string>
+    <string name="signup_button">Sign up</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="facebook_app_id">203713910168819</string>
+    <string name="fb_login_protocol_scheme">fb203713910168819</string>
 </resources>
