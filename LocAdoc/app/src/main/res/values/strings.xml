@@ -38,4 +38,10 @@
     <string name="reenter_newpass_label">Re-enter new password</string>
     <string name="facebook_app_id">203713910168819</string>
     <string name="fb_login_protocol_scheme">fb203713910168819</string>
+    <string name="title_activity_home_page">HomePage</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+    <string name="user_name_menu">User Name</string>
+    <string name="search_hint">Search Area</string>
 </resources>
