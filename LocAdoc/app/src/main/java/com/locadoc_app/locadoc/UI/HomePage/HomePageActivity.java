@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -38,6 +39,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.R;
 
 public class HomePageActivity extends AppCompatActivity
@@ -57,6 +59,8 @@ public class HomePageActivity extends AppCompatActivity
     private LocationRequest mLocationRequest;
     private static final int DEFAULT_ZOOM = 15;
     private Circle circleShown;
+    private String userName;
+    private TextView username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,11 +90,17 @@ public class HomePageActivity extends AppCompatActivity
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+
         mapFragment.getMapAsync(this);
+        Bundle extras = getIntent().getExtras();
+        if (extras !=null) {
+            if (extras.containsKey("name")) {
+                userName = extras.getString("name");
+            }
+        }
     }
 
     @Override
@@ -107,6 +117,8 @@ public class HomePageActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.home_page, menu);
+        username = (TextView) findViewById(R.id.USerEmail);
+        username.setText(userName);
 
         MenuItem searchMenuItem = menu.findItem(R.id.toolbar);
         if (searchMenuItem == null) {
@@ -166,7 +178,8 @@ public class HomePageActivity extends AppCompatActivity
         } else if (id == R.id.nav_faq) {
 
         } else if (id == R.id.nav_logout) {
-
+            AppHelper.getPool().getCurrentUser().signOut();
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -195,15 +208,14 @@ public class HomePageActivity extends AppCompatActivity
                     android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 buildGoogleApiClient();
-                loadMarker();
                 mMap.setMyLocationEnabled(true);
             }
         }
         else {
             buildGoogleApiClient();
-            loadMarker();
             mMap.setMyLocationEnabled(true);
         }
+        loadMarker();
     }
 
     // load all area
@@ -251,8 +263,8 @@ public class HomePageActivity extends AppCompatActivity
     @Override
     public void onConnected(Bundle bundle) {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -280,12 +292,12 @@ public class HomePageActivity extends AppCompatActivity
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
+        /*MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
         markerOptions.snippet("This is my current option");
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);
+        mCurrLocationMarker = mMap.addMarker(markerOptions);*/
 
         //move map camera
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));

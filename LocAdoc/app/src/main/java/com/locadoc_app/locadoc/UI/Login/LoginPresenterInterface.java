@@ -6,7 +6,7 @@ package com.locadoc_app.locadoc.UI.Login;
 
 public interface LoginPresenterInterface {
     void onLoginClick(String id, String password);
-    void onForgotPasswordClick();
+    void onForgotPasswordClick(String id);
     boolean onChangeID(String id);
     boolean onChangePassword(String pass);
     void continueWithFirstTimeSignIn();

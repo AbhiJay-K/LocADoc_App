@@ -52,9 +52,13 @@ public class LoginPresenter implements LoginPresenterInterface
     }
 
     @Override
-    public void onForgotPasswordClick()
+    public void onForgotPasswordClick(String id)
     {
-        loginAct.openForgotPasswordActivity();
+        if(onChangeID(id))
+        {
+            loginAct.openForgotPasswordActivity();
+        }
+
     }
 
     @Override
@@ -100,7 +104,7 @@ public class LoginPresenter implements LoginPresenterInterface
             loginAct.closeWaitDialog();
             AppHelper.setCurrSession(cognitoUserSession);
             AppHelper.newDevice(device);
-            loginAct.showDialogMessage("Login Success", "You are now logged in to LocAdoc");
+            loginAct.openMainActivity();
         }
 
         @Override
