@@ -72,19 +72,19 @@ public class AppHelper {
     /**
      * Add your pool id here
      */
-    private static final String userPoolId = "ap-southeast-1_SsME563KX";
+    private static final String userPoolId = "ap-southeast-1_Qng7tbYxG";
 
     /**
      * Add you app id
      */
-    private static final String clientId = "5fiu71gn37j603rp68rkimh44u";
+    private static final String clientId = "44ftbv7gbpmjnvjih4ckpemokl";
 
     /**
      * App secret associated with your app id - if the App id does not have an associated App secret,
      * set the App secret to null.
      * e.g. clientSecret = null;
      */
-    private static final String clientSecret = "bokht24lq1sf2sc4qoqdu05768nff0c2dqiid85419isiqfu4g1";
+    private static final String clientSecret = "dg4a9hisgrqdenj81rcgagt9pc66837m2fp5ike31ddpc7kt8js";
 
     /**
      * Set Your User Pools region.
