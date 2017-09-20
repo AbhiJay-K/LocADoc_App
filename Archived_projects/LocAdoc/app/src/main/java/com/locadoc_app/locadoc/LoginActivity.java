@@ -3,32 +3,36 @@ package com.locadoc_app.locadoc;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
-
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.text.TextUtils;
-import android.view.KeyEvent;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import com.amazonaws.mobile.auth.core.DefaultSignInResultHandler;
+import com.amazonaws.mobile.auth.core.IdentityManager;
+import com.amazonaws.mobile.auth.core.IdentityProvider;
+import com.amazonaws.mobile.auth.core.StartupAuthErrorDetails;
+import com.amazonaws.mobile.auth.core.StartupAuthResult;
+import com.amazonaws.mobile.auth.core.StartupAuthResultHandler;
+import com.amazonaws.mobile.auth.core.signin.AuthException;
+import com.amazonaws.mobile.auth.ui.SignInActivity;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +41,8 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-
+public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> , StartupAuthResultHandler {
+    private static final String LOG_TAG = LoginActivity.class.getSimpleName();
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -54,7 +58,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    //private UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -66,7 +70,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        // Set up the login form.
+        final IdentityManager identityManager = IdentityManager.getDefaultIdentityManager();
+
+        identityManager.doStartupAuth(this, this);
+        /*// Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -91,7 +98,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         });
 
         mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        mProgressView = findViewById(R.id.login_progress);*/
     }
 
     private void populateAutoComplete() {
@@ -143,7 +150,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin() {
+    /*private void attemptLogin() {
         if (mAuthTask != null) {
             return;
         }
@@ -188,9 +195,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
-    }
+    }*/
 
-    private boolean isEmailValid(String email) {
+    /*private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
         return email.contains("@");
     }
@@ -198,7 +205,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
-    }
+    }*/
 
     /**
      * Shows the progress UI and hides the login form.
@@ -289,12 +296,65 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
     }
+    private void doMandatorySignIn(final IdentityManager identityManager) {
+        final WeakReference<LoginActivity> self = new WeakReference<LoginActivity>(this);
 
+        identityManager.setUpToAuthenticate(this, new DefaultSignInResultHandler() {
+
+            @Override
+            public void onSuccess(Activity activity, IdentityProvider identityProvider) {
+                // User has signed in
+                Log.e("NotError", "User signed in");
+                Activity callingActivity = self.get();
+                callingActivity.startActivity(new Intent(callingActivity, SignUp.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                callingActivity.finish();
+            }
+
+            @Override
+            public boolean onCancel(Activity activity) {
+                // This
+                return false;
+            }
+        });
+        SignInActivity.startSignInActivity(this, Application.sAuthUIConfiguration);
+    }
+    @Override
+    public void onComplete(StartupAuthResult authResult) {
+        final IdentityManager identityManager = authResult.getIdentityManager();
+
+        if (authResult.isUserSignedIn()) {
+            final IdentityProvider provider = identityManager.getCurrentIdentityProvider();
+            // If we were signed in previously with a provider indicate that to the user with a toast.
+            Toast.makeText(LoginActivity.this, String.format("Signed in with %s",
+                    provider.getDisplayName()), Toast.LENGTH_LONG).show();
+        } else {
+            // Either the user has never signed in with a provider before or refresh failed with a previously
+            // signed in provider.
+
+            // Optionally, you may want to check if refresh failed for the previously signed in provider.
+            final StartupAuthErrorDetails errors = authResult.getErrorDetails();
+
+            if (errors.didErrorOccurRefreshingProvider()) {
+                final AuthException providerAuthException = errors.getProviderRefreshException();
+                Log.w(LOG_TAG, String.format(
+                        "Credentials for Previously signed-in provider %s could not be refreshed.",
+                        providerAuthException.getProvider().getDisplayName()), providerAuthException);
+            }
+
+            doMandatorySignIn(identityManager);
+            return;
+        }
+
+        this.startActivity(new Intent(this, SignUp.class)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        this.finish();
+    }
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+   /* public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mEmail;
         private final String mPassword;
@@ -345,6 +405,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = null;
             showProgress(false);
         }
-    }
+    }*/
 }
 

@@ -3,14 +3,46 @@
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
+    <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_invalid_password">Password is 8-12 charecters. Contains A-Z, a-z, 0-9</string>
+    <string name="error_invalid_contact">Invalid contact number</string>
     <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_RePassword_noMatch">Password does not match</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="title_activity_sign_up">SignUp</string>
+    <string name="prompt_emailID">Email ID</string>
+    <string name="prompt_fname">First Name</string>
+    <string name="prompt_lname">Last Name</string>
+    <string name="prompt_pwd">Password</string>
+    <string name="prompt_rpwd">Re-Enter Password</string>
+    <string name="prompt_cnum">Contact number</string>
+    <string name="action_sign_up_short">Sign up</string>
+    <string name="SignUp_success_title">"Sign up Successful"</string>
+    <string name="SignUp_success_body">"You have successfully registered your LocAdoc account"</string>
+    <string name="logo_label">Save Document in Safe Location</string>
+    <string name="prompt_userId">User ID</string>
+    <string name="login_button">Log in</string>
+    <string name="signup_button">Sign up</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="title_activity_confirm_sign_up">Confirm Email</string>
+    <string name="newpass_title">Your account is created by the admin. Please set up a new password</string>
+    <string name="username_detail_label">Your user name</string>
+    <string name="newpass_label">Enter new password</string>
+    <string name="reenter_newpass_label">Re-enter new password</string>
+    <string name="facebook_app_id">203713910168819</string>
+    <string name="fb_login_protocol_scheme">fb203713910168819</string>
+    <string name="title_activity_home_page">HomePage</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+    <string name="user_name_menu">User Name</string>
+    <string name="search_hint">Search Area</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
