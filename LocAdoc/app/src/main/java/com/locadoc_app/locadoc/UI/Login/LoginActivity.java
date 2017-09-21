@@ -15,7 +15,9 @@ import com.facebook.CallbackManager;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.UI.ConfirmSignUp.Activity_SignUp_Confirm;
+import com.locadoc_app.locadoc.UI.HomePage.HomePageActivity;
 import com.locadoc_app.locadoc.UI.NewPassword.NewPasswordActivity;
+import com.locadoc_app.locadoc.UI.PasswordRecovery.PasswordRecovery;
 import com.locadoc_app.locadoc.UI.Signup.SignUp;
 
 import butterknife.BindView;
@@ -66,7 +68,8 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     @OnClick (R.id.ForgotPasswordText)
     void onForgotPasswordClick(View v)
     {
-        loginPres.onForgotPasswordClick();
+        userIDView.setError(null);
+        loginPres.onForgotPasswordClick(userIDView.getText().toString());
     }
 
     @OnFocusChange (R.id.UserID)
@@ -92,11 +95,15 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     @Override
     public void openMainActivity()
     {
-
+        Intent homeActivity = new Intent(this, HomePageActivity.class);
+        homeActivity.putExtra("name", userIDView.getText().toString());
+        startActivity(homeActivity);
     }
 
     public void openForgotPasswordActivity() {
-        Log.d("LocAdoc", "Open Forgot Password Activity");
+        Intent ForgetPasswordActivity = new Intent(this, PasswordRecovery.class);
+        ForgetPasswordActivity.putExtra("name", userIDView.getText().toString());
+        startActivityForResult(ForgetPasswordActivity, 3);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -124,6 +131,17 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
                 case 2:
                     loginPres.onLoginClick(userIDView.getText().toString(),
                             passView.getText().toString());
+                    break;
+                case 3:
+                    int result = data.getIntExtra("result", -1);
+                    if(result == 0)
+                    {
+                       showDialogMessage("Password Recovery","Recovery success");
+                    }
+                    else
+                    {
+                        showDialogMessage("Password Recovery","Recovery failed");
+                    }
                     break;
                 case 6:
                     //New password
