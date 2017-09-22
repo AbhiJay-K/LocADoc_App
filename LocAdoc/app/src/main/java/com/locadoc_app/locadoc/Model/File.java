@@ -16,20 +16,24 @@ public class File implements BaseColumns {
     public static final String COLUMN_LATITUDE_CREATED = "latitudecreated";
     public static final String COLUMN_PWD_DIGEST = "pwddigest";
     public static final String COLUMN_MODIFIED = "modified";
-    public static final String COLUMN_PASSWORD = "pwddigest";
+    public static final String COLUMN_PWD = "password";
     public static final String COLUMN_AREA = "area";
     private static DBHelper dbHelper;
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + " (" +
-            _ID +
-            COLUMN_EMAIL + " TEXT PRIMARY KEY, " +
-            COLUMN_FIRST_NAME + " TEXT, " +
-            COLUMN_LAST_NAME + " TEXT, " +
-            COLUMN_LOGEDIN + " INTEGER, " +
-            COLUMN_MACADD + " TEXT, " +
+            _ID + " TEXT PRIMARY KEY AUTOINCREMENT, "+
+            COLUMN_CURRENT_NAME + " TEXT, " +
+            COLUMN_ORIGINAL_NAME + " TEXT, " +
+            COLUMN_LONGITUDE_CREATED + " TEXT, " +
+            COLUMN_LATITUDE_CREATED + " TEXT, " +
+            COLUMN_PWD_DIGEST + " TEXT, " +
+            COLUMN_MODIFIED + " INTEGER, " +
             COLUMN_PWD + " INTEGER, " +
+            COLUMN_AREA + " INTEGER, "+
             " FOREIGN KEY ("+COLUMN_PWD+") REFERENCES "+Password.TABLE_NAME+"("+ Password._ID +
-            "))";
+            "), " +
+            " FOREIGN KEY ("+COLUMN_AREA+") REFERENCES "+Area.TABLE_NAME+"("+ Area._ID +
+            ")) ";
     public static DBHelper getDbHelper() {
         return dbHelper;
     }

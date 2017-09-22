@@ -4,6 +4,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.locadoc_app.locadoc.Model.Area;
+import com.locadoc_app.locadoc.Model.File;
+import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 
 /**
@@ -17,12 +20,16 @@ public class DBHelper extends SQLiteOpenHelper{
     public DBHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         User.setDbHelper(this);
-
+        Password.setDbHelper(this);
+        Area.setDbHelper(this);
+        File.setDbHelper(this);
     };
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-
+        sqLiteDatabase.execSQL(Password.CREATE_TABLE);
         sqLiteDatabase.execSQL(User.CREATE_TABLE);
+        sqLiteDatabase.execSQL(Area.CREATE_TABLE);
+        sqLiteDatabase.execSQL(File.CREATE_TABLE);
     }
 
     // We don't want to delete user data.
