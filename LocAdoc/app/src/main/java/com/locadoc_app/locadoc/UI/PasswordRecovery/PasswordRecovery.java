@@ -37,7 +37,7 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passwordrecovery);
-        setTitle("Forgot your Password?");
+        setTitle("Forgot your PasswordSQLHelper?");
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         presenter = new PasswordRecoveryPresenter(this);
         init();
@@ -58,7 +58,7 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
             }
         }
         presenter.forgotPassword(email);
-        /* New Password */
+        /* New PasswordSQLHelper */
         password = (EditText) findViewById(R.id.pwdrecovery_pwd);
         password.addTextChangedListener(new TextWatcher() {
             @Override
@@ -101,7 +101,7 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
             }
         });
 
-        /* Confirm New Password */
+        /* Confirm New PasswordSQLHelper */
         verifiCode = (EditText) findViewById(R.id.pwdrecovery_verificode);
         verifiCode.addTextChangedListener(new TextWatcher() {
             @Override

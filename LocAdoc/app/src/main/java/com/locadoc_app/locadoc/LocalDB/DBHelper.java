@@ -20,8 +20,8 @@ public class DBHelper extends SQLiteOpenHelper{
 
     private DBHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        User.setDbHelper(this);
-        Password.setDbHelper(this);
+        UserSQLHelper.setDbHelper(this);
+        PasswordSQLHelper.setDbHelper(this);
         AreaSQLHelper.setDbHelper(this);
         FileSQLHelper.setDbHelper(this);
     };
@@ -30,8 +30,8 @@ public class DBHelper extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         READ = getReadableDatabase();
         WRITE = getWritableDatabase();
-        sqLiteDatabase.execSQL(Password.CREATE_TABLE);
-        sqLiteDatabase.execSQL(User.CREATE_TABLE);
+        sqLiteDatabase.execSQL(PasswordSQLHelper.CREATE_TABLE);
+        sqLiteDatabase.execSQL(UserSQLHelper.CREATE_TABLE);
         sqLiteDatabase.execSQL(AreaSQLHelper.CREATE_TABLE);
         sqLiteDatabase.execSQL(FileSQLHelper.CREATE_TABLE);
         
@@ -40,7 +40,7 @@ public class DBHelper extends SQLiteOpenHelper{
     // We don't want to delete user data.
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + User.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + UserSQLHelper.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
     public static void init(Context context){

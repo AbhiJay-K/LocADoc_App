@@ -127,7 +127,7 @@ public class LoginPresenter implements LoginPresenterInterface
         @Override
         public void onFailure(Exception e) {
             loginAct.closeWaitDialog();
-            if (AppHelper.formatException(e).equals("User is not confirmed. ")){
+            if (AppHelper.formatException(e).equals("UserSQLHelper is not confirmed. ")){
                 loginAct.confirmUser();
             }
             else {

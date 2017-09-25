@@ -10,7 +10,7 @@ import com.locadoc_app.locadoc.helper.Hash;
  * Created by AbhiJay_PC on 22/9/2017.
  */
 
-public class Password implements BaseColumns {
+public class PasswordSQLHelper implements BaseColumns {
     public static final String TABLE_NAME = "password";
     public static final String COLUMN_PWD = "password";
     public static final String COLUMN_SALT = "salt";
@@ -35,9 +35,9 @@ public class Password implements BaseColumns {
         ContentValues values = new ContentValues();
         String salt = Hash.SecureRandomGen();
         String PasswordDigest = Hash.Hash(password,salt);
-        values.put(Password.COLUMN_SALT, salt);
-        values.put(Password.COLUMN_PWD, PasswordDigest);
-        long newRowId = getDbHelper().WRITE.insert(Password.TABLE_NAME, null, values);
+        values.put(PasswordSQLHelper.COLUMN_SALT, salt);
+        values.put(PasswordSQLHelper.COLUMN_PWD, PasswordDigest);
+        long newRowId = getDbHelper().WRITE.insert(PasswordSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
 }

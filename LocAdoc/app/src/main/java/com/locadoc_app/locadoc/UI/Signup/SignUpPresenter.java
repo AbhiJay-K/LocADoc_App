@@ -144,12 +144,12 @@ public class SignUpPresenter  implements SignUPPresenterInterface{
             activity.closeWaitDialog();
             Boolean regState = signUpConfirmationState;
             if (signUpConfirmationState) {
-                // User is already confirmed
+                // UserSQLHelper is already confirmed
                 activity.showDialogMessage("Sign up successful!",
                         activity.getEmailView().getText().toString() + " has been Confirmed", true);
             }
             else {
-                // User is not confirmed
+                // UserSQLHelper is not confirmed
                 activity.confirmSignUp(cognitoUserCodeDeliveryDetails);
             }
         }

@@ -45,7 +45,7 @@
     <string name="user_name_menu">User Name</string>
     <string name="search_hint">Search Area</string>
     <string name="title_activity_maps">Map</string>
-    <!-- Password Recovery -->
+    <!-- PasswordSQLHelper Recovery -->
     <!-- Strings related to verification for forgot password and reset password-->
     <string name="pwdrecovery_desc1">Please enter the code below to reset password</string>
     <string name="pwdrecovery_desc2">A Verification code was sent</string>

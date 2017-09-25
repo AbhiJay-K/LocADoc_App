@@ -10,9 +10,6 @@ public class FileSQLHelper implements BaseColumns {
     public static final String TABLE_NAME = "file";
     public static final String COLUMN_CURRENT_NAME = "currentfilename";
     public static final String COLUMN_ORIGINAL_NAME = "originalfilename";
-    public static final String COLUMN_LONGITUDE_CREATED = "longitudecreated";
-    public static final String COLUMN_LATITUDE_CREATED = "latitudecreated";
-    public static final String COLUMN_PWD_DIGEST = "pwddigest";
     public static final String COLUMN_MODIFIED = "modified";
     public static final String COLUMN_PWD = "password";
     public static final String COLUMN_AREA = "area";
@@ -22,13 +19,10 @@ public class FileSQLHelper implements BaseColumns {
             _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
             COLUMN_CURRENT_NAME + " TEXT, " +
             COLUMN_ORIGINAL_NAME + " TEXT, " +
-            COLUMN_LONGITUDE_CREATED + " TEXT, " +
-            COLUMN_LATITUDE_CREATED + " TEXT, " +
-            COLUMN_PWD_DIGEST + " TEXT, " +
-            COLUMN_MODIFIED + " INTEGER, " +
+            COLUMN_MODIFIED + " TEXT, " +
             COLUMN_PWD + " INTEGER, " +
             COLUMN_AREA + " INTEGER, "+
-            " FOREIGN KEY ("+COLUMN_PWD+") REFERENCES "+ Password.TABLE_NAME+"("+ Password._ID +
+            " FOREIGN KEY ("+COLUMN_PWD+") REFERENCES "+ PasswordSQLHelper.TABLE_NAME+"("+ PasswordSQLHelper._ID +
             "), " +
             " FOREIGN KEY ("+COLUMN_AREA+") REFERENCES "+ AreaSQLHelper.TABLE_NAME+"("+ AreaSQLHelper._ID +
             ")) ";
