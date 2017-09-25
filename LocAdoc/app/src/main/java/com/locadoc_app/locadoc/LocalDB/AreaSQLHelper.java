@@ -1,14 +1,12 @@
-package com.locadoc_app.locadoc.Model;
+package com.locadoc_app.locadoc.LocalDB;
 
 import android.provider.BaseColumns;
-
-import com.locadoc_app.locadoc.LocalDB.DBHelper;
 
 /**
  * Created by AbhiJay_PC on 22/9/2017.
  */
 
-public class Area implements BaseColumns {
+public class AreaSQLHelper implements BaseColumns {
     public static final String TABLE_NAME = "area";
     public static final String COLUMN_LONGITUDE = "longitude";
     public static final String COLUMN_LATITUDE = "latitude";
@@ -17,7 +15,7 @@ public class Area implements BaseColumns {
     private static DBHelper dbHelper;
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + " (" +
-            _ID + " TEXT PRIMARY KEY AUTOINCREMENT, " +
+            _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_LONGITUDE + " TEXT, " +
             COLUMN_LATITUDE + " TEXT, " +
             COLUMN_RADIUS + " TEXT " +
