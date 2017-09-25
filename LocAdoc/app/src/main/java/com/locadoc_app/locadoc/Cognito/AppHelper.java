@@ -87,16 +87,16 @@ public class AppHelper {
     private static final String clientSecret = "dg4a9hisgrqdenj81rcgagt9pc66837m2fp5ike31ddpc7kt8js";
 
     /**
-     * Set Your User Pools region.
+     * Set Your UserSQLHelper Pools region.
      * e.g. if your user pools are in US East (N Virginia) then set cognitoRegion = Regions.US_EAST_1.
      */
     private static final Regions cognitoRegion = Regions.AP_SOUTHEAST_1;
 
-    // User details from the service
+    // UserSQLHelper details from the service
     private static CognitoUserSession currSession;
     private static CognitoUserDetails userDetails;
 
-    // User details to display - they are the current values, including any local modification
+    // UserSQLHelper details to display - they are the current values, including any local modification
     private static boolean phoneVerified;
     private static boolean emailVerified;
 

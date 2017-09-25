@@ -10,7 +10,7 @@ import com.locadoc_app.locadoc.helper.Encryption;
  * Created by AbhiJay_PC on 22/9/2017.
  */
 
-public class User implements BaseColumns{
+public class UserSQLHelper implements BaseColumns{
     public static final String TABLE_NAME = "user";
     public static final String COLUMN_EMAIL = "email";
     public static final String COLUMN_FIRST_NAME = "firstname";
@@ -18,6 +18,7 @@ public class User implements BaseColumns{
     public static final String COLUMN_LOGEDIN = "logedin";
     public static final String COLUMN_MACADD = "macaddress";
     public static final String COLUMN_PWD = "password";
+    public static final String COLUMN_AREA = "adminarea";
     private static DBHelper dbHelper;
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + " (" +
@@ -27,7 +28,10 @@ public class User implements BaseColumns{
             COLUMN_LOGEDIN + " INTEGER, " +
             COLUMN_MACADD + " TEXT, " +
             COLUMN_PWD + " INTEGER, " +
-            " FOREIGN KEY ("+COLUMN_PWD+") REFERENCES "+ Password.TABLE_NAME+"("+ Password._ID +
+            COLUMN_AREA + " INTEGER, "+
+            " FOREIGN KEY ("+COLUMN_PWD+") REFERENCES "+ PasswordSQLHelper.TABLE_NAME+"("+ PasswordSQLHelper._ID +
+            "), " +
+            " FOREIGN KEY ("+COLUMN_AREA+") REFERENCES "+ AreaSQLHelper.TABLE_NAME+"("+ AreaSQLHelper._ID +
             "))";
     public static DBHelper getDbHelper() {
         return dbHelper;
@@ -40,7 +44,7 @@ public class User implements BaseColumns{
     {
         ContentValues values = new ContentValues();
         String[] args={"1"};
-        Cursor crs = Password.getDbHelper().READ.rawQuery("SELECT * FROM password WHERE _ID = ?", args);
+        Cursor crs = PasswordSQLHelper.getDbHelper().READ.rawQuery("SELECT * FROM password WHERE _ID = ?", args);
         String password1 = crs.getString(crs.getColumnIndex("password"));
         String salt = crs.getString(crs.getColumnIndex("salt"));
         Encryption en = Encryption.getInstance(password1,salt);
@@ -49,8 +53,8 @@ public class User implements BaseColumns{
         values.put(COLUMN_LAST_NAME, en.encryptString(lastname));
         values.put(COLUMN_LOGEDIN, en.encryptString(Integer.toString(logedin)));
         values.put(COLUMN_MACADD, en.encryptString(macAddress));
-        values.put(COLUMN_PWD, en.encryptString(Integer.toString(1)));
-        long newRowId = getDbHelper().WRITE.insert(Password.TABLE_NAME, null, values);
+        values.put(COLUMN_PWD, 1);
+        long newRowId = getDbHelper().WRITE.insert(PasswordSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
 }
