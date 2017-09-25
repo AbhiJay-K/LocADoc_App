@@ -11,7 +11,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 @DynamoDBTable(tableName = "password")
 public class Password {
     private String user;
-    private String passwordid;
+    private int passwordid;
     private String password;
     private String salt;
 
@@ -25,11 +25,11 @@ public class Password {
     }
 
     @DynamoDBAttribute(attributeName = "passwordid")
-    public String getPasswordid() {
+    public int getPasswordid() {
         return passwordid;
     }
 
-    public void setPasswordid(String passwordid) {
+    public void setPasswordid(int passwordid) {
         this.passwordid = passwordid;
     }
 

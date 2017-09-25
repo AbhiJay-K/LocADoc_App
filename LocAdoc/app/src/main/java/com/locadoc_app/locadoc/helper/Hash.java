@@ -10,13 +10,22 @@ import java.security.SecureRandom;
  */
 
 public class Hash {
-    public  static String SecureRandomGen()
+    public static String SecureRandomGen()
     {
-        SecureRandom random = new SecureRandom();
-        byte bytes[] = new byte[20];
-        random.nextBytes(bytes);
-        byte seed[] = random.generateSeed(20);
-        return new String(seed);
+        String Result = new String();
+        try {
+            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+            byte[] salt = new byte[20];
+            sr.nextBytes(salt);
+            for (int i = 0; i < 20; i++) {
+                Result += (salt[i] & 0x00FF);
+                System.out.print(" ");
+            }
+        }
+        catch (Exception cnse) {
+            cnse.printStackTrace();
+        }
+        return Result;
     }
     public static String Hash(String StrTObeHashed,String salt)
     {

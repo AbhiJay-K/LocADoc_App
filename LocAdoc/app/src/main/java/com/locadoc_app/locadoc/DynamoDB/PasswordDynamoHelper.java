@@ -1,68 +1,67 @@
 package com.locadoc_app.locadoc.DynamoDB;
 
-
 import android.os.AsyncTask;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
-import com.locadoc_app.locadoc.Model.User;
+import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;
 
 /**
  * Created by Admin on 9/25/2017.
  */
 
-public class UserDynamoHelper {
-    private static UserDynamoHelper helper;
+public class PasswordDynamoHelper {
+    private static PasswordDynamoHelper helper;
 
-    private UserDynamoHelper() {}
+    private PasswordDynamoHelper() {}
 
-    public static UserDynamoHelper getInstance()
+    public static PasswordDynamoHelper getInstance()
     {
         if(helper == null)
         {
-            helper = new UserDynamoHelper();
+            helper = new PasswordDynamoHelper();
         }
 
         return helper;
     }
 
     // insert and update
-    public void insert(User user)
+    public void insert(Password password)
     {
         OperationType operation = OperationType.INSERT;
-        new DynamoDBTask().execute(operation, user);
+        new DynamoDBTask().execute(operation, password);
     }
 
     // call using thread
-    public void insertToDB(User user)
+    public void insertToDB(Password password)
     {
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        mapper.save(user);
+        mapper.save(password);
     }
 
-    public void delete (User user)
+    public void delete (Password password)
     {
         OperationType operation = OperationType.DELETE;
-        new DynamoDBTask().execute(operation, user);
+        new DynamoDBTask().execute(operation, password);
     }
 
-    public void deleteFromDB (User user)
+    public void deleteFromDB (Password password)
     {
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        mapper.delete(user);
+        mapper.delete(password);
     }
 
-    public void getUser(String id)
+    public void getPassword(String id)
     {
         OperationType operation = OperationType.GET_RECORD;
         new DynamoDBTask().execute(operation, id);
     }
 
-    public User getUserFromDB(String id)
+    public Password getPasswordFromDB(String id)
     {
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        User user = mapper.load(User.class, id);
-        return user;
+        Password password = mapper.load(Password.class, id);
+        return password;
     }
 
     private class DynamoDBTask extends
@@ -72,14 +71,14 @@ public class UserDynamoHelper {
             OperationType operation = (OperationType) objects[0];
 
             if (operation == OperationType.INSERT) {
-                User user = (User) objects[1];
-                insertToDB(user);
+                Password password = (Password) objects[1];
+                insertToDB(password);
             } else if (operation == OperationType.DELETE) {
-                User user = (User) objects[1];
-                deleteFromDB(user);
+                Password password = (Password) objects[1];
+                deleteFromDB(password);
             } else if (operation == OperationType.GET_RECORD) {
                 String id = (String) objects[1];
-                getUserFromDB(id);
+                getPasswordFromDB(id);
             }
 
             return null;

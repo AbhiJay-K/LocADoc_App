@@ -11,12 +11,12 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 @DynamoDBTable(tableName = "file")
 public class File {
     private String user;
-    private String fileid;
+    private int fileid;
     private String currentfilename;
     private String originalfilename;
     private String modified;
-    private String passwordid;
-    private String areaid;
+    private int passwordid;
+    private int areaid;
 
     @DynamoDBHashKey(attributeName = "user")
     public String getUser() {
@@ -29,11 +29,11 @@ public class File {
 
 
     @DynamoDBAttribute(attributeName = "fileid")
-    public String getFileId() {
+    public int getFileId() {
         return fileid;
     }
 
-    public void setFileId(String fileid) {
+    public void setFileId(int fileid) {
         this.fileid = fileid;
     }
 
@@ -65,20 +65,20 @@ public class File {
     }
 
     @DynamoDBAttribute(attributeName = "passwordid")
-    public String getPasswordId() {
+    public int getPasswordId() {
         return passwordid;
     }
 
-    public void setPasswordId(String passwordid) {
+    public void setPasswordId(int passwordid) {
         this.passwordid = passwordid;
     }
 
     @DynamoDBAttribute(attributeName = "areaid")
-    public String getAreaId() {
+    public int getAreaId() {
         return areaid;
     }
 
-    public void setAreaId(String areaid) {
+    public void setAreaId(int areaid) {
         this.areaid = areaid;
     }
 }
