@@ -56,8 +56,4 @@ public class PasswordSQLHelper implements BaseColumns {
         pwd.setSalt(crs.getString(crs.getColumnIndex("salt")));
         return pwd;
     }
-    public static void updateRecord(Password pwd)
-    {
-
-    }
 }
