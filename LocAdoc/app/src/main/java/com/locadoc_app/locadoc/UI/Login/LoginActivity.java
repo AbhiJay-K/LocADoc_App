@@ -138,11 +138,11 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
                     int result = data.getIntExtra("result", -1);
                     if(result == 0)
                     {
-                       showDialogMessage("Password Recovery","Recovery success");
+                       showDialogMessage("PasswordSQLHelper Recovery","Recovery success");
                     }
                     else
                     {
-                        showDialogMessage("Password Recovery","Recovery failed");
+                        showDialogMessage("PasswordSQLHelper Recovery","Recovery failed");
                     }
                     break;
                 case 6:
