@@ -15,7 +15,6 @@ public class Area {
     private String longitude;
     private String latitude;
     private String radius;
-    private String adminarea;
 
     @DynamoDBHashKey(attributeName = "user")
     public String getOwner() {
@@ -60,14 +59,5 @@ public class Area {
 
     public void setRadius(String radius) {
         this.radius = radius;
-    }
-
-    @DynamoDBAttribute(attributeName = "adminarea")
-    public String getAdminArea() {
-        return adminarea;
-    }
-
-    public void setAdminArea(String adminarea) {
-        this.adminarea = adminarea;
     }
 }
