@@ -1,68 +1,67 @@
 package com.locadoc_app.locadoc.DynamoDB;
 
-
 import android.os.AsyncTask;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
-import com.locadoc_app.locadoc.Model.User;
+import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;
 
 /**
  * Created by Admin on 9/25/2017.
  */
 
-public class UserDynamoHelper {
-    private static UserDynamoHelper helper;
+public class FileDynamoHelper {
+    private static FileDynamoHelper helper;
 
-    private UserDynamoHelper() {}
+    private FileDynamoHelper() {}
 
-    public static UserDynamoHelper getInstance()
+    public static FileDynamoHelper getInstance()
     {
         if(helper == null)
         {
-            helper = new UserDynamoHelper();
+            helper = new FileDynamoHelper();
         }
 
         return helper;
     }
 
     // insert and update
-    public void insert(User user)
+    public void insert(File file)
     {
         OperationType operation = OperationType.INSERT;
-        new DynamoDBTask().execute(operation, user);
+        new DynamoDBTask().execute(operation, file);
     }
 
     // call using thread
-    public void insertToDB(User user)
+    public void insertToDB(File file)
     {
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        mapper.save(user);
+        mapper.save(file);
     }
 
-    public void delete (User user)
+    public void delete (File file)
     {
         OperationType operation = OperationType.DELETE;
-        new DynamoDBTask().execute(operation, user);
+        new DynamoDBTask().execute(operation, file);
     }
 
-    public void deleteFromDB (User user)
+    public void deleteFromDB (File file)
     {
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        mapper.delete(user);
+        mapper.delete(file);
     }
 
-    public void getUser(String id)
+    public void getFile(String id)
     {
         OperationType operation = OperationType.GET_RECORD;
         new DynamoDBTask().execute(operation, id);
     }
 
-    public User getUserFromDB(String id)
+    public File getFileFromDB(String id)
     {
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        User user = mapper.load(User.class, id);
-        return user;
+        File file = mapper.load(File.class, id);
+        return file;
     }
 
     private class DynamoDBTask extends
@@ -72,14 +71,14 @@ public class UserDynamoHelper {
             OperationType operation = (OperationType) objects[0];
 
             if (operation == OperationType.INSERT) {
-                User user = (User) objects[1];
-                insertToDB(user);
+                File file = (File) objects[1];
+                insertToDB(file);
             } else if (operation == OperationType.DELETE) {
-                User user = (User) objects[1];
-                deleteFromDB(user);
+                File file = (File) objects[1];
+                deleteFromDB(file);
             } else if (operation == OperationType.GET_RECORD) {
                 String id = (String) objects[1];
-                getUserFromDB(id);
+                getFileFromDB(id);
             }
 
             return null;
