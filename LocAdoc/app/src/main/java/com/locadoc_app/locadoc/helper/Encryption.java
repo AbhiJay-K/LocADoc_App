@@ -146,7 +146,6 @@ public class Encryption {
 		
 		return pText;
 	}
-	
 	public static void main (String[] args)
 	{
 		Encryption e = Encryption.getInstance("pass123", "12364");

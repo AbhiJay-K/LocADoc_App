@@ -1,14 +1,12 @@
-package com.locadoc_app.locadoc.Model;
+package com.locadoc_app.locadoc.LocalDB;
 
 import android.provider.BaseColumns;
-
-import com.locadoc_app.locadoc.LocalDB.DBHelper;
 
 /**
  * Created by AbhiJay_PC on 22/9/2017.
  */
 
-public class File implements BaseColumns {
+public class FileSQLHelper implements BaseColumns {
     public static final String TABLE_NAME = "file";
     public static final String COLUMN_CURRENT_NAME = "currentfilename";
     public static final String COLUMN_ORIGINAL_NAME = "originalfilename";
@@ -21,7 +19,7 @@ public class File implements BaseColumns {
     private static DBHelper dbHelper;
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + " (" +
-            _ID + " TEXT PRIMARY KEY AUTOINCREMENT, "+
+            _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
             COLUMN_CURRENT_NAME + " TEXT, " +
             COLUMN_ORIGINAL_NAME + " TEXT, " +
             COLUMN_LONGITUDE_CREATED + " TEXT, " +
@@ -30,9 +28,9 @@ public class File implements BaseColumns {
             COLUMN_MODIFIED + " INTEGER, " +
             COLUMN_PWD + " INTEGER, " +
             COLUMN_AREA + " INTEGER, "+
-            " FOREIGN KEY ("+COLUMN_PWD+") REFERENCES "+Password.TABLE_NAME+"("+ Password._ID +
+            " FOREIGN KEY ("+COLUMN_PWD+") REFERENCES "+ Password.TABLE_NAME+"("+ Password._ID +
             "), " +
-            " FOREIGN KEY ("+COLUMN_AREA+") REFERENCES "+Area.TABLE_NAME+"("+ Area._ID +
+            " FOREIGN KEY ("+COLUMN_AREA+") REFERENCES "+ AreaSQLHelper.TABLE_NAME+"("+ AreaSQLHelper._ID +
             ")) ";
     public static DBHelper getDbHelper() {
         return dbHelper;

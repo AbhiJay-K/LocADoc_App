@@ -8,8 +8,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <activity
         android:name="com.apkgetter.SearchResultsActivity"
         android:label="@string/app_name"
@@ -36,15 +37,16 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
         <activity
             android:name=".UI.Login.LoginActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".UI.Signup.SignUp"
             android:label="@string/title_activity_sign_up" />
@@ -76,13 +78,13 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name=".UI.PasswordRecovery.PasswordRecovery"
-            android:label="@string/app_name"/>
+        <activity
+            android:name=".UI.PasswordRecovery.PasswordRecovery"
+            android:label="@string/app_name" />
         <activity
             android:name=".UI.HomePage.HomePageActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -95,6 +97,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/LocAdoc_GoogleAPIKey" />
 
+        <activity android:name=".UI.TestDataBase">
+
+        </activity>
     </application>
 
 </manifest>
