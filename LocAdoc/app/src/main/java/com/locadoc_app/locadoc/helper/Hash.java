@@ -20,10 +20,10 @@ public class Hash {
     }
     public static String Hash(String StrTObeHashed,String salt)
     {
-        String data = StrTObeHashed + salt;
         MessageDigest digest;
         byte[] hash = new byte[]{0};
         try {
+            String data = StrTObeHashed + salt;
             digest = MessageDigest.getInstance("SHA-256");
             hash = digest.digest(data.getBytes("UTF-8"));
         } catch (Exception cnse) {
