@@ -28,6 +28,7 @@ dependencies {
 
     // AWS
     // google map
+    compile 'commons-codec:commons-codec:1.3'
     compile 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.2'
     compile 'com.amazonaws:aws-android-sdk-ddb-mapper:2.6.2'
     compile 'com.android.support:appcompat-v7:25.3.1'

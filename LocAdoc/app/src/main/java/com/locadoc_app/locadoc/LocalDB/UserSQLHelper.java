@@ -3,6 +3,7 @@ package com.locadoc_app.locadoc.LocalDB;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.Encryption;
@@ -79,6 +80,8 @@ public class UserSQLHelper implements BaseColumns{
         crs2.moveToFirst();
         String password1 = crs2.getString(crs2.getColumnIndex("password"));
         String salt = crs2.getString(crs2.getColumnIndex("salt"));
+        Log.d(" password error " ,password1);
+        Log.d(" salt error " ,salt);
         Encryption en = Encryption.getInstance(password1,salt);
         user.setUser(email);
         user.setFirstname(en.decrypttString(fn));
