@@ -15,8 +15,8 @@ public class User {
     private String lastname;
     private String loggedin;
     private String macaddress;
-    private int passwordid;
-    private int adminareaid;
+    private String passwordid;
+    private String adminareaid;
 
     @DynamoDBHashKey(attributeName = "user")
     public String getUser() {
@@ -64,20 +64,20 @@ public class User {
     }
 
     @DynamoDBAttribute(attributeName = "passwordid")
-    public int getPasswordid() {
+    public String getPasswordid() {
         return passwordid;
     }
 
-    public void setPasswordid(int passwordid) {
+    public void setPasswordid(String passwordid) {
         this.passwordid = passwordid;
     }
 
     @DynamoDBAttribute(attributeName = "adminareaid")
-    public int getAdminareaid() {
+    public String getAdminareaid() {
         return adminareaid;
     }
 
-    public void setAdminareaid(int adminareaid) {
+    public void setAdminareaid(String adminareaid) {
         this.adminareaid = adminareaid;
     }
 }
