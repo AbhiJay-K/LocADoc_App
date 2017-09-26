@@ -2,6 +2,8 @@ package com.locadoc_app.locadoc.Model;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
 /**
@@ -24,7 +26,7 @@ public class Password {
         this.user = user;
     }
 
-    @DynamoDBAttribute(attributeName = "passwordid")
+    @DynamoDBHashKey(attributeName = "passwordid")
     public int getPasswordid() {
         return passwordid;
     }

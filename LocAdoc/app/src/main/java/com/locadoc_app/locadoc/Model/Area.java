@@ -25,7 +25,7 @@ public class Area {
         this.user = user;
     }
 
-    @DynamoDBAttribute(attributeName = "areaid")
+    @DynamoDBHashKey(attributeName = "areaid")
     public int getAreaId() {
         return areaid;
     }

@@ -2,7 +2,9 @@ package com.locadoc_app.locadoc.DynamoDB;
 
 
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;

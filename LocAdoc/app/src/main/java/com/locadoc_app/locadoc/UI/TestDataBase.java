@@ -31,7 +31,7 @@ public class TestDataBase extends AppCompatActivity {
         long l = PasswordSQLHelper.insert(p);
         Log.d("Password added ",Long.toString(l));
 
-        String password1 = crs.getString(crs.getColumnIndex("password"));
+        /*String password1 = crs.getString(crs.getColumnIndex("password"));
         String salt1 = crs.getString(crs.getColumnIndex("salt"));
         Log.d("testing _ID", Integer.toString(crs.getInt(crs.getColumnIndex("_id"))));
         Log.d("testing password",password1);
@@ -82,6 +82,6 @@ public class TestDataBase extends AppCompatActivity {
         //String password2 = crs.getString(crs.getColumnIndex("password"));
         //String salt2 = crs.getString(crs.getColumnIndex("salt"));
         //Log.d("DB test",Long.toString(l));
-        //Log.d("DB test",password2 + " " + salt2);
+        //Log.d("DB test",password2 + " " + salt2);*/
     }
 }

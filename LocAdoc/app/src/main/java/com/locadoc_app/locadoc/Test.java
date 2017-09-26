@@ -2,10 +2,14 @@ package com.locadoc_app.locadoc;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
+import com.amazonaws.AmazonServiceException;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper;
+import com.locadoc_app.locadoc.DynamoDB.PasswordDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.UserDynamoHelper;
+import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 
 public class Test extends AppCompatActivity {
@@ -19,12 +23,14 @@ public class Test extends AppCompatActivity {
         Bundle extra = getIntent().getExtras();
         username = extra.getString("name");
         DynamoDBHelper.init(getApplicationContext());
-        //test();
+
+            test();
+
     }
 
     public static void test()
     {
-        User user = new User();
+        /*User user = new User();
         user.setUser(username);
         user.setFirstname("hoho");
         user.setLastname("hehe");
@@ -32,6 +38,12 @@ public class Test extends AppCompatActivity {
         user.setLoggedin("hmm");
         user.setMacaddress("AE:ED:...:FE");
         user.setPasswordid("pass747");
-        UserDynamoHelper.getInstance().insert(user);
+        UserDynamoHelper.getInstance().insert(user);*/
+        Password pass = new Password();
+        pass.setUser(username);
+        pass.setPassword("passwworD123");
+        pass.setPasswordid(9);
+        pass.setSalt("oiyhnin98354n");
+        PasswordDynamoHelper.getInstance().insert(pass);
     }
 }

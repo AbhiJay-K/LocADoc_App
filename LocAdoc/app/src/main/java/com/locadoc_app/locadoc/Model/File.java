@@ -28,7 +28,7 @@ public class File {
     }
 
 
-    @DynamoDBAttribute(attributeName = "fileid")
+    @DynamoDBHashKey(attributeName = "fileid")
     public int getFileId() {
         return fileid;
     }
