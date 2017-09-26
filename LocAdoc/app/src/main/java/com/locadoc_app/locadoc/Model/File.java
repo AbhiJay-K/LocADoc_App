@@ -27,7 +27,6 @@ public class File {
         this.user = user;
     }
 
-
     @DynamoDBHashKey(attributeName = "fileid")
     public int getFileId() {
         return fileid;

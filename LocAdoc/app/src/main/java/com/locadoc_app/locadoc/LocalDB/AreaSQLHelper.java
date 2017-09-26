@@ -17,7 +17,7 @@ public class AreaSQLHelper implements BaseColumns {
             _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_LONGITUDE + " TEXT, " +
             COLUMN_LATITUDE + " TEXT, " +
-            COLUMN_RADIUS + " TEXT " +
+            COLUMN_RADIUS + " TEXT, " +
             ")";
     public static DBHelper getDbHelper() {
         return dbHelper;

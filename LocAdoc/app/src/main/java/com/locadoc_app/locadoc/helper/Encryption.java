@@ -1,6 +1,7 @@
 package com.locadoc_app.locadoc.helper;
 
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -133,13 +134,14 @@ public class Encryption {
 		String pText = "";
 		try
 		{
-
 			byte[] b = input.substring(0, 24).getBytes("UTF-8");
-			byte[] iv = Base64.encodeToString(b,Base64.DEFAULT).getBytes("UTF-8");
-			IvParameterSpec ivspec = new IvParameterSpec(iv);
+			byte[] iv = Base64.decode(b,Base64.DEFAULT);
+			Log.d("IV size ",Integer.toString(iv.length));
+			Log.d("B size ",Integer.toString(b.length));
+			IvParameterSpec ivspec = new IvParameterSpec(iv,0,16);
 			AES.init(Cipher.DECRYPT_MODE, key, ivspec);
 			input = input.substring(24);
-	        byte[] result = AES.doFinal(Base64.encodeToString(input.getBytes("UTF-8"),Base64.DEFAULT).getBytes("UTF-8"));
+	        byte[] result = AES.doFinal(Base64.decode(input.getBytes(),Base64.DEFAULT));
 	        pText = new String(result);
 		}
 		catch (Exception e) {e.printStackTrace();}

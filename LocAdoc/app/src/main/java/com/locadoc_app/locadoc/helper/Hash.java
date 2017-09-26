@@ -10,29 +10,20 @@ import java.security.SecureRandom;
  */
 
 public class Hash {
-    public static String SecureRandomGen()
+    public  static String SecureRandomGen()
     {
-        String Result = new String();
-        try {
-            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-            byte[] salt = new byte[20];
-            sr.nextBytes(salt);
-            for (int i = 0; i < 20; i++) {
-                Result += (salt[i] & 0x00FF);
-                System.out.print(" ");
-            }
-        }
-        catch (Exception cnse) {
-            cnse.printStackTrace();
-        }
-        return Result;
+        SecureRandom random = new SecureRandom();
+        byte bytes[] = new byte[20];
+        random.nextBytes(bytes);
+        byte seed[] = random.generateSeed(20);
+        return new String(seed);
     }
     public static String Hash(String StrTObeHashed,String salt)
     {
-        String data = StrTObeHashed + salt;
         MessageDigest digest;
         byte[] hash = new byte[]{0};
         try {
+            String data = StrTObeHashed + salt;
             digest = MessageDigest.getInstance("SHA-256");
             hash = digest.digest(data.getBytes("UTF-8"));
         } catch (Exception cnse) {

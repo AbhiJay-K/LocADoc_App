@@ -30,7 +30,7 @@ public class Area {
         return areaid;
     }
 
-    public void setAreaId(int areaId) {
+    public void setAreaId(int areaid) {
         this.areaid = areaid;
     }
 

@@ -1,11 +1,8 @@
 package com.locadoc_app.locadoc;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-
-import com.amazonaws.AmazonServiceException;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
+import android.support.v7.app.AppCompatActivity;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper;
 import com.locadoc_app.locadoc.DynamoDB.PasswordDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.UserDynamoHelper;
@@ -34,10 +31,10 @@ public class Test extends AppCompatActivity {
         user.setUser(username);
         user.setFirstname("hoho");
         user.setLastname("hehe");
-        user.setAdminareaid("area363");
+        user.setAdminareaid(1);
         user.setLoggedin("hmm");
         user.setMacaddress("AE:ED:...:FE");
-        user.setPasswordid("pass747");
+        user.setPasswordid(1);
         UserDynamoHelper.getInstance().insert(user);*/
         Password pass = new Password();
         pass.setUser(username);
