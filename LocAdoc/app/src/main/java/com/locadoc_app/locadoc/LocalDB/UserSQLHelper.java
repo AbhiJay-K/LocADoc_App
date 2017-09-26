@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.Encryption;
 
 /**
@@ -41,7 +42,7 @@ public class UserSQLHelper implements BaseColumns{
     public static void setDbHelper(DBHelper Helper) {
         dbHelper = Helper;
     }
-    public static long insert(String email,String firstname,String lastname,int logedin,String macAddress,int password)
+    public static long insert(User usr)
     {
         ContentValues values = new ContentValues();
         String[] args={"1"};
@@ -49,7 +50,6 @@ public class UserSQLHelper implements BaseColumns{
         String password1 = crs.getString(crs.getColumnIndex("password"));
         String salt = crs.getString(crs.getColumnIndex("salt"));
         Encryption en = Encryption.getInstance(password1,salt);
-<<<<<<< HEAD
         values.put(UserSQLHelper.COLUMN_EMAIL, usr.getUser());
         values.put(UserSQLHelper.COLUMN_FIRST_NAME, en.encryptString(usr.getFirstname()));
         values.put(UserSQLHelper.COLUMN_LAST_NAME, en.encryptString(usr.getLastname()));
@@ -108,15 +108,6 @@ public class UserSQLHelper implements BaseColumns{
         values.put(UserSQLHelper.COLUMN_PWD, 1);
         values.putNull(COLUMN_AREA);
         long newRowId = UserSQLHelper.getDbHelper().WRITE.update(UserSQLHelper.TABLE_NAME,values, "email="+usr.getUser(), null);
-=======
-        values.put(COLUMN_EMAIL, email);
-        values.put(COLUMN_FIRST_NAME, en.encryptString(firstname));
-        values.put(COLUMN_LAST_NAME, en.encryptString(lastname));
-        values.put(COLUMN_LOGEDIN, en.encryptString(Integer.toString(logedin)));
-        values.put(COLUMN_MACADD, en.encryptString(macAddress));
-        values.put(COLUMN_PWD, 1);
-        long newRowId = getDbHelper().WRITE.insert(PasswordSQLHelper.TABLE_NAME, null, values);
->>>>>>> 6c510c6c0f4f5120dc6251be8be1b1155d990fc0
         return newRowId;
     }
 }
