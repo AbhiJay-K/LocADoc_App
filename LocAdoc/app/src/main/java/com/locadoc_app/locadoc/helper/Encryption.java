@@ -135,13 +135,13 @@ public class Encryption {
 		try
 		{
 			byte[] b = input.substring(0, 24).getBytes("UTF-8");
-			byte[] iv = Base64.encode(b,Base64.DEFAULT);
+			byte[] iv = Base64.decode(b,Base64.DEFAULT);
 			Log.d("IV size ",Integer.toString(iv.length));
 			Log.d("B size ",Integer.toString(b.length));
 			IvParameterSpec ivspec = new IvParameterSpec(iv,0,16);
 			AES.init(Cipher.DECRYPT_MODE, key, ivspec);
 			input = input.substring(24);
-	        byte[] result = AES.doFinal(input.getBytes());
+	        byte[] result = AES.doFinal(Base64.decode(input.getBytes(),Base64.DEFAULT));
 	        pText = new String(result);
 		}
 		catch (Exception e) {e.printStackTrace();}
