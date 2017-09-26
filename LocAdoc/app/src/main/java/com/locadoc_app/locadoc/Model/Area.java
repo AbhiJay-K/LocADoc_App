@@ -11,7 +11,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 @DynamoDBTable(tableName = "area")
 public class Area {
     private String user;
-    private int areaid;
+    private String areaid;
     private String longitude;
     private String latitude;
     private String radius;
@@ -26,11 +26,11 @@ public class Area {
     }
 
     @DynamoDBAttribute(attributeName = "areaid")
-    public int getAreaId() {
+    public String getAreaId() {
         return areaid;
     }
 
-    public void setAreaId(int areaId) {
+    public void setAreaId(String areaId) {
         this.areaid = areaid;
     }
 

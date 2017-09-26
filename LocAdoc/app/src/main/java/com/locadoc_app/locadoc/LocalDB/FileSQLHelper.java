@@ -32,5 +32,4 @@ public class FileSQLHelper implements BaseColumns {
     public static void setDbHelper(DBHelper Helper) {
         dbHelper = Helper;
     }
-
 }
