@@ -1,17 +1,13 @@
 package com.locadoc_app.locadoc.LocalDB;
 
-import android.content.ContentValues;
 import android.provider.BaseColumns;
-
-import com.locadoc_app.locadoc.helper.Encryption;
-import com.locadoc_app.locadoc.helper.Hash;
 
 /**
  * Created by AbhiJay_PC on 22/9/2017.
  */
 
 public class PasswordSQLHelper implements BaseColumns {
-    public static final String TABLE_NAME = "password";
+    /*public static final String TABLE_NAME = "password";
     public static final String COLUMN_PWD = "password";
     public static final String COLUMN_SALT = "salt";
     private static DBHelper dbHelper;
@@ -30,14 +26,35 @@ public class PasswordSQLHelper implements BaseColumns {
         dbHelper = Helper;
     }
 
-    public static long insert(String password)
+    public static long insert(Password password)
     {
         ContentValues values = new ContentValues();
         String salt = Hash.SecureRandomGen();
-        String PasswordDigest = Hash.Hash(password,salt);
+        password.setSalt(salt);
+        String PasswordDigest = Hash.Hash(password.getPassword(),password.getSalt());
+        password.setPassword(PasswordDigest);
         values.put(PasswordSQLHelper.COLUMN_SALT, salt);
         values.put(PasswordSQLHelper.COLUMN_PWD, PasswordDigest);
-        long newRowId = getDbHelper().WRITE.insert(PasswordSQLHelper.TABLE_NAME, null, values);
+        long newRowId = PasswordSQLHelper.getDbHelper().WRITE.insert(PasswordSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
+    public static Password getRecord(int id)
+    {
+        Password pwd = new Password();
+        String [] args = {String.valueOf(id)};
+        Cursor crs = PasswordSQLHelper.getDbHelper().READ.rawQuery("SELECT * FROM password WHERE _id = ?", args);
+        crs.moveToFirst();
+        pwd.setPasswordid(crs.getInt(crs.getColumnIndex("_id")));
+        pwd.setPassword(crs.getString(crs.getColumnIndex("password")));
+        pwd.setSalt(crs.getString(crs.getColumnIndex("salt")));
+        return pwd;
+    }
+    public static long getNumberofRecords()
+    {
+        String countQuery = "SELECT  * FROM " + PasswordSQLHelper.TABLE_NAME;
+        Cursor cursor = dbHelper.READ.rawQuery(countQuery, null);
+        int cnt = cursor.getCount();
+        cursor.close();
+        return cnt;
+    }*/
 }
