@@ -1,7 +1,9 @@
 package com.locadoc_app.locadoc.DynamoDB;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;
@@ -36,7 +38,11 @@ public class PasswordDynamoHelper {
     public void insertToDB(Password password)
     {
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        mapper.save(password);
+        try{
+            mapper.save(password);
+        }catch (AmazonServiceException ex){
+            Log.e("LocAdoc", "Error: " + ex);
+        }
     }
 
     public void delete (Password password)

@@ -44,4 +44,8 @@ public class DynamoDBHelper {
         ddb.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
         mapper = DynamoDBMapper.builder().dynamoDBClient(ddb).build();
     }
+
+    public enum OperationType {
+        INSERT, DELETE, GET_RECORD
+    }
 }

@@ -2,6 +2,8 @@ package com.locadoc_app.locadoc.Model;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
 /**
@@ -11,7 +13,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 @DynamoDBTable(tableName = "password")
 public class Password {
     private String user;
-    private String passwordid;
+    private int passwordid;
     private String password;
     private String salt;
 
@@ -24,12 +26,12 @@ public class Password {
         this.user = user;
     }
 
-    @DynamoDBAttribute(attributeName = "passwordid")
-    public String getPasswordid() {
+    @DynamoDBHashKey(attributeName = "passwordid")
+    public int getPasswordid() {
         return passwordid;
     }
 
-    public void setPasswordid(String passwordid) {
+    public void setPasswordid(int passwordid) {
         this.passwordid = passwordid;
     }
 

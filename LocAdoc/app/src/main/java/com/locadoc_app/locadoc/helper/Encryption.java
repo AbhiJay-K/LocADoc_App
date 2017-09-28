@@ -51,7 +51,7 @@ public class Encryption {
 			key = new SecretKeySpec(tmp.getEncoded(), "AES");
 		} catch (Exception e)
 		{
-			
+			e.printStackTrace();
 		}
 	}
 	
@@ -121,7 +121,7 @@ public class Encryption {
 		{
 			AES.init(Cipher.ENCRYPT_MODE, key, ivspec);
 			
-			byte[] result = AES.doFinal(input.getBytes());
+			byte[] result = AES.doFinal(input.getBytes("UTF-8"));
 			cText += Base64.encodeToString(result, Base64.DEFAULT);
 		}
 		catch (Exception e) {}
@@ -138,10 +138,10 @@ public class Encryption {
 			byte[] iv = Base64.decode(b,Base64.DEFAULT);
 			Log.d("IV size ",Integer.toString(iv.length));
 			Log.d("B size ",Integer.toString(b.length));
-			IvParameterSpec ivspec = new IvParameterSpec(iv,0,16);
+			IvParameterSpec ivspec = new IvParameterSpec(iv);
 			AES.init(Cipher.DECRYPT_MODE, key, ivspec);
 			input = input.substring(24);
-	        byte[] result = AES.doFinal(Base64.decode(input.getBytes(),Base64.DEFAULT));
+	        byte[] result = AES.doFinal(Base64.decode(input.getBytes("UTF-8"),Base64.DEFAULT));
 	        pText = new String(result);
 		}
 		catch (Exception e) {e.printStackTrace();}
