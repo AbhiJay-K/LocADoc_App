@@ -79,15 +79,12 @@
         <activity
             android:name=".UI.HomePage.HomePageActivity"
             android:label="@string/app_name"
-<<<<<<< HEAD
+
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity android:name=".UI.Setting.SettingActivity"
                   android:label="LocAdoc"
                   android:theme="@style/AppTheme.NoActionBar"/>
-=======
-            android:theme="@style/AppTheme.NoActionBar" />
->>>>>>> 922cef7341bced4268ce9f184ed2db087ee4262a
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
