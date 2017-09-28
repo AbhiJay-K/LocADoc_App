@@ -16,14 +16,19 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="142dp">
+            android:layout_height="142dp"
+            >
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
             <TextView
                 android:id="@+id/profile_text"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
+                android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
                 android:background="@drawable/profile_bg"
                 android:gravity="center"
                 android:text="AJK"
@@ -34,9 +39,19 @@
                 android:id="@+id/profile_usrName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_above="@+id/profile_usrEmail"
+                android:layout_centerHorizontal="true"
+                android:text="TextView for User Name"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/profile_usrEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:text="This is a text for usrName"/>
+                android:text="TextView for User Email"/>
 
         </RelativeLayout>
 
