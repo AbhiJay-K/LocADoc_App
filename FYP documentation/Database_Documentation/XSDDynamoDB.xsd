@@ -23,57 +23,41 @@
 				</xsd:element>
 				<xsd:element name="MacAddress" type="xsd:string"/>
 				<xsd:element name="LogedIn" type="xsd:boolean"/>
-				<xsd:element name="Admin_Area">
+				<xsd:element name="Area">
 					<xsd:complexType>
 						<xsd:sequence>
-							<xsd:element name="AreaID" type="xsd:string"/>
-							<xsd:element name="Longitude" type="xsd:decimal"/>
-							<xsd:element name="Latitude" type="xsd:decimal"/>
-							<xsd:element name="Radius" type="xsd:decimal"/>
-						</xsd:sequence>
-					</xsd:complexType>
-					<xsd:key name="PK_AdminArea">
-						<xsd:selector xpath="User/Administrative_Area"/>
-						<xsd:field xpath="AreaID"/>
-					</xsd:key>
-				</xsd:element>
-				<xsd:element name="File">
-					<xsd:complexType>
-						<xsd:sequence>
-							<xsd:element name="CurrentFileName" type="xsd:string" maxOccurs="1"/>
-							<xsd:element name="OriginalFileName" type="xsd:string" maxOccurs="1"/>
-							<xsd:element name="LongitudeCreated" type="xsd:decimal" maxOccurs="1"/>
-							<xsd:element name="LatitudeCreated" type="xsd:decimal" maxOccurs="1"/>
-							<xsd:element name="PwdDigest" type="xsd:string"/>
-							<xsd:element name="BackedUp" type="xsd:string"/>
-							<xsd:element name="Password">
+							<xsd:element name="AreaID" type="xsd:integer"/>
+							<xsd:element name="Longitude" type="xsd:string"/>
+							<xsd:element name="Latitude" type="xsd:string"/>
+							<xsd:element name="Radius" type="xsd:string"/>
+							<xsd:element name="File">
 								<xsd:complexType>
 									<xsd:sequence>
-										<xsd:element name="PasswordID" type="xsd:string"/>
-										<xsd:element name="pwd" type="xsd:string"/>
-										<xsd:element name="salt" type="xsd:string"/>
+										<xsd:element name="FileID" type="xsd:integer"/>
+										<xsd:element name="CurrentFileName" type="xsd:string" maxOccurs="1"/>
+										<xsd:element name="OriginalFileName" type="xsd:string" maxOccurs="1"/>
+										<xsd:element name="BackedUp" type="xsd:string"/>
+										<xsd:element name="Password">
+											<xsd:complexType>
+												<xsd:sequence>
+													<xsd:element name="PasswordID" type="xsd:integer"/>
+													<xsd:element name="pwd" type="xsd:string"/>
+													<xsd:element name="salt" type="xsd:string"/>
+												</xsd:sequence>
+											</xsd:complexType>
+										</xsd:element>
 									</xsd:sequence>
 								</xsd:complexType>
-							</xsd:element>
-							<xsd:element name="Area">
-								<xsd:complexType>
-									<xsd:sequence>
-										<xsd:element name="AreaID" type="xsd:string"/>
-										<xsd:element name="Longitude" type="xsd:decimal"/>
-										<xsd:element name="Latitude" type="xsd:decimal"/>
-										<xsd:element name="Radius" type="xsd:decimal"/>
-									</xsd:sequence>
-								</xsd:complexType>
-								<xsd:key name="PK_AREA">
-									<xsd:selector xpath="User/File/Area"/>
-									<xsd:field xpath="AreaID"/>
+								<xsd:key name="PK_File">
+									<xsd:selector xpath="User/File"/>
+									<xsd:field xpath="CurrentFileName"/>
 								</xsd:key>
 							</xsd:element>
 						</xsd:sequence>
 					</xsd:complexType>
-					<xsd:key name="PK_File">
-						<xsd:selector xpath="User/File"/>
-						<xsd:field xpath="CurrentFileName"/>
+					<xsd:key name="PK_AREA">
+						<xsd:selector xpath="User/File/Area"/>
+						<xsd:field xpath="AreaID"/>
 					</xsd:key>
 				</xsd:element>
 			</xsd:sequence>
