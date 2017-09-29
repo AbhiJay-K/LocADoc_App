@@ -1,19 +1,23 @@
 package com.locadoc_app.locadoc.UI.Setting;
 
+import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.locadoc_app.locadoc.R;
 
-public class SettingActivity extends AppCompatActivity {
+import static com.locadoc_app.locadoc.R.id.setting_menuList;
 
-    private ListView settingListView;
+public class SettingActivity extends AppCompatActivity  {
+
+    private ListView listView;
     private String userName;
     private TextView text_userName;
     String[] settingMenuListArray = {"Phone Number", "Password", "Set Administration Area", "Backup", "Delete Account"};
@@ -26,10 +30,9 @@ public class SettingActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.setting_toolbar);
         setSupportActionBar(toolbar);
 
-        //settingListView = (ListView) findViewById(R.id.setting_menuList);
-
-        //ArrayAdapter adapter = new ArrayAdapter<String>(this, R.layout.content_settings, settingMenuListArray);
-        //settingListView.setAdapter(adapter);
+        ArrayAdapter adapter = new ArrayAdapter<String>(this, R.layout.item_settings, R.id.textViewList, settingMenuListArray); 	// textViewList is in itemSettings
+        ListView listView = (ListView) findViewById(setting_menuList);
+        listView.setAdapter(adapter);
 
         Bundle extras = getIntent().getExtras();
         if (extras !=null) {
@@ -38,7 +41,7 @@ public class SettingActivity extends AppCompatActivity {
             }
         }
 
-        text_userName = (TextView) findViewById(R.id.profile_usrName);
+        text_userName = (TextView) findViewById(R.id.profile_usrEmail);
         text_userName.setText(userName);
     }
 
@@ -61,6 +64,11 @@ public class SettingActivity extends AppCompatActivity {
         }
 
     }
+
+
+    /********** View List Method **********/
+
+
 
     /*
     @Override

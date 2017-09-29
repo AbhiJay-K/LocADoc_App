@@ -2,6 +2,8 @@ package com.locadoc_app.locadoc.Model;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexRangeKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
 /**
@@ -10,6 +12,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
 @DynamoDBTable(tableName = "user")
 public class User {
+    private String identity;
     private String user;
     private String firstname;
     private String lastname;
@@ -18,7 +21,16 @@ public class User {
     private int passwordid;
     private int adminareaid;
 
-    @DynamoDBHashKey(attributeName = "user")
+    @DynamoDBHashKey(attributeName = "identity")
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
+    @DynamoDBRangeKey(attributeName = "user")
     public String getUser() {
         return user;
     }

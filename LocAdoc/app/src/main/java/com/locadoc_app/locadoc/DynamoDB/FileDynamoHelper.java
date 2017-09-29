@@ -1,10 +1,18 @@
 package com.locadoc_app.locadoc.DynamoDB;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;
+
+import java.util.List;
 
 /**
  * Created by Admin on 9/25/2017.
@@ -25,6 +33,14 @@ public class FileDynamoHelper {
         return helper;
     }
 
+    public String getIdentity(){
+        if (DynamoDBHelper.getIdentity().isEmpty()){
+            DynamoDBHelper.setIdentity();
+        }
+
+        return DynamoDBHelper.getIdentity();
+    }
+
     // insert and update
     public void insert(File file)
     {
@@ -35,8 +51,13 @@ public class FileDynamoHelper {
     // call using thread
     public void insertToDB(File file)
     {
+        file.setUser(getIdentity());
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        mapper.save(file);
+        try{
+            mapper.save(file);
+        }catch (AmazonServiceException ex){
+            Log.e("LocAdoc", "Error: " + ex);
+        }
     }
 
     public void delete (File file)
@@ -47,21 +68,49 @@ public class FileDynamoHelper {
 
     public void deleteFromDB (File file)
     {
+        file.setUser(getIdentity());
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         mapper.delete(file);
     }
 
-    public void getFile(String id)
+    public void getFile(int fileid)
     {
         OperationType operation = OperationType.GET_RECORD;
-        new DynamoDBTask().execute(operation, id);
+        new FileDynamoHelper.DynamoDBTask().execute(operation, fileid);
     }
 
-    public File getFileFromDB(String id)
+    public File getFileFromDB(int fileid)
     {
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        File file = mapper.load(File.class, id);
-        return file;
+        String id = getIdentity();
+        try{
+            File file = mapper.load(File.class, id, fileid);
+            Log.d("LocAdoc", "id: " + file.getFileId() + ", curr name: " + file.getCurrentfilename()
+                    + ", ori name: " + file.getOriginalfilename() + ", pass id: " + file.getPasswordId());
+            return file;
+        } catch (AmazonServiceException ex){
+            Log.e("LocAdoc", "Error: " + ex);
+        }
+        return null;
+    }
+
+    public List<File> getAllFile ()
+    {
+        String id = getIdentity();
+        PaginatedQueryList<File> result = null;
+        try {
+            File file = new File();
+            file.setUser(id);
+            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
+                    .withHashKeyValues(file)
+                    .withConsistentRead(false);
+
+            DynamoDBMapper mapper = DynamoDBHelper.getMapper();
+            result = mapper.query(File.class, queryExpression);
+        } catch (AmazonServiceException ex){
+            Log.e("LocAdoc", "Error: " + ex);
+        }
+        return result;
     }
 
     private class DynamoDBTask extends
@@ -77,11 +126,24 @@ public class FileDynamoHelper {
                 File file = (File) objects[1];
                 deleteFromDB(file);
             } else if (operation == OperationType.GET_RECORD) {
-                String id = (String) objects[1];
-                getFileFromDB(id);
+                int fileid = (Integer) objects[1];
+                getFileFromDB(fileid);
+            } else if (operation == OperationType.GET_ALL){
+                List<File> list = getAllFile();
+                if(list==null)
+                    return null;
+                for(File file: list){
+                    Log.d("LocAdoc", "id: " + file.getFileId() + ", curr name: " + file.getCurrentfilename()
+                            + ", ori name: " + file.getOriginalfilename() + ", pass id: " + file.getPasswordId());
+                }
             }
 
             return null;
         }
+    }
+    public void getAll()
+    {
+        OperationType operation = OperationType.GET_ALL;
+        new DynamoDBTask().execute(operation);
     }
 }

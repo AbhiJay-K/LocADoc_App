@@ -1,5 +1,6 @@
 package com.locadoc_app.locadoc.UI.HomePage;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -41,6 +42,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.UI.Setting.SettingActivity;
 
 public class HomePageActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -172,6 +174,12 @@ public class HomePageActivity extends AppCompatActivity
         if (id == R.id.nav_import) {
             // Handle the camera action
         } else if (id == R.id.nav_Settings) {
+
+            // Test code to access Setting Activity
+            Intent settingActivity = new Intent(this, SettingActivity.class);
+            settingActivity.putExtra("name", userName);
+            startActivity(settingActivity);
+            //startActivityForResult(settingActivity, 10);
 
         } else if (id == R.id.nav_about) {
 

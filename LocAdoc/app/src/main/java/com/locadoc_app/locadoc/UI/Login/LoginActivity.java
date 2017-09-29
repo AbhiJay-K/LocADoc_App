@@ -14,6 +14,7 @@ import android.widget.EditText;
 import com.facebook.CallbackManager;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.Test;
 import com.locadoc_app.locadoc.UI.ConfirmSignUp.Activity_SignUp_Confirm;
 import com.locadoc_app.locadoc.UI.HomePage.HomePageActivity;
 import com.locadoc_app.locadoc.UI.NewPassword.NewPasswordActivity;

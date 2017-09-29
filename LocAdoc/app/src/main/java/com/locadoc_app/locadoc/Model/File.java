@@ -2,6 +2,7 @@ package com.locadoc_app.locadoc.Model;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
 /**
@@ -27,7 +28,7 @@ public class File {
         this.user = user;
     }
 
-    @DynamoDBHashKey(attributeName = "fileid")
+    @DynamoDBRangeKey(attributeName = "fileid")
     public int getFileId() {
         return fileid;
     }
