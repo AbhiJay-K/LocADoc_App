@@ -14,6 +14,8 @@ import com.locadoc_app.locadoc.helper.Encryption;
 
 public class AreaSQLHelper implements BaseColumns {
     public static final String TABLE_NAME = "area";
+    public static final String COLUMN_NAME = "areaname";
+    public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_LONGITUDE = "longitude";
     public static final String COLUMN_LATITUDE = "latitude";
     public static final String COLUMN_RADIUS = "radius";

@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.DBHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.Model.Password;
@@ -47,13 +48,15 @@ public class TestDataBase extends AppCompatActivity {
         usr.setLoggedin("1");
         usr.setPasswordid(p.getPasswordid());
         usr.setAdminareaid(1);
-        Log.d(">User ID",usr.getUser());
-        Log.d(">User First Name",usr.getFirstname());
-        Log.d(">User Last Name",usr.getLastname());
-        Log.d(">User McAdd",usr.getMacaddress());
-        Log.d(">User Loggedin",usr.getLoggedin());
-        Log.d(">User pwd ID",Integer.toString(usr.getPasswordid()));
-        Log.d(">User Area ID",Integer.toString(usr.getAdminareaid()));
+        UserSQLHelper.insert(usr,p);
+        User usr2 = UserSQLHelper.getRecord(usr.getUser(),p);
+        Log.d(">User ID",usr2.getUser());
+        Log.d(">User First Name",usr2.getFirstname());
+        Log.d(">User Last Name",usr2.getLastname());
+        Log.d(">User McAdd",usr2.getMacaddress());
+        Log.d(">User Loggedin",usr2.getLoggedin());
+        Log.d(">User pwd ID",Integer.toString(usr2.getPasswordid()));
+        Log.d(">User Area ID",Integer.toString(usr2.getAdminareaid()));
 
         //============================Area==================================
         Area ar = new Area();
