@@ -16,6 +16,8 @@ public class Area {
     private String longitude;
     private String latitude;
     private String radius;
+    private String name;
+    private String description;
 
     @DynamoDBHashKey(attributeName = "user")
     public String getOwner() {
@@ -33,6 +35,24 @@ public class Area {
 
     public void setAreaId(int areaid) {
         this.areaid = areaid;
+    }
+
+    @DynamoDBAttribute(attributeName = "name")
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @DynamoDBAttribute(attributeName = "description")
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @DynamoDBAttribute(attributeName = "longitude")
