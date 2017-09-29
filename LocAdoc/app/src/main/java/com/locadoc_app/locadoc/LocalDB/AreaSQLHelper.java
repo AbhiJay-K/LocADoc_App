@@ -23,6 +23,8 @@ public class AreaSQLHelper implements BaseColumns {
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + " (" +
             _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            COLUMN_NAME + " TEXT, " +
+            COLUMN_DESCRIPTION + "TEXT, " +
             COLUMN_LONGITUDE + " TEXT, " +
             COLUMN_LATITUDE + " TEXT, " +
             COLUMN_RADIUS + " TEXT " +
