@@ -2,6 +2,7 @@ package com.locadoc_app.locadoc.Model;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
 /**
@@ -25,7 +26,7 @@ public class Area {
         this.user = user;
     }
 
-    @DynamoDBHashKey(attributeName = "areaid")
+    @DynamoDBRangeKey(attributeName = "areaid")
     public int getAreaId() {
         return areaid;
     }

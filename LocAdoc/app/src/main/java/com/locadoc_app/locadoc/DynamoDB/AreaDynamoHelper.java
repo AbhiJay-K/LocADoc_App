@@ -1,10 +1,18 @@
 package com.locadoc_app.locadoc.DynamoDB;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;
+
+import java.util.List;
 
 /**
  * Created by Admin on 9/25/2017.
@@ -25,6 +33,14 @@ public class AreaDynamoHelper {
         return helper;
     }
 
+    public String getIdentity(){
+        if (DynamoDBHelper.getIdentity().isEmpty()){
+            DynamoDBHelper.setIdentity();
+        }
+
+        return DynamoDBHelper.getIdentity();
+    }
+
     // insert and update
     public void insert(Area area)
     {
@@ -35,8 +51,13 @@ public class AreaDynamoHelper {
     // call using thread
     public void insertToDB(Area area)
     {
+        area.setOwner(getIdentity());
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        mapper.save(area);
+        try{
+            mapper.save(area);
+        }catch (AmazonServiceException ex){
+            Log.e("LocAdoc", "Error: " + ex);
+        }
     }
 
     public void delete (Area area)
@@ -47,21 +68,49 @@ public class AreaDynamoHelper {
 
     public void deleteFromDB (Area area)
     {
+        area.setOwner(getIdentity());
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         mapper.delete(area);
     }
 
-    public void getArea(String id)
+    public void getArea(int areaid)
     {
         OperationType operation = OperationType.GET_RECORD;
-        new DynamoDBTask().execute(operation, id);
+        new AreaDynamoHelper.DynamoDBTask().execute(operation, areaid);
     }
 
-    public Area getAreaFromDB(String id)
+    public Area getAreaFromDB(int areaid)
     {
+        String id = getIdentity();
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        Area area = mapper.load(Area.class, id);
-        return area;
+        try{
+            Area area = mapper.load(Area.class, id, areaid);
+            Log.d("LocAdoc", "id: " + area.getAreaId() + ", lat: " + area.getLatitude()
+                    + ", long: " + area.getLongitude() + ", user: " + area.getOwner());
+            return area;
+        } catch (AmazonServiceException ex){
+            Log.e("LocAdoc", "Error: " + ex);
+        }
+        return null;
+    }
+
+    public List<Area> getAllArea ()
+    {
+        String id = getIdentity();
+        PaginatedQueryList<Area> result = null;
+        try {
+            Area area = new Area();
+            area.setOwner(id);
+            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
+                    .withHashKeyValues(area)
+                    .withConsistentRead(false);
+
+            DynamoDBMapper mapper = DynamoDBHelper.getMapper();
+            result = mapper.query(Area.class, queryExpression);
+        } catch (AmazonServiceException ex){
+            Log.e("LocAdoc", "Error: " + ex);
+        }
+        return result;
     }
 
     private class DynamoDBTask extends
@@ -77,11 +126,24 @@ public class AreaDynamoHelper {
                 Area area = (Area) objects[1];
                 deleteFromDB(area);
             } else if (operation == OperationType.GET_RECORD) {
-                String id = (String) objects[1];
-                getAreaFromDB(id);
+                int areaid = (Integer) objects[1];
+                getAreaFromDB(areaid);
+            } else if (operation == OperationType.GET_ALL){
+                List<Area> list = getAllArea();
+                if(list==null)
+                    return null;
+                for(Area area: list){
+                    Log.d("LocAdoc", "id: " + area.getAreaId() + ", lat: " + area.getLatitude()
+                            + ", long: " + area.getLongitude() + ", user: " + area.getOwner());
+                }
             }
 
             return null;
         }
+    }
+    public void getAll()
+    {
+        OperationType operation = OperationType.GET_ALL;
+        new DynamoDBTask().execute(operation);
     }
 }

@@ -28,6 +28,14 @@ public class UserDynamoHelper {
         return helper;
     }
 
+    public String getIdentity(){
+        if (DynamoDBHelper.getIdentity().isEmpty()){
+            DynamoDBHelper.setIdentity();
+        }
+
+        return DynamoDBHelper.getIdentity();
+    }
+
     // insert and update
     public void insert(User user)
     {
@@ -38,8 +46,13 @@ public class UserDynamoHelper {
     // call using thread
     public void insertToDB(User user)
     {
+        user.setIdentity(getIdentity());
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        mapper.save(user);
+        try{
+            mapper.save(user);
+        }catch (AmazonServiceException ex){
+            Log.e("LocAdoc", "Error: " + ex);
+        }
     }
 
     public void delete (User user)
@@ -50,20 +63,24 @@ public class UserDynamoHelper {
 
     public void deleteFromDB (User user)
     {
+        user.setIdentity(getIdentity());
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         mapper.delete(user);
     }
 
-    public void getUser(String id)
+    public void getUser(String email)
     {
         OperationType operation = OperationType.GET_RECORD;
-        new DynamoDBTask().execute(operation, id);
+        new DynamoDBTask().execute(operation, email);
     }
 
-    public User getUserFromDB(String id)
+    public User getUserFromDB(String email)
     {
+        String id = getIdentity();
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        User user = mapper.load(User.class, id);
+        User user = mapper.load(User.class, id, email);
+        Log.d("LocAdoc", "user: " + user.getUser() + ", first name: " + user.getFirstname()
+                + ", last name: " + user.getLastname() + ", pass id: " + user.getPasswordid());
         return user;
     }
 
@@ -80,8 +97,8 @@ public class UserDynamoHelper {
                 User user = (User) objects[1];
                 deleteFromDB(user);
             } else if (operation == OperationType.GET_RECORD) {
-                String id = (String) objects[1];
-                getUserFromDB(id);
+                String email = (String) objects[1];
+                getUserFromDB(email);
             }
 
             return null;
