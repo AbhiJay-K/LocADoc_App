@@ -13,6 +13,7 @@ import android.widget.EditText;
 
 import com.facebook.CallbackManager;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
+import com.locadoc_app.locadoc.LocalDB.DBHelper;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.Test;
 import com.locadoc_app.locadoc.UI.ConfirmSignUp.Activity_SignUp_Confirm;
@@ -20,6 +21,8 @@ import com.locadoc_app.locadoc.UI.HomePage.HomePageActivity;
 import com.locadoc_app.locadoc.UI.NewPassword.NewPasswordActivity;
 import com.locadoc_app.locadoc.UI.PasswordRecovery.PasswordRecovery;
 import com.locadoc_app.locadoc.UI.Signup.SignUp;
+
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +48,13 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         //AppEventsLogger.activateApp(this);
         loginPres = new LoginPresenter(this);
         setContentView(R.layout.activity_login);
+        File database = getApplicationContext().getDatabasePath("LocAdoc_database");
+        DBHelper.init(getApplicationContext());
+        if(!database.exists())
+        {
+
+        }
+
         ButterKnife.bind(this);
         AppHelper.init(getApplicationContext());
         // wipe data

@@ -24,7 +24,8 @@ public class DynamoDBHelper {
     private static DynamoDBMapper mapper;
     private static CognitoCachingCredentialsProvider credentials;
     private static String identityId = "";
-    private final static String identityPoolId = "ap-southeast-1:c5bd72e5-6825-429f-8d33-f13046eda875";
+    //private final static String identityPoolId = "ap-southeast-1:c5bd72e5-6825-429f-8d33-f13046eda875";
+    private final static String identityPoolId = "ap-southeast-1:365da5cf-e75f-4e4f-84bb-d99244df4408";
     private static final String userPoolId = "ap-southeast-1_SsME563KX";
     public enum OperationType {
        INSERT, DELETE, GET_RECORD, GET_ALL

@@ -11,7 +11,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
  * Created by Admin on 9/24/2017.
  */
 
-@DynamoDBTable(tableName = "password")
+@DynamoDBTable(tableName = "LocAdoc_password")
 public class Password {
     private String user;
     private int passwordid;

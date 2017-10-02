@@ -136,8 +136,6 @@ public class Encryption {
 		{
 			byte[] b = input.substring(0, 24).getBytes("UTF-8");
 			byte[] iv = Base64.decode(b,Base64.DEFAULT);
-			Log.d("IV size ",Integer.toString(iv.length));
-			Log.d("B size ",Integer.toString(b.length));
 			IvParameterSpec ivspec = new IvParameterSpec(iv);
 			AES.init(Cipher.DECRYPT_MODE, key, ivspec);
 			input = input.substring(24);
@@ -148,7 +146,7 @@ public class Encryption {
 		
 		return pText;
 	}
-	public static void main (String[] args)
+	/*public static void main (String[] args)
 	{
 		Encryption e = Encryption.getInstance("pass123", "12364");
 		e.encryptFile("locadoc_logo.png", "CipherText1");
@@ -159,5 +157,5 @@ public class Encryption {
 		System.out.println("Cipher text: " + res);
 		res = e.decrypttString(res);
 		System.out.println("Plain text: " + res);
-	}
+	}*/
 }

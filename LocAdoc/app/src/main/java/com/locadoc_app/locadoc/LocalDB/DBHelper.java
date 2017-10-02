@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.locadoc_app.locadoc.Model.Password;
+
 /**
  * Created by AbhiJay_PC on 22/9/2017.
  */
@@ -15,22 +17,21 @@ public class DBHelper extends SQLiteOpenHelper{
     private static DBHelper dbHelper;
     public static SQLiteDatabase READ;
     public static SQLiteDatabase WRITE;
-
     //static block initialization for exception handling
 
     private DBHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         READ = getReadableDatabase();
         WRITE = getWritableDatabase();
+        PasswordSQLHelper.setDbHelper(this);
         AreaSQLHelper.setDbHelper(this);
         UserSQLHelper.setDbHelper(this);
-        //PasswordSQLHelper.setDbHelper(this);
         FileSQLHelper.setDbHelper(this);
     };
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        //sqLiteDatabase.execSQL(PasswordSQLHelper.CREATE_TABLE);
+        sqLiteDatabase.execSQL(PasswordSQLHelper.CREATE_TABLE);
         sqLiteDatabase.execSQL(UserSQLHelper.CREATE_TABLE);
         sqLiteDatabase.execSQL(AreaSQLHelper.CREATE_TABLE);
         sqLiteDatabase.execSQL(FileSQLHelper.CREATE_TABLE);

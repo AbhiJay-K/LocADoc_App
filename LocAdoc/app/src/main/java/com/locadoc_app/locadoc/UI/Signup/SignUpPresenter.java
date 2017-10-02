@@ -1,5 +1,8 @@
 package com.locadoc_app.locadoc.UI.Signup;
 
+import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.util.Patterns;
 import android.widget.TextView;
@@ -9,6 +12,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttribu
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserCodeDeliveryDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.SignUpHandler;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
+import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.helper.CheckPassword;
 import com.locadoc_app.locadoc.helper.EmailValidation;
