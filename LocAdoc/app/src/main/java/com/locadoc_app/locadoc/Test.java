@@ -36,8 +36,6 @@ public class Test extends AppCompatActivity {
         user.setFirstname("999");
         user.setLastname("hehe");
         user.setAdminareaid(12);
-        user.setLoggedin("hmm");
-        user.setMacaddress("AE:ED:...:FE");
         user.setPasswordid(6);
         //UserDynamoHelper.getInstance().insert(user);
         UserDynamoHelper.getInstance().delete(user);

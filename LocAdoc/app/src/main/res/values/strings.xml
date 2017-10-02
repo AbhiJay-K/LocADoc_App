@@ -56,4 +56,7 @@
 
     <string name="pwdrecovery_submit">Submit</string>
     <string name="pwdrecovery_resend">Resend a new code</string>
+    <string name="aws_userpool">ap-southeast-1_Qng7tbYxG</string>
+    <string name="aws_appid">44ftbv7gbpmjnvjih4ckpemokl</string>
+    <string name="aws_appsec">dg4a9hisgrqdenj81rcgagt9pc66837m2fp5ike31ddpc7kt8js</string>
 </resources>

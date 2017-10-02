@@ -24,7 +24,7 @@ public class AreaSQLHelper implements BaseColumns {
             TABLE_NAME + " (" +
             _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_NAME + " TEXT, " +
-            COLUMN_DESCRIPTION + "TEXT, " +
+            COLUMN_DESCRIPTION + " TEXT, " +
             COLUMN_LONGITUDE + " TEXT, " +
             COLUMN_LATITUDE + " TEXT, " +
             COLUMN_RADIUS + " TEXT " +
@@ -39,6 +39,8 @@ public class AreaSQLHelper implements BaseColumns {
     {
         ContentValues values = new ContentValues();
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
+        values.put(AreaSQLHelper.COLUMN_NAME, en.encryptString(ar.getName()));
+        values.put(AreaSQLHelper.COLUMN_DESCRIPTION, en.encryptString(ar.getDescription()));
         values.put(AreaSQLHelper.COLUMN_LATITUDE, en.encryptString(ar.getLatitude()));
         values.put(AreaSQLHelper.COLUMN_LONGITUDE, en.encryptString(ar.getLongitude()));
         values.put(AreaSQLHelper.COLUMN_RADIUS, en.encryptString(ar.getRadius()));
@@ -52,13 +54,17 @@ public class AreaSQLHelper implements BaseColumns {
         if(crs != null) {
             crs.moveToFirst();
             int id = crs.getInt(crs.getColumnIndex("_id"));
-            String Long = crs.getString(crs.getColumnIndex("longitude"));
-            String Lat = crs.getString(crs.getColumnIndex("latitude"));
-            String Rad = crs.getString(crs.getColumnIndex("radius"));
+            String name = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
+            String description = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_DESCRIPTION));
+            String Long = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE));
+            String Lat = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE));
+            String Rad = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_RADIUS));
             crs.close();
             Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
             Area ar = new Area();
             ar.setAreaId(id);
+            ar.setName(en.decrypttString(name));
+            ar.setDescription(en.decrypttString(description));
             ar.setLatitude(en.decrypttString(Lat));
             ar.setLongitude(en.decrypttString(Long));
             ar.setRadius(en.decrypttString(Rad));
@@ -76,6 +82,8 @@ public class AreaSQLHelper implements BaseColumns {
     {
         ContentValues values = new ContentValues();
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
+        values.put(AreaSQLHelper.COLUMN_NAME, en.encryptString(ar.getName()));
+        values.put(AreaSQLHelper.COLUMN_DESCRIPTION, en.encryptString(ar.getDescription()));
         values.put(AreaSQLHelper.COLUMN_LATITUDE, en.encryptString(ar.getLatitude()));
         values.put(AreaSQLHelper.COLUMN_LONGITUDE, en.encryptString(ar.getLongitude()));
         values.put(AreaSQLHelper.COLUMN_RADIUS, en.encryptString(ar.getRadius()));

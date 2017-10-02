@@ -16,8 +16,6 @@ import android.widget.TextView;
 import com.locadoc_app.locadoc.R;
 
 public class Activity_SignUp_Confirm extends AppCompatActivity implements SignUp_Confirm_View_Interface {
-
-
     private TextView username;
     private EditText confCode;
     private Button confirm;

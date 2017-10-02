@@ -9,7 +9,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
  * Created by Admin on 9/24/2017.
  */
 
-@DynamoDBTable(tableName = "file")
+@DynamoDBTable(tableName = "LocAdoc_file")
 public class File {
     private String user;
     private int fileid;

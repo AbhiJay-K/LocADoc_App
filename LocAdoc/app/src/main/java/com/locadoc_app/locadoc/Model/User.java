@@ -10,14 +10,13 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
  * Created by Admin on 9/24/2017.
  */
 
-@DynamoDBTable(tableName = "user")
+@DynamoDBTable(tableName = "LocAdoc_user")
 public class User {
     private String identity;
     private String user;
     private String firstname;
     private String lastname;
-    private String loggedin;
-    private String macaddress;
+    private String instanceid;
     private int passwordid;
     private int adminareaid;
 
@@ -57,22 +56,13 @@ public class User {
         this.lastname = lastname;
     }
 
-    @DynamoDBAttribute(attributeName = "loggedin")
-    public String getLoggedin() {
-        return loggedin;
+    @DynamoDBAttribute(attributeName = "instanceid")
+    public String getInstanceID() {
+        return instanceid;
     }
 
-    public void setLoggedin(String loggedin) {
-        this.loggedin = loggedin;
-    }
-
-    @DynamoDBAttribute(attributeName = "macaddress")
-    public String getMacaddress() {
-        return macaddress;
-    }
-
-    public void setMacaddress(String macaddress) {
-        this.macaddress = macaddress;
+    public void setInstanceID(String instanceid) {
+        this.instanceid = instanceid;
     }
 
     @DynamoDBAttribute(attributeName = "passwordid")

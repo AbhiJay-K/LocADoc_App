@@ -17,8 +17,6 @@ public class UserSQLHelper implements BaseColumns{
     public static final String COLUMN_EMAIL = "email";
     public static final String COLUMN_FIRST_NAME = "firstname";
     public static final String COLUMN_LAST_NAME = "lastname";
-    public static final String COLUMN_LOGEDIN = "logedin";
-    public static final String COLUMN_MACADD = "macaddress";
     public static final String COLUMN_PWD = "password";
     public static final String COLUMN_AREA = "adminarea";
     private static DBHelper dbHelper;
@@ -27,8 +25,6 @@ public class UserSQLHelper implements BaseColumns{
             COLUMN_EMAIL + " TEXT PRIMARY KEY, " +
             COLUMN_FIRST_NAME + " TEXT, " +
             COLUMN_LAST_NAME + " TEXT, " +
-            COLUMN_LOGEDIN + " INTEGER, " +
-            COLUMN_MACADD + " TEXT, " +
             COLUMN_PWD + " INTEGER, " +
             COLUMN_AREA + " INTEGER, "+
             " FOREIGN KEY ("+COLUMN_AREA+") REFERENCES "+ AreaSQLHelper.TABLE_NAME+"("+ AreaSQLHelper._ID +
@@ -47,8 +43,6 @@ public class UserSQLHelper implements BaseColumns{
         values.put(UserSQLHelper.COLUMN_EMAIL, usr.getUser());
         values.put(UserSQLHelper.COLUMN_FIRST_NAME, en.encryptString(usr.getFirstname()));
         values.put(UserSQLHelper.COLUMN_LAST_NAME, en.encryptString(usr.getLastname()));
-        values.put(UserSQLHelper.COLUMN_LOGEDIN, en.encryptString(usr.getLoggedin()));
-        values.put(UserSQLHelper.COLUMN_MACADD, en.encryptString(usr.getMacaddress()));
         values.put(UserSQLHelper.COLUMN_PWD, usr.getPasswordid());
         values.put(COLUMN_AREA,usr.getAdminareaid());
         long newRowId = UserSQLHelper.getDbHelper().WRITE.insert(UserSQLHelper.TABLE_NAME, null, values);
@@ -63,8 +57,6 @@ public class UserSQLHelper implements BaseColumns{
         String email = crs.getString(crs.getColumnIndex("email"));
         String fn = crs.getString(crs.getColumnIndex("firstname"));
         String ln = crs.getString(crs.getColumnIndex("lastname"));
-        String logIn = crs.getString(crs.getColumnIndex("logedin"));
-        String Mcadd = crs.getString(crs.getColumnIndex("macaddress"));
         int pwdID = crs.getInt(crs.getColumnIndex("password"));
         int admarea = crs.getInt(crs.getColumnIndex("adminarea"));
 
@@ -72,8 +64,6 @@ public class UserSQLHelper implements BaseColumns{
         user.setUser(email);
         user.setFirstname(en.decrypttString(fn));
         user.setLastname(en.decrypttString(ln));
-        user.setLoggedin(en.decrypttString(logIn));
-        user.setMacaddress(en.decrypttString(Mcadd));
         user.setPasswordid(pwdID);
         user.setAdminareaid(admarea);
         return user;
@@ -84,8 +74,6 @@ public class UserSQLHelper implements BaseColumns{
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
         values.put(UserSQLHelper.COLUMN_FIRST_NAME, en.encryptString(usr.getFirstname()));
         values.put(UserSQLHelper.COLUMN_LAST_NAME, en.encryptString(usr.getLastname()));
-        values.put(UserSQLHelper.COLUMN_LOGEDIN, en.encryptString(usr.getLoggedin()));
-        values.put(UserSQLHelper.COLUMN_MACADD, en.encryptString(usr.getMacaddress()));
         values.put(UserSQLHelper.COLUMN_PWD,usr.getPasswordid());
         values.put(UserSQLHelper.COLUMN_AREA,usr.getAdminareaid());
         String [] arg = {usr.getUser()};

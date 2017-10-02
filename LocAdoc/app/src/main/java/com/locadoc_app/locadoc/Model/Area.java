@@ -9,7 +9,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
  * Created by Admin on 9/24/2017.
  */
 
-@DynamoDBTable(tableName = "area")
+@DynamoDBTable(tableName = "LocAdoc_area")
 public class Area {
     private String user;
     private int areaid;

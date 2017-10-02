@@ -1,13 +1,19 @@
 package com.locadoc_app.locadoc.LocalDB;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.provider.BaseColumns;
+
+import com.locadoc_app.locadoc.Model.Password;
+import com.locadoc_app.locadoc.helper.Encryption;
+import com.locadoc_app.locadoc.helper.Hash;
 
 /**
  * Created by AbhiJay_PC on 22/9/2017.
  */
 
 public class PasswordSQLHelper implements BaseColumns {
-    /*public static final String TABLE_NAME = "password";
+    public static final String TABLE_NAME = "password";
     public static final String COLUMN_PWD = "password";
     public static final String COLUMN_SALT = "salt";
     private static DBHelper dbHelper;
@@ -56,5 +62,15 @@ public class PasswordSQLHelper implements BaseColumns {
         int cnt = cursor.getCount();
         cursor.close();
         return cnt;
-    }*/
+    }
+    public static void DropTable()
+    {
+        PasswordSQLHelper.dbHelper.READ.execSQL("DROP TABLE IF EXISTS " + PasswordSQLHelper.TABLE_NAME);
+    }
+    public static int DeleteRecord(int ID)
+    {
+        String [] arg = {String.valueOf(ID)};
+        int deleted = PasswordSQLHelper.dbHelper.WRITE.delete(UserSQLHelper.TABLE_NAME,UserSQLHelper.COLUMN_EMAIL +"=?",arg);
+        return deleted;
+    }
 }
