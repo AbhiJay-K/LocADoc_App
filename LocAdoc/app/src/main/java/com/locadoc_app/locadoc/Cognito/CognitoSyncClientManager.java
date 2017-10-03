@@ -30,8 +30,7 @@ package com.locadoc_app.locadoc.Cognito;
  */
 
 
-        import android.content.Context;
-
+import android.content.Context;
 import com.amazonaws.auth.AWSAbstractCognitoIdentityProvider;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.auth.CognitoCredentialsProvider;

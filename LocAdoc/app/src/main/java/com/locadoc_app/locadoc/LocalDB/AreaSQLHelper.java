@@ -2,11 +2,19 @@ package com.locadoc_app.locadoc.LocalDB;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.location.Location;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Password;
+import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.Encryption;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by AbhiJay_PC on 22/9/2017.
@@ -29,16 +37,18 @@ public class AreaSQLHelper implements BaseColumns {
             COLUMN_LATITUDE + " TEXT, " +
             COLUMN_RADIUS + " TEXT " +
             ")";
+
     public static DBHelper getDbHelper() {
         return dbHelper;
     }
+
     public static void setDbHelper(DBHelper Helper) {
         dbHelper = Helper;
     }
-    public static long insert(Area ar,Password pwd)
-    {
+
+    public static long insert(Area ar, Password pwd) {
         ContentValues values = new ContentValues();
-        Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
+        Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
         values.put(AreaSQLHelper.COLUMN_NAME, en.encryptString(ar.getName()));
         values.put(AreaSQLHelper.COLUMN_DESCRIPTION, en.encryptString(ar.getDescription()));
         values.put(AreaSQLHelper.COLUMN_LATITUDE, en.encryptString(ar.getLatitude()));
@@ -47,11 +57,11 @@ public class AreaSQLHelper implements BaseColumns {
         long newRowId = AreaSQLHelper.getDbHelper().WRITE.insert(AreaSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
-    public static Area getRecord(int AreaID,Password pwd)
-    {
-        String [] args = {String.valueOf(AreaID)};
+
+    public static Area getRecord(int AreaID, Password pwd) {
+        String[] args = {String.valueOf(AreaID)};
         Cursor crs = dbHelper.READ.rawQuery("SELECT * FROM area WHERE _id = ?", args);
-        if(crs != null) {
+        if (crs != null) {
             crs.moveToFirst();
             int id = crs.getInt(crs.getColumnIndex("_id"));
             String name = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
@@ -69,13 +79,103 @@ public class AreaSQLHelper implements BaseColumns {
             ar.setLongitude(en.decrypttString(Long));
             ar.setRadius(en.decrypttString(Rad));
             return ar;
-        }
-        else
-        {
+        } else {
             crs.close();
             Area a = new Area();
             a.setAreaId(-1);
             return a;
+        }
+    }
+    public static List<Area> getAllRecord(Password pwd) {
+        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area",null);
+        List<Area> arList = new ArrayList<Area>();
+        if (crs != null &&  crs.moveToFirst()) {
+           do {
+               int id = crs.getInt(crs.getColumnIndex("_id"));
+               String name = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
+               String description = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_DESCRIPTION));
+               String Long = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE));
+               String Lat = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE));
+               String Rad = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_RADIUS));
+               Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+               Area ar = new Area();
+               ar.setAreaId(id);
+               ar.setName(en.decrypttString(name));
+               ar.setDescription(en.decrypttString(description));
+               ar.setLatitude(en.decrypttString(Lat));
+               ar.setLongitude(en.decrypttString(Long));
+               ar.setRadius(en.decrypttString(Rad));
+               arList.add(ar);
+           }while(crs.moveToNext());
+            crs.close();
+            return arList;
+        } else {
+            crs.close();
+            Area a = new Area();
+            a.setAreaId(-1);
+            return arList;
+        }
+    }
+    public static Map<String,Integer> getAreaNameInLoc(Area ar,Password pwd)
+    {
+        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area",null);
+        Map<String,Integer> AreaMap = new HashMap<String,Integer>();
+        if (crs != null && crs.moveToFirst()) {
+            do {
+                Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+                int id = crs.getInt(crs.getColumnIndex("_id"));
+                String AreaName = en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME)));
+                Double longitude = Double.parseDouble(en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE))));
+                Double latitude = Double.parseDouble(en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE))));
+                float radius = Float.parseFloat(en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_RADIUS))));
+                Location l1 = new Location("");
+                l1.setLatitude(latitude);
+                l1.setLongitude(longitude);
+                Location l2 = new Location("");
+                l2.setLongitude(Double.parseDouble(ar.getLongitude()));
+                l2.setLatitude(Double.parseDouble(ar.getLatitude()));
+                float rad2 = l1.distanceTo(l2);
+                if(rad2 <= radius)
+                {
+                    AreaMap.put(AreaName,id);
+                }
+            } while (crs.moveToNext());
+            crs.close();
+            return AreaMap;
+        }
+        else {
+            crs.close();
+            return AreaMap;
+        }
+    }
+    public static int checkLocExist(Area ar,Password pwd)
+    {
+        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area",null);
+        if (crs != null && crs.moveToFirst()) {
+            do {
+                Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+                int id = crs.getInt(crs.getColumnIndex("_id"));
+                String AreaName = en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME)));
+                Double longitude = Double.parseDouble(en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE))));
+                Double latitude = Double.parseDouble(en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE))));
+                Location l1 = new Location("");
+                l1.setLatitude(latitude);
+                l1.setLongitude(longitude);
+                Location l2 = new Location("");
+                l2.setLongitude(Double.parseDouble(ar.getLongitude()));
+                l2.setLatitude(Double.parseDouble(ar.getLatitude()));
+                if(l1.distanceTo(l2) == 0.0f)
+                {
+                    Log.d("Distance Error","Same distance");
+                    return 1;
+                }
+            } while (crs.moveToNext());
+            crs.close();
+            return 0;
+        }
+        else {
+            crs.close();
+            return -1;
         }
     }
     public static long updateRecord(Area ar,Password pwd)

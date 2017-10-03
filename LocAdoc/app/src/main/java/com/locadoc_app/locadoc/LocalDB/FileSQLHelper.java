@@ -85,18 +85,17 @@ public class FileSQLHelper implements BaseColumns {
         }
     }
     //Query to search file table using original area id and returns a list
-    public static Map<Integer,String> getFilesInArea(int AreaID, Password pwd)
+    public static Map<String,Integer> getFilesInArea(int AreaID, Password pwd)
     {
-        User user = new User();
         String [] args = {String.valueOf(AreaID)};
         Cursor crs = FileSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM file WHERE area = ?", args);
-        Map<Integer,String> FileMap = new HashMap<Integer,String>();
+        Map<String,Integer> FileMap = new HashMap<String,Integer>();
         if (crs != null && crs.moveToFirst()) {
             do {
                 int id = crs.getInt(crs.getColumnIndex("_id"));
                 String orgFileN = crs.getString(crs.getColumnIndex(COLUMN_ORIGINAL_NAME));
                 Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
-                FileMap.put(id, en.decrypttString(orgFileN));
+                FileMap.put(en.decrypttString(orgFileN),id);
             } while (crs.moveToNext());
             crs.close();
             return FileMap;

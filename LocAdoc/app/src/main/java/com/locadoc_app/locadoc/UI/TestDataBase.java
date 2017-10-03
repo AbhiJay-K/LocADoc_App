@@ -22,7 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class TestDataBase extends AppCompatActivity {
-    private Map<Integer,String> fileMap;
+    private Map<String,Integer> fileMap;
+    private Map<String,Integer> AreaMap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,11 +61,11 @@ public class TestDataBase extends AppCompatActivity {
         //============================Area==================================
         Area ar = new Area();
         ar.setAreaId(1);
-        ar.setName("office");
-        ar.setDescription("office document");
+        ar.setName("SIM");
+        ar.setDescription("SIM document");
         ar.setLatitude("1.3296");
         ar.setLongitude("103.7762");
-        ar.setRadius("10");
+        ar.setRadius("1000");
         AreaSQLHelper.insert(ar,p2);
         Area ar1 = AreaSQLHelper.getRecord(1,p2);
         Log.d(">Area ID",String.valueOf(ar1.getAreaId()));
@@ -73,7 +74,54 @@ public class TestDataBase extends AppCompatActivity {
         Log.d(">Area Latitude",ar1.getLatitude());
         Log.d(">Area Longitude",ar1.getLongitude());
         Log.d(">Area Radius",ar1.getRadius());
-
+        Area ar5 = new Area();
+        ar5.setAreaId(2);
+        ar5.setName("NYP");
+        ar5.setDescription("NYP Document");
+        ar5.setLatitude("1.3329");
+        ar5.setLongitude("103.7775");
+        ar5.setRadius("1000");
+        if(AreaSQLHelper.checkLocExist(ar5,p2) == 0)
+        {
+            AreaSQLHelper.insert(ar5,p2);
+            Area ar4 = AreaSQLHelper.getRecord(ar5.getAreaId(),p2);
+            Log.d(">Area ID",String.valueOf(ar4.getAreaId()));
+            Log.d(">Area Name",ar4.getName());
+            Log.d(">Area Description",ar4.getDescription());
+            Log.d(">Area Latitude",ar4.getLatitude());
+            Log.d(">Area Longitude",ar4.getLongitude());
+            Log.d(">Area Radius",ar4.getRadius());
+        }
+        else
+        {
+            Log.d(">Area Error","Area already exist");
+        }
+        Area ar6 = new Area();
+        ar6.setAreaId(3);
+        ar6.setName("");
+        ar6.setDescription("");
+        ar6.setLatitude("1.333498666");
+        ar6.setLongitude("103.772830242");
+        ar6.setRadius("1000");
+        AreaMap = AreaSQLHelper.getAreaNameInLoc(ar6,p2);
+        if(AreaMap == null)
+        {
+            Log.d(">Area","No Area found in current location");
+        }
+        else
+        {
+            PrintArea();
+        }
+        Log.d(">File ","========Area List============");
+        for(Area a: AreaSQLHelper.getAllRecord(p2))
+        {
+            Log.d(">Area ID",String.valueOf(a.getAreaId()));
+            Log.d(">Area Name",a.getName());
+            Log.d(">Area Description",a.getDescription());
+            Log.d(">Area Latitude",a.getLatitude());
+            Log.d(">Area Longitude",a.getLongitude());
+            Log.d(">Area Radius",a.getRadius());
+        }
         //===========================File======================================
         File file1 = new File();
         file1.setAreaId(ar1.getAreaId());
@@ -107,8 +155,9 @@ public class TestDataBase extends AppCompatActivity {
         }
         else
         {
-            Print();
+            PrintFile();
         }
+
         File file2 = FileSQLHelper.getFile(GetKey(file3.getOriginalfilename()),p2);
         Log.d(">File ","========Search By Name============");
         Log.d(">File ID",String.valueOf(file2.getFileId()));
@@ -141,7 +190,7 @@ public class TestDataBase extends AppCompatActivity {
         }
         else
         {
-            Print();
+            PrintFile();
         }
         File file5 = FileSQLHelper.getFile(GetKey(file4.getOriginalfilename()),p2);
         Log.d(">File ","========Search By Name============");
@@ -190,28 +239,21 @@ public class TestDataBase extends AppCompatActivity {
     }
     public int GetKey(String filename)
     {
-        Set<Integer> setCodes = fileMap.keySet();
-        Iterator<Integer> iterator = setCodes.iterator();
-        int key = -1;
-        while (iterator.hasNext()) {
-            key = iterator.next();
-            String value = fileMap.get(key);
-            if(value.equals(filename))
-            {
-                return key;
-            }
-        }
+        int key = fileMap.get(filename);
         return key;
     }
-    public void Print()
+    public void PrintFile()
     {
-        Set<Integer> setCodes = fileMap.keySet();
-        Iterator<Integer> iterator = setCodes.iterator();
-        int key = -1;
-        while (iterator.hasNext()) {
-            key = iterator.next();
-            String value = fileMap.get(key);
-            Log.d(">File Name",value);
+        for (Map.Entry<String, Integer> entry : fileMap.entrySet())
+        {
+            Log.d("Print File ",entry.getKey() + "/" + entry.getValue());
+        }
+    }
+    public void PrintArea()
+    {
+        for (Map.Entry<String, Integer> entry : AreaMap.entrySet())
+        {
+            Log.d("Print Area ",entry.getKey() + "/" + entry.getValue());
         }
     }
 }
