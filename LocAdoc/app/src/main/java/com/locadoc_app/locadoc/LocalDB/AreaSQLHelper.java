@@ -116,7 +116,7 @@ public class AreaSQLHelper implements BaseColumns {
             return arList;
         }
     }
-    public static Map<String,Integer> getAreaNameInLoc(Area ar,Password pwd)
+    public static Map<String,Integer> getAreaNameInLoc(Location l2,Password pwd)
     {
         Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area",null);
         Map<String,Integer> AreaMap = new HashMap<String,Integer>();
@@ -131,9 +131,6 @@ public class AreaSQLHelper implements BaseColumns {
                 Location l1 = new Location("");
                 l1.setLatitude(latitude);
                 l1.setLongitude(longitude);
-                Location l2 = new Location("");
-                l2.setLongitude(Double.parseDouble(ar.getLongitude()));
-                l2.setLatitude(Double.parseDouble(ar.getLatitude()));
                 float rad2 = l1.distanceTo(l2);
                 if(rad2 <= radius)
                 {
