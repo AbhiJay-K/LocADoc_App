@@ -51,6 +51,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.itextpdf.text.Document;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
@@ -516,6 +517,8 @@ public class HomePageActivity extends AppCompatActivity
             Log.d("LocAdoc", "Make new dir");
             dir.mkdir();
         }
+        String currFileName = Credential.getEmail(); //+ get password id
+
         File dst = new File(dir.getAbsolutePath() + "/" + filename);
         Log.d("LocAdoc", dst.getAbsolutePath());
         InputStream in = null;
