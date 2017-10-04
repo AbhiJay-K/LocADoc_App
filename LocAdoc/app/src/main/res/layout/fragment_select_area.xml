@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/SelectAreaTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/NewAreaLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/new_area_label"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/NewAreaName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_area_name_hint"
+                android:imeOptions="actionDone"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/NewAreaDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/text_border_selector"
+                android:ems="10"
+                android:gravity="top"
+                android:hint="@string/new_area_desc_hint"
+                android:inputType="textMultiLine"
+                android:minLines="3" />
+
+            <TextView
+                android:id="@+id/RadiusLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/radius_label" />
+
+            <Spinner
+                android:id="@+id/Radius"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp" />
+
+            <Button
+                android:id="@+id/CreateNewAreaBtn"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/create_new_area_btn" />
+
+            <TextView
+                android:id="@+id/ExistingAreaLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/existing_area_label"
+                android:textSize="20sp" />
+
+            <Spinner
+                android:id="@+id/ExistingArea"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/ExistingAreaBtn"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/existing_area_btn" />
+
+            <Button
+                android:id="@+id/CancelBtn"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/cancel_import_button" />
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

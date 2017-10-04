@@ -48,13 +48,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         //AppEventsLogger.activateApp(this);
         loginPres = new LoginPresenter(this);
         setContentView(R.layout.activity_login);
-        File database = getApplicationContext().getDatabasePath("LocAdoc_database");
         DBHelper.init(getApplicationContext());
-        if(!database.exists())
-        {
-
-        }
-
         ButterKnife.bind(this);
         AppHelper.init(getApplicationContext());
         // wipe data

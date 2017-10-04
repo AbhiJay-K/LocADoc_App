@@ -59,4 +59,12 @@
     <string name="aws_userpool">ap-southeast-1_Qng7tbYxG</string>
     <string name="aws_appid">44ftbv7gbpmjnvjih4ckpemokl</string>
     <string name="aws_appsec">dg4a9hisgrqdenj81rcgagt9pc66837m2fp5ike31ddpc7kt8js</string>
+    <string name="new_area_label">New Area</string>
+    <string name="new_area_name_hint">Area name</string>
+    <string name="new_area_desc_hint">Small description</string>
+    <string name="radius_label">Radius</string>
+    <string name="create_new_area_btn">Create New Area</string>
+    <string name="existing_area_label">Select existing area</string>
+    <string name="existing_area_btn">Choose existing area</string>
+    <string name="cancel_import_button">Cancel</string>
 </resources>
