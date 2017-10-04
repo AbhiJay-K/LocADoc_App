@@ -103,7 +103,7 @@ public class TestDataBase extends AppCompatActivity {
         ar6.setLatitude("1.333498666");
         ar6.setLongitude("103.772830242");
         ar6.setRadius("1000");
-        AreaMap = AreaSQLHelper.getAreaNameInLoc(ar6,p2);
+        //AreaMap = AreaSQLHelper.getAreaNameInLoc(ar6,p2);
         if(AreaMap == null)
         {
             Log.d(">Area","No Area found in current location");
