@@ -1,19 +1,22 @@
 package com.locadoc_app.locadoc.UI.Setting;
 
-import android.app.Activity;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.locadoc_app.locadoc.R;
-
-import static com.locadoc_app.locadoc.R.id.setting_menuList;
+import com.locadoc_app.locadoc.UI.HomePage.HomePageActivity;
 
 public class SettingActivity extends AppCompatActivity  {
 
@@ -30,9 +33,18 @@ public class SettingActivity extends AppCompatActivity  {
         Toolbar toolbar = (Toolbar) findViewById(R.id.setting_toolbar);
         setSupportActionBar(toolbar);
 
-        ArrayAdapter adapter = new ArrayAdapter<String>(this, R.layout.item_settings, R.id.textViewList, settingMenuListArray); 	// textViewList is in itemSettings
-        ListView listView = (ListView) findViewById(setting_menuList);
-        listView.setAdapter(adapter);
+        ListView listview;
+        SettingListViewAdapter adapter = new SettingListViewAdapter();
+
+        listview = (ListView) findViewById(R.id.setting_menuList);
+        listview.setAdapter(adapter);
+
+        adapter.addItem(settingMenuListArray[0], "subItem for phone Number");
+        adapter.addItem(settingMenuListArray[1], "subItem for ResetPassword");
+        adapter.addItem(settingMenuListArray[2], "subItem for admin area");
+        adapter.addItem(settingMenuListArray[3], "");
+        adapter.addItem(settingMenuListArray[4], "");
+
 
         Bundle extras = getIntent().getExtras();
         if (extras !=null) {
@@ -43,6 +55,34 @@ public class SettingActivity extends AppCompatActivity  {
 
         text_userName = (TextView) findViewById(R.id.profile_usrEmail);
         text_userName.setText(userName);
+
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView parent, View v, int position, long id) {
+                // get item
+                SettingListViewItem item = (SettingListViewItem) parent.getItemAtPosition(position);
+
+                String titleStr = item.getTitle();
+                String descStr = item.getDesc();
+
+                Log.d(Integer.toString(position), titleStr + "|" + descStr);
+                Toast.makeText(SettingActivity.this, titleStr, Toast.LENGTH_SHORT).show();
+
+                switch(position) {
+                    case 0: openPhoneNumberActivity();
+                        break;
+                    case 1:	openResetPasswordActivity();
+                        break;
+                    case 2: openSetAdminAreaActivity();
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                }
+            }
+        });
+
     }
 
     @Override
@@ -64,7 +104,22 @@ public class SettingActivity extends AppCompatActivity  {
         }
 
     }
+    
+    public void openPhoneNumberActivity() {
+        Intent homeActivity = new Intent(this, HomePageActivity.class);
+       // homeActivity.putExtra("name", userIDView.getText().toString());
+        startActivity(homeActivity);    	
+    }
 
+    public void openResetPasswordActivity() {
+        Intent homeActivity = new Intent(this, HomePageActivity.class);
+       // homeActivity.putExtra("name", userIDView.getText().toString());
+        startActivity(homeActivity);
+    }
+
+    public void openSetAdminAreaActivity() {
+        
+    }
 
     /********** View List Method **********/
 
