@@ -23,6 +23,7 @@ public class DBHelper extends SQLiteOpenHelper{
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         READ = getReadableDatabase();
         WRITE = getWritableDatabase();
+        ApplicationInstance.setDbHelper(this);
         PasswordSQLHelper.setDbHelper(this);
         AreaSQLHelper.setDbHelper(this);
         UserSQLHelper.setDbHelper(this);
@@ -35,7 +36,7 @@ public class DBHelper extends SQLiteOpenHelper{
         sqLiteDatabase.execSQL(UserSQLHelper.CREATE_TABLE);
         sqLiteDatabase.execSQL(AreaSQLHelper.CREATE_TABLE);
         sqLiteDatabase.execSQL(FileSQLHelper.CREATE_TABLE);
-        
+        sqLiteDatabase.execSQL(ApplicationInstance.CREATE_TABLE);
     }
 
     // We don't want to delete user data.
@@ -44,6 +45,7 @@ public class DBHelper extends SQLiteOpenHelper{
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FileSQLHelper.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AreaSQLHelper.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + UserSQLHelper.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ApplicationInstance.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
     public static void init(Context context){

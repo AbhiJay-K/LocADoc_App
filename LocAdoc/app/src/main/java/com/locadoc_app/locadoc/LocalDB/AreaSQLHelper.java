@@ -191,7 +191,7 @@ public class AreaSQLHelper implements BaseColumns {
     public static long getNumberofRecords()
     {
         String countQuery = "SELECT  * FROM " + AreaSQLHelper.TABLE_NAME;
-        Cursor cursor = dbHelper.READ.rawQuery(countQuery, null);
+        Cursor cursor = AreaSQLHelper.dbHelper.READ.rawQuery(countQuery, null);
         int cnt = cursor.getCount();
         cursor.close();
         return cnt;

@@ -1,10 +1,12 @@
 package com.locadoc_app.locadoc.UI;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.locadoc_app.locadoc.LocalDB.ApplicationInstance;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.DBHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
@@ -18,7 +20,10 @@ import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.helper.Hash;
 
 import java.util.Iterator;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Set;
 
 public class TestDataBase extends AppCompatActivity {
@@ -33,7 +38,31 @@ public class TestDataBase extends AppCompatActivity {
         //long l = PasswordSQLHelper.insert("testPassword","1231231");
         TextView t = (TextView) findViewById(R.id.test);
 
+
+        //Instance
+        Log.d(">Instance","==================Instance===================");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+        String TimeStamp = simpleDateFormat.format(new Date());
+        String random =  UUID.randomUUID().toString();
+        Log.d(">Instance random",random);
+        Log.d(">Instance date",TimeStamp);
+        String Instance = Hash.Hash(TimeStamp,random);
+        Log.d(">Instance Instance",Instance);
+        ApplicationInstance.insert(Instance);
+        String Instance2 = ApplicationInstance.getRecord();
+        Log.d(">Instance2 Instance",Instance2);
+        SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+        String TimeStamp2 = simpleDateFormat2.format(new Date());
+        String random2 =  UUID.randomUUID().toString();
+        Log.d(">Instance random",random2);
+        Log.d(">Instance date",TimeStamp2);
+        String Instance3 = Hash.Hash(TimeStamp2,random2);
+        ApplicationInstance.updateRecord(Instance3);
+        String Instance4 = ApplicationInstance.getRecord();
+        Log.d(">Instance4 Instance",Instance4);
+        Log.d(">Instance No. Record",String.valueOf(ApplicationInstance.getNumberofRecords()));
         //======================password========================
+        Log.d(">password","==================Password===================");
         Password p = new Password();
         p.setPasswordid(1);
         p.setSalt(Hash.SecureRandomGen());
@@ -44,6 +73,7 @@ public class TestDataBase extends AppCompatActivity {
         Log.d(">password pwd",p2.getPassword());
         Log.d(">password salt",p2.getSalt());
         //===========================user=====================
+        Log.d(">user","==================User===================");
         User usr = new User();
         usr.setUser("kabhijay@gmail.com");
         usr.setFirstname("Abhi Jay");
@@ -59,6 +89,7 @@ public class TestDataBase extends AppCompatActivity {
         Log.d(">User Area ID",Integer.toString(usr2.getAdminareaid()));
 
         //============================Area==================================
+        Log.d(">Area","==================Area===================");
         Area ar = new Area();
         ar.setAreaId(1);
         ar.setName("SIM");
@@ -103,7 +134,10 @@ public class TestDataBase extends AppCompatActivity {
         ar6.setLatitude("1.333498666");
         ar6.setLongitude("103.772830242");
         ar6.setRadius("1000");
-        //AreaMap = AreaSQLHelper.getAreaNameInLoc(ar6,p2);
+        Location l2 = new Location("");
+        l2.setLatitude(Double.parseDouble(ar6.getLatitude()));
+        l2.setLongitude(Double.parseDouble(ar6.getLongitude()));
+        AreaMap = AreaSQLHelper.getAreaNameInLoc(l2,p2);
         if(AreaMap == null)
         {
             Log.d(">Area","No Area found in current location");
@@ -123,6 +157,7 @@ public class TestDataBase extends AppCompatActivity {
             Log.d(">Area Radius",a.getRadius());
         }
         //===========================File======================================
+        Log.d(">File","==================File===================");
         File file1 = new File();
         file1.setAreaId(ar1.getAreaId());
         file1.setFileId(1);
@@ -168,6 +203,7 @@ public class TestDataBase extends AppCompatActivity {
         Log.d(">File AreaID",String.valueOf(file2.getAreaId()));
         //====================================================
         //============================Area2==================================
+        Log.d(">Area2","==================Area2===================");
         Area ar2 = new Area();
         ar.setAreaId(2);
         ar.setLatitude("1.3521");
