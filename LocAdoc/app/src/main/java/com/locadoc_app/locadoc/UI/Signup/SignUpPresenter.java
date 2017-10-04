@@ -1,25 +1,22 @@
 package com.locadoc_app.locadoc.UI.Signup;
 
-import android.app.Application;
-import android.content.Context;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.util.Patterns;
-import android.widget.TextView;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttributes;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserCodeDeliveryDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.SignUpHandler;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
-import com.locadoc_app.locadoc.LocAdocApp;
-import com.locadoc_app.locadoc.LocalDB.PasswordSQLHelper;
-import com.locadoc_app.locadoc.Model.User;
-import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.LocalDB.ApplicationInstance;
+import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.helper.CheckPassword;
 import com.locadoc_app.locadoc.helper.EmailValidation;
-import com.locadoc_app.locadoc.helper.Installation;
+import com.locadoc_app.locadoc.helper.Hash;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by AbhiJay_PC on 12/9/2017.
@@ -126,7 +123,11 @@ public class SignUpPresenter  implements SignUPPresenterInterface{
             String email = activity.getEmailView().getText().toString();
             String fname = activity.getFNameView().getText().toString();
             String lname = activity.getLNameView().getText().toString();
-            String instanceID = Installation.id(LocAdocApp.getContext());
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+            String TimeStamp = simpleDateFormat.format(new Date());
+            String random =  UUID.randomUUID().toString();
+            String Instance = Hash.Hash(TimeStamp,random);
+            ApplicationInstance.insert(Instance);
             Log.d("LocAdoc", "GetEmail");
             userAttributes.addAttribute(AppHelper.getSignUpFieldsC2O().get("Email").toString(), email);
             Log.d("LocAdoc", "GetConNum");

@@ -6,6 +6,7 @@ package com.locadoc_app.locadoc.Model;
 
 public class Credential {
     private static Password PASSWORD;
+    private static String email;
 
     public static Password getPassword (){
         return PASSWORD;
@@ -13,5 +14,13 @@ public class Credential {
 
     public static void setPassword (Password pass){
         PASSWORD = pass;
+    }
+
+    public static String getEmail (){
+        return email;
+    }
+
+    public static void setEmail (String userEmail){
+        email = userEmail;
     }
 }
