@@ -52,6 +52,16 @@ public class FileSQLHelper implements BaseColumns {
         long newRowId = FileSQLHelper.getDbHelper().WRITE.insert(FileSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
+    public static int maxID()
+    {
+        Cursor crs = FileSQLHelper.getDbHelper().READ.rawQuery("SELECT * FROM file WHERE _id = ( SELECT MAX(_id) FROM file)",null);
+        int ID = 0;
+        if (crs != null && crs.moveToFirst()) {
+            ID = crs.getInt(crs.getColumnIndex(_ID));
+        }
+        crs.close();
+        return ID;
+    }
     //Query to search file table using original file name
     public static File getFile(int FileID,Password pwd)
     {
@@ -116,6 +126,7 @@ public class FileSQLHelper implements BaseColumns {
         values.put(FileSQLHelper.COLUMN_AREA, String.valueOf(file.getAreaId()));
         String [] arg = {String.valueOf(file.getFileId())};
         long newRowId = FileSQLHelper.getDbHelper().WRITE.update(FileSQLHelper.TABLE_NAME,values,"_id=?",arg);
+
         return newRowId;
     }
     public static long getNumberofRecords()
@@ -131,5 +142,23 @@ public class FileSQLHelper implements BaseColumns {
         String [] arg = {FileName};
         int deleted = FileSQLHelper.getDbHelper().WRITE.delete(FileSQLHelper.TABLE_NAME,FileSQLHelper.COLUMN_ORIGINAL_NAME +"=?",arg);
         return deleted;
+    }
+    public static int checkFileNameExist(String name,Password pwd)
+    {
+        Cursor crs = FileSQLHelper.dbHelper.READ.rawQuery("SELECT originalfilename FROM file",null);
+        Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
+        int count = 0;
+        if (crs != null && crs.moveToFirst()) {
+            do {
+                String fname = crs.getString(crs.getColumnIndex(FileSQLHelper.COLUMN_ORIGINAL_NAME));
+                String fname2 = en.decrypttString(fname);
+                if(fname2.equals(name)) {
+                    count++;
+                }
+            }while(crs.moveToNext());
+            crs.close();
+            return count;
+        }
+        return -1;
     }
 }

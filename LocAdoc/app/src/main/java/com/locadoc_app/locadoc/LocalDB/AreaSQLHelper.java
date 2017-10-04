@@ -57,7 +57,16 @@ public class AreaSQLHelper implements BaseColumns {
         long newRowId = AreaSQLHelper.getDbHelper().WRITE.insert(AreaSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
-
+    public static int maxID()
+    {
+        Cursor crs = AreaSQLHelper.getDbHelper().READ.rawQuery("SELECT * FROM area WHERE _id = ( SELECT MAX(_id) FROM area)",null);
+        int ID = 0;
+        if (crs != null && crs.moveToFirst()) {
+            ID = crs.getInt(crs.getColumnIndex(_ID));
+        }
+        crs.close();
+        return ID;
+    }
     public static Area getRecord(int AreaID, Password pwd) {
         String[] args = {String.valueOf(AreaID)};
         Cursor crs = dbHelper.READ.rawQuery("SELECT * FROM area WHERE _id = ?", args);
@@ -174,6 +183,24 @@ public class AreaSQLHelper implements BaseColumns {
             crs.close();
             return -1;
         }
+    }
+    public static int checkAreaNameExist(String name,Password pwd)
+    {
+        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT areaname FROM area",null);
+        Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
+        int count = 0;
+        if (crs != null && crs.moveToFirst()) {
+            do {
+                String arname = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
+                String arname2 = en.decrypttString(arname);
+                if(arname2.equals(name)) {
+                    count++;
+                }
+            }while(crs.moveToNext());
+            crs.close();
+            return count;
+        }
+        return -1;
     }
     public static long updateRecord(Area ar,Password pwd)
     {

@@ -98,6 +98,8 @@ public class TestDataBase extends AppCompatActivity {
         ar.setLongitude("103.7762");
         ar.setRadius("1000");
         AreaSQLHelper.insert(ar,p2);
+        Log.d("Area count",String.valueOf(AreaSQLHelper.checkAreaNameExist("SIM",p2)));
+        Log.d("Area MAXID",String.valueOf(AreaSQLHelper.maxID()));
         Area ar1 = AreaSQLHelper.getRecord(1,p2);
         Log.d(">Area ID",String.valueOf(ar1.getAreaId()));
         Log.d(">Area Name",ar1.getName());
@@ -122,6 +124,7 @@ public class TestDataBase extends AppCompatActivity {
             Log.d(">Area Latitude",ar4.getLatitude());
             Log.d(">Area Longitude",ar4.getLongitude());
             Log.d(">Area Radius",ar4.getRadius());
+            Log.d("Area MAXID",String.valueOf(AreaSQLHelper.maxID()));
         }
         else
         {
@@ -166,6 +169,7 @@ public class TestDataBase extends AppCompatActivity {
         file1.setPasswordId(p.getPasswordid());
         file1.setModified("0");
         FileSQLHelper.insert(file1,p2);
+        Log.d("File MAXID",String.valueOf(FileSQLHelper.maxID()));
         File file3 = new File();
         file3.setAreaId(ar1.getAreaId());
         file3.setFileId(2);
@@ -174,6 +178,7 @@ public class TestDataBase extends AppCompatActivity {
         file3.setPasswordId(p2.getPasswordid());
         file3.setModified("0");
         FileSQLHelper.insert(file3,p2);
+        Log.d("File MAXID",String.valueOf(FileSQLHelper.maxID()));
         File file4 = new File();
         file4.setAreaId(ar1.getAreaId());
         file4.setFileId(3);
@@ -182,6 +187,8 @@ public class TestDataBase extends AppCompatActivity {
         file4.setPasswordId(p2.getPasswordid());
         file4.setModified("0");
         FileSQLHelper.insert(file4,p);
+        Log.d("File MAXID",String.valueOf(FileSQLHelper.maxID()));
+        Log.d("File count",String.valueOf(FileSQLHelper.checkFileNameExist("fyp.pdf",p2)));
         Log.d(">File ","========Search Area============");
         fileMap = FileSQLHelper.getFilesInArea(ar1.getAreaId(),p2);
         if(fileMap == null)
