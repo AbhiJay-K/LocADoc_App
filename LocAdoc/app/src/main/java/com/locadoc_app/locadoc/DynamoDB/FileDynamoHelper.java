@@ -9,8 +9,11 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExp
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
+import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;
+import com.locadoc_app.locadoc.Model.Password;
+import com.locadoc_app.locadoc.helper.Encryption;
 
 import java.util.List;
 
@@ -52,6 +55,12 @@ public class FileDynamoHelper {
     public void insertToDB(File file)
     {
         file.setUser(getIdentity());
+        Password pwd = Credential.getPassword();
+        Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
+        file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
+        file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
+        file.setModified(en.encryptString(file.getModified()));
+
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         try{
             mapper.save(file);

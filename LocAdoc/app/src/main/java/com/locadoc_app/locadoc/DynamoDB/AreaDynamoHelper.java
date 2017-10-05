@@ -11,6 +11,9 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryLi
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;
+import com.locadoc_app.locadoc.Model.Credential;
+import com.locadoc_app.locadoc.Model.Password;
+import com.locadoc_app.locadoc.helper.Encryption;
 
 import java.util.List;
 
@@ -52,6 +55,14 @@ public class AreaDynamoHelper {
     public void insertToDB(Area area)
     {
         area.setOwner(getIdentity());
+        Password pwd = Credential.getPassword();
+        Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
+        area.setName(en.encryptString(area.getName()));
+        area.setDescription(en.encryptString(area.getDescription()));
+        area.setLatitude(en.encryptString(area.getLatitude()));
+        area.setLongitude(en.encryptString(area.getLongitude()));
+        area.setRadius(en.encryptString(area.getRadius()));
+
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         try{
             mapper.save(area);

@@ -37,6 +37,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
+import com.locadoc_app.locadoc.DynamoDB.AreaDynamoHelper;
+import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.DBHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
@@ -82,27 +84,11 @@ public class HomePageActivity extends AppCompatActivity
     private boolean returnWithResult;
     private Uri filePathUri;
 
-    public void initDummyData(){
-        Password password = new Password();
-        password.setPasswordid(1);
-        password.setPassword("Password");
-        password.setSalt("ohhoohh");
-        Credential.setPassword(password);
-        Credential.setEmail("test@yahoo.com");
-        DBHelper.init(getApplicationContext());
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
         returnWithResult = false;
-
-
-
-        initDummyData();
-
-
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -447,10 +433,14 @@ public class HomePageActivity extends AppCompatActivity
 
     @Override
     public int createNewArea(String filename, Area area) {
-        LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
         AreaSQLHelper.insert(area, Credential.getPassword());
+        Log.d("LocAdoc", "pass: " + Credential.getPassword().getPassword()+
+                ", salt: " + Credential.getPassword().getSalt());
+        int newId = AreaSQLHelper.maxID();
+        area.setAreaId(newId);
+        AreaDynamoHelper.getInstance().insert(area);
         gMapFrag.addMarker(area);
-        return AreaSQLHelper.maxID();
+        return newId;
     }
 
     @Override
@@ -479,7 +469,8 @@ public class HomePageActivity extends AppCompatActivity
             file.setCurrentfilename(currFileName);
             file.setAreaId(areaid);
             FileSQLHelper.insert(file, Credential.getPassword());
-
+            file.setFileId(FileSQLHelper.maxID());
+            FileDynamoHelper.getInstance().insert(file);
         } catch (Exception e){
             Log.e("LocAdoc", e.toString());
         }
