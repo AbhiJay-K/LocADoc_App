@@ -234,46 +234,16 @@ public class AreaSQLHelper implements BaseColumns {
         AreaSQLHelper.getDbHelper().WRITE.execSQL("delete from "+ AreaSQLHelper.TABLE_NAME);
     }
 
-    public static Area getRecord(String Arname, Password pwd) {
-        String[] args = {Arname};
-        Cursor crs = dbHelper.READ.rawQuery("SELECT * FROM area WHERE areaname = ?", args);
-        if (crs != null) {
-            crs.moveToFirst();
-            int id = crs.getInt(crs.getColumnIndex("_id"));
-            String name = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
-            String description = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_DESCRIPTION));
-            String Long = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE));
-            String Lat = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE));
-            String Rad = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_RADIUS));
-            crs.close();
-            Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
-            Area ar = new Area();
-            ar.setAreaId(id);
-            ar.setName(en.decrypttString(name));
-            ar.setDescription(en.decrypttString(description));
-            ar.setLatitude(en.decrypttString(Lat));
-            ar.setLongitude(en.decrypttString(Long));
-            ar.setRadius(en.decrypttString(Rad));
-            return ar;
-        } else {
-            crs.close();
-            Area a = new Area();
-            a.setAreaId(-1);
-            return a;
-        }
-    }
-
     public static Area getAreaName(String Arname,Password pwd) {
         Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area",null);
-        int count = 0;
         Area ar = new Area();
-        int id = crs.getInt(crs.getColumnIndex("_id"));
         Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
         if (crs != null && crs.moveToFirst()) {
             do {
                 String name = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
                 ar.setName(en.decrypttString(name));
                 if(ar.getName().equals(Arname)) {
+                    int id = crs.getInt(crs.getColumnIndex("_id"));
                     String description = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_DESCRIPTION));
                     String Long = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE));
                     String Lat = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE));
