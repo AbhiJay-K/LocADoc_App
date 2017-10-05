@@ -262,4 +262,33 @@ public class AreaSQLHelper implements BaseColumns {
             return a;
         }
     }
+
+    public static Area getAreaName(String Arname,Password pwd) {
+        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area",null);
+        int count = 0;
+        Area ar = new Area();
+        int id = crs.getInt(crs.getColumnIndex("_id"));
+        Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+        if (crs != null && crs.moveToFirst()) {
+            do {
+                String name = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
+                ar.setName(en.decrypttString(name));
+                if(ar.getName().equals(Arname)) {
+                    String description = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_DESCRIPTION));
+                    String Long = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE));
+                    String Lat = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE));
+                    String Rad = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_RADIUS));
+                    crs.close();
+                    ar.setAreaId(id);
+                    ar.setDescription(en.decrypttString(description));
+                    ar.setLatitude(en.decrypttString(Lat));
+                    ar.setLongitude(en.decrypttString(Long));
+                    ar.setRadius(en.decrypttString(Rad));
+                    return ar;
+                }
+            }while(crs.moveToNext());
+            crs.close();
+        }
+        return ar;
+    }
 }
