@@ -1,11 +1,9 @@
 package com.locadoc_app.locadoc.UI.HomePage;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
@@ -13,7 +11,6 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -38,25 +35,19 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.itextpdf.text.Document;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
-import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.DBHelper;
+import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
+import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.UI.PDFViewer.PDFViewer;
 import com.locadoc_app.locadoc.UI.Setting.SettingActivity;
+import com.locadoc_app.locadoc.helper.Encryption;
+import com.locadoc_app.locadoc.helper.Hash;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,35 +57,53 @@ import java.io.OutputStream;
 
 public class HomePageActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
-        GoogleMap.OnMarkerClickListener,
-        SelectAreaFragment.SelectAreaDialogListener{
+        SelectAreaFragment.SelectAreaDialogListener,
+        FileExplorerFragment.FileExplorerFragmentListener,
+        GoogleMapFragment.GoogleMapFragmentListener{
     private final int PICKFILE = 1;
+    private final int PDFVIEW = 2;
 
     private SearchView searchView;
     private SearchView.OnQueryTextListener queryTextListener;
-    private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
-    private Marker mCurrLocationMarker;
     private LocationRequest mLocationRequest;
-    private static final int DEFAULT_ZOOM = 15;
-    private Circle circleShown;
     private String userName;
     private TextView username;
+    private boolean requestFocus;
+
+    GoogleMapFragment gMapFrag;
+    FileExplorerFragment fileExplorerFragment;
 
     // create area
     private boolean returnWithResult;
     private Uri filePathUri;
+
+    public void initDummyData(){
+        Password password = new Password();
+        password.setPasswordid(1);
+        password.setPassword("Password");
+        password.setSalt("ohhoohh");
+        Credential.setPassword(password);
+        Credential.setEmail("test@yahoo.com");
+        DBHelper.init(getApplicationContext());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
         returnWithResult = false;
+
+
+
+        initDummyData();
+
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -103,6 +112,14 @@ public class HomePageActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 performFileSearch();
+            }
+        });
+
+        FloatingActionButton fileExplorerfab = (FloatingActionButton) findViewById(R.id.FileExplorerFloatingActionButton);
+        fileExplorerfab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openFileExplorer();
             }
         });
 
@@ -116,19 +133,36 @@ public class HomePageActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkLocationPermission();
+            if(checkLocationPermission()){
+                buildGoogleApiClient();
+            }
+        } else{
+            buildGoogleApiClient();
         }
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
 
-        mapFragment.getMapAsync(this);
+        requestFocus = true;
+        gMapFrag = new GoogleMapFragment();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, gMapFrag).commit();
+        fileExplorerFragment = new FileExplorerFragment();
+
         Bundle extras = getIntent().getExtras();
         if (extras !=null) {
             if (extras.containsKey("name")) {
                 userName = extras.getString("name");
             }
         }
+    }
+
+    public void openFileExplorer(){
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fileExplorerFragment).commit();
+    }
+
+    @Override
+    public void openGoogleMap(){
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, gMapFrag).commit();
     }
 
     @Override
@@ -221,70 +255,6 @@ public class HomePageActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.setOnMarkerClickListener(this);
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                if(circleShown != null){
-                    circleShown.remove();
-                    circleShown = null;
-                }
-            }
-        });
-
-        //Initialize Google Play Services
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                buildGoogleApiClient();
-                mMap.setMyLocationEnabled(true);
-            }
-        }
-        else {
-            buildGoogleApiClient();
-            mMap.setMyLocationEnabled(true);
-        }
-        loadMarker();
-    }
-
-    // load all area
-    public void loadMarker()
-    {
-        LatLng latLng = new LatLng(1.329511, 103.776169);
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("SIM University");
-        markerOptions.snippet("University Related Stuff");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        mMap.addMarker(markerOptions);
-
-        latLng = new LatLng(1.342135, 103.776937);
-        markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Home");
-        markerOptions.snippet("Data at home");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        mMap.addMarker(markerOptions);
-    }
-
-    @Override
-    public boolean onMarkerClick(final Marker marker) {
-        if (circleShown != null){
-            circleShown.remove();
-        }
-        circleShown = mMap.addCircle(new CircleOptions()
-                .center(marker.getPosition())
-                .radius(40)
-                .strokeColor(Color.argb(25,30,100,255))
-                .fillColor(Color.argb(90,135,206,250)));
-        return false;
-    }
-
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -318,27 +288,11 @@ public class HomePageActivity extends AppCompatActivity
     // -------------------------------------------------------------
     @Override
     public void onLocationChanged(Location location) {
-
         mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
+        if(requestFocus){
+            gMapFrag.focusCamera(location);
+            requestFocus = false;
         }
-
-        Toast.makeText(this, "Lat: " + location.getLatitude() + ", Long: " + location.getLongitude(),
-                Toast.LENGTH_SHORT).show();
-
-        //Place current location marker
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-        //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
-
-        //stop location updates
-        if (mGoogleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }
-
     }
 
     @Override
@@ -396,7 +350,6 @@ public class HomePageActivity extends AppCompatActivity
                         if (mGoogleApiClient == null) {
                             buildGoogleApiClient();
                         }
-                        mMap.setMyLocationEnabled(true);
                     }
 
                 } else {
@@ -425,16 +378,24 @@ public class HomePageActivity extends AppCompatActivity
 
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
-
-        // The ACTION_OPEN_DOCUMENT intent was sent with the request code
-        // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
-        // response to some other intent, and the code below shouldn't run at all.
         if (resultCode == Activity.RESULT_OK) {
             switch(requestCode) {
                 case PICKFILE:
                     if (resultData != null) {
                         filePathUri = resultData.getData();
                         returnWithResult = true;
+                    }
+                case PDFVIEW:
+                    if (resultData != null){
+                        String fileName = resultData.getStringExtra("filename");
+                        File dst = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/vault/~" + fileName);
+                        if(dst.exists()){
+                            Log.d("LocAdoc", "Exist");
+                        }
+                        dst.delete();
+                        if(!dst.exists()){
+                            Log.d("LocAdoc", "Not Exist");
+                        }
                     }
             }
         }
@@ -485,56 +446,39 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     @Override
-    public void createNewArea(String filename, Area area) {
-        // -- Finish dialog box show msg
-        double lon = mLastLocation.getLongitude();
-        double lat = mLastLocation.getLatitude();
-        area.setLongitude(Double.toString(lon));
-        area.setLatitude(Double.toString(lat));
-        Toast.makeText(this, "Create new area. Area long: " + area.getLongitude() +
-                        ". Area lat: " + area.getLatitude(),
-                Toast.LENGTH_SHORT).show();
-
-        LatLng latLng = new LatLng(lat, lon);
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title(area.getName());
-        markerOptions.snippet(area.getDescription());
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        mMap.addMarker(markerOptions);
-
+    public int createNewArea(String filename, Area area) {
+        LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
         AreaSQLHelper.insert(area, Credential.getPassword());
-        /*Toast.makeText(this, "Create new area. Area name: " + area.getName() +
-                        ". Area desc: " + area.getDescription() + ". Area radius: " + area.getRadius(),
-                Toast.LENGTH_SHORT).show();*/
-        saveFile(filename, area.getName());
+        gMapFrag.addMarker(area);
+        return AreaSQLHelper.maxID();
     }
 
     @Override
-    public void saveFile(String filename, String areaName){
+    public void saveFile(String filename, int areaid){
         File dir = new File(getApplicationContext().getFilesDir().getAbsolutePath()+"/vault");
         if(!dir.exists()){
             Log.d("LocAdoc", "Make new dir");
             dir.mkdir();
         }
-        String currFileName = Credential.getEmail(); //+ get password id
+        String currFileName = Credential.getEmail() + (FileSQLHelper.maxID() + 1);
 
-        File dst = new File(dir.getAbsolutePath() + "/" + filename);
+        File dst = new File(dir.getAbsolutePath() + "/" + currFileName);
         Log.d("LocAdoc", dst.getAbsolutePath());
         InputStream in = null;
         OutputStream out = null;
 
         try{
-            in = getContentResolver().openInputStream(filePathUri);;
+            in = getContentResolver().openInputStream(filePathUri);
             out = new FileOutputStream(dst);
+            Password password = Credential.getPassword();
+            Encryption.getInstance(password.getPassword(), password.getSalt()).encryptFile(in,out);
 
-            // Transfer bytes from in to out
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-
+            com.locadoc_app.locadoc.Model.File file = new com.locadoc_app.locadoc.Model.File();
+            file.setPasswordId(Credential.getPassword().getPasswordid());
+            file.setOriginalfilename(filename);
+            file.setCurrentfilename(currFileName);
+            file.setAreaId(areaid);
+            FileSQLHelper.insert(file, Credential.getPassword());
 
         } catch (Exception e){
             Log.e("LocAdoc", e.toString());
@@ -547,14 +491,50 @@ public class HomePageActivity extends AppCompatActivity
                 Log.e("LocAdoc", e.toString());
             }
         }
+    }
+
+    public void openFile(int fileid){
+        com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(fileid, Credential.getPassword());
+        String fileName = file.getCurrentfilename();
+        File src = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/vault/" + fileName);
+        File dst = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/vault/~" + fileName);
+        decryptFile(src, dst);
 
         Intent PDFVIEWER = new Intent(this, PDFViewer.class);
+        PDFVIEWER.putExtra("filename", fileName);
         PDFVIEWER.putExtra("FILE", Uri.fromFile(dst).toString());
-        startActivity(PDFVIEWER);
+        startActivityForResult(PDFVIEWER, PDFVIEW);
+    }
+
+    public void decryptFile(File src, File dst){
+        InputStream in = null;
+        OutputStream out = null;
+
+        try{
+            in = new FileInputStream(src);
+            out = new FileOutputStream(dst);
+            Password password = Credential.getPassword();
+            Encryption.getInstance(password.getPassword(), password.getSalt()).decryptFile(in,out);
+        } catch (Exception e){
+            Log.e("LocAdoc", e.toString());
+        }
+        finally {
+            try{
+                in.close();
+                out.close();
+            } catch (Exception e){
+                Log.e("LocAdoc", e.toString());
+            }
+        }
     }
 
     @Override
     public Location getLastKnownLoc(){
         return mLastLocation;
+    }
+
+    @Override
+    public void requestFocus(){
+        requestFocus = true;
     }
 }

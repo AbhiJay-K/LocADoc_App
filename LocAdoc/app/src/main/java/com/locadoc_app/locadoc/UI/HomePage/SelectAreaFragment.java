@@ -36,11 +36,11 @@ public class SelectAreaFragment extends DialogFragment {
     Spinner existingArea;
     String filename;
     Map<String, Integer> allAreaAround;
-    private final static String[] RADIUS_LIST = new String[]{"100m", "200m", "500m", "1km", "2km", "10km"};
+    private final static String[] RADIUS_LIST = new String[]{"20m", "50m", "100m", "200m", "500m", "1000m"};
 
     public interface SelectAreaDialogListener {
-        void createNewArea(String filename, Area area);
-        void saveFile(String filename, String areaName);
+        int createNewArea(String filename, Area area);
+        void saveFile(String filename, int areaid);
         Location getLastKnownLoc();
     }
 
@@ -59,7 +59,6 @@ public class SelectAreaFragment extends DialogFragment {
         TextView title = (TextView) view.findViewById(R.id.SelectAreaTitle);
         title.setText(filename);
 
-
         newAreaName = (EditText) view.findViewById(R.id.NewAreaName);
         newAreaDesc = (EditText) view.findViewById(R.id.NewAreaDesc);
         btnCreateNewArea = (Button) view.findViewById(R.id.CreateNewAreaBtn);
@@ -67,19 +66,16 @@ public class SelectAreaFragment extends DialogFragment {
         btnCancel = (Button) view.findViewById(R.id.CancelBtn);
 
         radiusSpinner = (Spinner) view.findViewById(R.id.Radius);
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(getActivity(),
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_dropdown_item_1line, RADIUS_LIST);
         radiusSpinner.setAdapter(adapter2);
 
         existingArea = (Spinner) view.findViewById(R.id.ExistingArea);
-        allAreaAround = new HashMap<String, Integer>();
         getAllAreaAround();
         String[] strArr = allAreaAround.keySet().toArray(new String[allAreaAround.size()]);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_dropdown_item_1line, strArr);
         existingArea.setAdapter(adapter);
-
-
 
         //---event handler for the button
         btnCreateNewArea.setOnClickListener(new View.OnClickListener()
@@ -87,11 +83,11 @@ public class SelectAreaFragment extends DialogFragment {
             public void onClick(View view) {
                 String areaName = newAreaName.getText().toString();
 
-                if(areaName.isEmpty()) {
+                if(areaName.trim().length() <= 0) {
                     Toast.makeText(getActivity(), "Area name is empty",
                             Toast.LENGTH_SHORT).show();
                     return;
-                } else if (checkAreaExist(areaName)){
+                } else if (AreaSQLHelper.checkAreaNameExist(areaName, Credential.getPassword()) > 0){
                     Toast.makeText(getActivity(), "Area name already exist",
                             Toast.LENGTH_SHORT).show();
                     return;
@@ -99,13 +95,25 @@ public class SelectAreaFragment extends DialogFragment {
 
                 String areaDesc = newAreaDesc.getText().toString();
                 String radius = radiusSpinner.getSelectedItem().toString();
+                radius = radius.substring(0, radius.length() - 1);
                 //---gets the calling activity
                 SelectAreaDialogListener activity = (SelectAreaDialogListener) getActivity();
                 Area area = new Area();
                 area.setName(areaName);
                 area.setDescription(areaDesc);
                 area.setRadius(radius);
-                activity.createNewArea(filename, area);
+                Location loc = activity.getLastKnownLoc();
+                area.setLatitude("" + loc.getLatitude());
+                area.setLongitude("" + loc.getLongitude());
+
+                if(AreaSQLHelper.checkLocExist(area, Credential.getPassword()) > 0){
+                    Toast.makeText(getActivity(), "An area is already exist in the same position",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                int id = activity.createNewArea(filename, area);
+                activity.saveFile(filename, id);
 
                 //---dismiss the alert
                 dismiss();
@@ -124,7 +132,7 @@ public class SelectAreaFragment extends DialogFragment {
 
                 //---gets the calling activity
                 SelectAreaDialogListener activity = (SelectAreaDialogListener) getActivity();
-                activity.saveFile(filename, obj.toString());
+                activity.saveFile(filename, allAreaAround.get(obj.toString()));
                 //---dismiss the alert
                 dismiss();
             }
@@ -141,18 +149,8 @@ public class SelectAreaFragment extends DialogFragment {
         getDialog().getWindow().setSoftInputMode(
                 LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
-        //---set the title for the dialog
-        //getDialog().setTitle("Select Area");
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         return view;
-    }
-
-    public boolean checkAreaExist (String areaName)
-    {
-        boolean isExist = false;
-        // check in database
-
-        return isExist;
     }
 
     public void getAllAreaAround()

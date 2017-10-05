@@ -3,8 +3,8 @@ package com.locadoc_app.locadoc.helper;
 import android.util.Base64;
 import android.util.Log;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 
@@ -64,13 +64,11 @@ public class Encryption {
 		return ivParams;
 	}
 	
-	public void encryptFile (String fileName, String fileName2)
+	public void encryptFile (InputStream fin, OutputStream fout)
 	{
 		try{
 			IvParameterSpec ivspec = generateIV();
 			AES.init(Cipher.ENCRYPT_MODE, key, ivspec);
-			FileInputStream fin = new FileInputStream(fileName);
-			FileOutputStream fout = new FileOutputStream(fileName2);
 			CipherInputStream cis = new CipherInputStream(fin, AES);
 			
 			// attach random IV
@@ -82,23 +80,19 @@ public class Encryption {
 			{  
 				fout.write(buffer, 0, r);  
 			}  
-			cis.close();  
-			fin.close();  
-			fout.close();
+			cis.close();
 		}
-		catch (Exception e){e.printStackTrace();}
+		catch (Exception e){}
 	}
 	
-	public void decryptFile (String fileName, String fileName2)
+	public void decryptFile (InputStream fin, OutputStream fout)
 	{
 		try{
-			FileInputStream fin = new FileInputStream(fileName);
 			// read attached IV
 			byte[] iv = new byte[AES.getBlockSize()];
 			fin.read(iv);
 			IvParameterSpec ivspec = new IvParameterSpec(iv);
 			AES.init(Cipher.DECRYPT_MODE, key, ivspec);
-			FileOutputStream fout = new FileOutputStream(fileName2);
 			CipherOutputStream cos = new CipherOutputStream(fout, AES);
 			byte [] buffer = new byte [8192];  
 			int r;  
@@ -106,9 +100,7 @@ public class Encryption {
 			{  
 				cos.write(buffer, 0, r);  
 			}  
-			cos.close();  
-			fin.close();  
-			fout.close();
+			cos.close();
 		}
 		catch (Exception e){}
 	}
