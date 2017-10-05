@@ -1,5 +1,7 @@
 package com.locadoc_app.locadoc.UI.Login;
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
@@ -12,11 +14,32 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.Mult
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.NewPasswordContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
+import com.locadoc_app.locadoc.DynamoDB.AreaDynamoHelper;
+import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper;
+import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
+import com.locadoc_app.locadoc.DynamoDB.PasswordDynamoHelper;
+import com.locadoc_app.locadoc.DynamoDB.UserDynamoHelper;
+import com.locadoc_app.locadoc.LocAdocApp;
+import com.locadoc_app.locadoc.LocalDB.ApplicationInstance;
+import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.PasswordSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
+import com.locadoc_app.locadoc.Model.Area;
+import com.locadoc_app.locadoc.Model.Credential;
+import com.locadoc_app.locadoc.Model.File;
+import com.locadoc_app.locadoc.Model.Password;
+import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.CheckPassword;
 import com.locadoc_app.locadoc.helper.EmailValidation;
+import com.locadoc_app.locadoc.helper.Hash;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by Admin on 9/12/2017.
@@ -104,8 +127,11 @@ public class LoginPresenter implements LoginPresenterInterface
             loginAct.closeWaitDialog();
             AppHelper.setCurrSession(cognitoUserSession);
             AppHelper.newDevice(device);
-            loginAct.openMainActivity();
+            Credential.setEmail(loginAct.getUserIDView().getText().toString());
+            loginAct.checkLogin();
+            new DBSynchronise().execute();
         }
+
 
         @Override
         public void getAuthenticationDetails(AuthenticationContinuation authenticationContinuation, String username) {
@@ -152,5 +178,68 @@ public class LoginPresenter implements LoginPresenterInterface
         }
     };
 
+    private class DBSynchronise extends
+            AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+           loginAct.startProgressDialog();
+        }
 
+        @Override
+        protected Void doInBackground(Void... objects) {
+            DynamoDBHelper.init(LocAdocApp.getContext());
+            User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
+            long numberUser = UserSQLHelper.getNumberofRecords();
+            if(numberUser > 0 &&  usr != null) {
+                String userEmail = UserSQLHelper.getUser();
+                Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
+                Credential.setEmail(usr.getUser());
+                Credential.setPassword(pwd);
+                FileSQLHelper.clearRecord();
+                AreaSQLHelper.clearRecord();
+                List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
+                for(Area ar : areaList) {
+                    AreaSQLHelper.insert(ar,Credential.getPassword());
+                }
+                List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
+                for(File file : fileList) {
+                    FileSQLHelper.insert(file, Credential.getPassword());
+                }
+            }
+            else if(usr == null && numberUser > 0){
+                User newusr = UserSQLHelper.getRecord(Credential.getEmail(),Credential.getPassword());
+                String instance = ApplicationInstance.getRecord();
+                newusr.setInstanceID(instance);
+                UserDynamoHelper.getInstance().insert(newusr);
+                PasswordDynamoHelper.getInstance().insert(Credential.getPassword());
+            }
+            else if(usr != null && numberUser <= 0)
+            {
+                Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
+                Credential.setEmail(usr.getUser());
+                Credential.setPassword(pwd);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+                String TimeStamp = simpleDateFormat.format(new Date());
+                String random =  UUID.randomUUID().toString();
+                String Instance = Hash.Hash(TimeStamp,random);
+                ApplicationInstance.insert(Instance);
+                usr.setInstanceID(Instance);
+                UserDynamoHelper.getInstance().insert(usr);
+                List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
+                for(Area ar : areaList) {
+                    AreaSQLHelper.insert(ar,Credential.getPassword());
+                }
+                List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
+                for(File file : fileList) {
+                    FileSQLHelper.insert(file, Credential.getPassword());
+                }
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void result) {
+            loginAct.dismissProgressDialog();
+            loginAct.openMainActivity();
+        }
+    }
 }

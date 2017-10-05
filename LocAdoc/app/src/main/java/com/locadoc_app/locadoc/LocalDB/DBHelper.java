@@ -48,6 +48,7 @@ public class DBHelper extends SQLiteOpenHelper{
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ApplicationInstance.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
+
     public static void init(Context context){
         if(dbHelper == null){
             dbHelper = new DBHelper(context);

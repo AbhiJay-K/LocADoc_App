@@ -53,20 +53,39 @@ public class UserSQLHelper implements BaseColumns{
         User user = new User();
         String [] args = {usrID};
         Cursor crs = dbHelper.READ.rawQuery("SELECT * FROM user WHERE email = ?", args);
-        crs.moveToFirst();
-        String email = crs.getString(crs.getColumnIndex("email"));
-        String fn = crs.getString(crs.getColumnIndex("firstname"));
-        String ln = crs.getString(crs.getColumnIndex("lastname"));
-        int pwdID = crs.getInt(crs.getColumnIndex("password"));
-        int admarea = crs.getInt(crs.getColumnIndex("adminarea"));
+        if(crs != null && crs.moveToFirst())
+        {
+            String email = crs.getString(crs.getColumnIndex("email"));
+            String fn = crs.getString(crs.getColumnIndex("firstname"));
+            String ln = crs.getString(crs.getColumnIndex("lastname"));
+            int pwdID = crs.getInt(crs.getColumnIndex("password"));
+            int admarea = crs.getInt(crs.getColumnIndex("adminarea"));
 
-        Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
-        user.setUser(email);
-        user.setFirstname(en.decrypttString(fn));
-        user.setLastname(en.decrypttString(ln));
-        user.setPasswordid(pwdID);
-        user.setAdminareaid(admarea);
+            Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+            user.setUser(email);
+            user.setFirstname(en.decrypttString(fn));
+            user.setLastname(en.decrypttString(ln));
+            user.setPasswordid(pwdID);
+            user.setAdminareaid(admarea);
+        }
         return user;
+    }
+    public static String getUser()
+    {
+        Cursor crs = dbHelper.READ.rawQuery("SELECT email FROM user ",null);
+        String email = new String();
+        if(crs != null && crs.moveToFirst()) {
+            email = crs.getString(crs.getColumnIndex(UserSQLHelper.COLUMN_EMAIL));
+        }
+        return email;
+    }
+    public static int getPWDID(){
+        int ID = 0;
+        Cursor crs = dbHelper.READ.rawQuery("SELECT password FROM user ",null);
+        if(crs != null && crs.moveToFirst()) {
+            ID = crs.getInt(crs.getColumnIndex(UserSQLHelper.COLUMN_PWD));
+        }
+        return ID;
     }
     public static long UpdateRecord(User usr,Password pwd)
     {

@@ -154,8 +154,7 @@ public class AreaSQLHelper implements BaseColumns {
             return AreaMap;
         }
     }
-    public static int checkLocExist(Area ar,Password pwd)
-    {
+    public static int checkLocExist(Area ar,Password pwd) {
         Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area",null);
         if (crs != null && crs.moveToFirst()) {
             do {
@@ -184,8 +183,8 @@ public class AreaSQLHelper implements BaseColumns {
             return -1;
         }
     }
-    public static int checkAreaNameExist(String name,Password pwd)
-    {
+
+    public static int checkAreaNameExist(String name,Password pwd) {
         Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT areaname FROM area",null);
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
         int count = 0;
@@ -202,8 +201,8 @@ public class AreaSQLHelper implements BaseColumns {
         }
         return -1;
     }
-    public static long updateRecord(Area ar,Password pwd)
-    {
+
+    public static long updateRecord(Area ar,Password pwd) {
         ContentValues values = new ContentValues();
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
         values.put(AreaSQLHelper.COLUMN_NAME, en.encryptString(ar.getName()));
@@ -215,18 +214,52 @@ public class AreaSQLHelper implements BaseColumns {
         long newRowId = AreaSQLHelper.getDbHelper().WRITE.update(AreaSQLHelper.TABLE_NAME,values,"_id=?",arg);
         return newRowId;
     }
-    public static long getNumberofRecords()
-    {
+
+    public static long getNumberofRecords() {
         String countQuery = "SELECT  * FROM " + AreaSQLHelper.TABLE_NAME;
         Cursor cursor = AreaSQLHelper.dbHelper.READ.rawQuery(countQuery, null);
         int cnt = cursor.getCount();
         cursor.close();
         return cnt;
     }
-    public static int deleteRecord(int AreaID)
-    {
+
+    public static int deleteRecord(int AreaID) {
         String [] arg = {String.valueOf(AreaID)};
         int deleted = AreaSQLHelper.getDbHelper().WRITE.delete(AreaSQLHelper.TABLE_NAME,"_id = ?",arg);
         return deleted;
+    }
+
+    public static void clearRecord()
+    {
+        AreaSQLHelper.getDbHelper().WRITE.execSQL("delete from "+ AreaSQLHelper.TABLE_NAME);
+    }
+
+    public static Area getRecord(String Arname, Password pwd) {
+        String[] args = {Arname};
+        Cursor crs = dbHelper.READ.rawQuery("SELECT * FROM area WHERE areaname = ?", args);
+        if (crs != null) {
+            crs.moveToFirst();
+            int id = crs.getInt(crs.getColumnIndex("_id"));
+            String name = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
+            String description = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_DESCRIPTION));
+            String Long = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE));
+            String Lat = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE));
+            String Rad = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_RADIUS));
+            crs.close();
+            Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+            Area ar = new Area();
+            ar.setAreaId(id);
+            ar.setName(en.decrypttString(name));
+            ar.setDescription(en.decrypttString(description));
+            ar.setLatitude(en.decrypttString(Lat));
+            ar.setLongitude(en.decrypttString(Long));
+            ar.setRadius(en.decrypttString(Rad));
+            return ar;
+        } else {
+            crs.close();
+            Area a = new Area();
+            a.setAreaId(-1);
+            return a;
+        }
     }
 }

@@ -19,4 +19,7 @@ public interface LoginViewInterface {
     void closeWaitDialog();
     void firstTimeSignIn();
     void confirmUser();
+    boolean checkLogin();
+    void startProgressDialog();
+    void dismissProgressDialog();
 }

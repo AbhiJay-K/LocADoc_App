@@ -9,7 +9,9 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
+import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.Model.Area;
+import com.locadoc_app.locadoc.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +27,8 @@ public class DynamoDBHelper {
     private static CognitoCachingCredentialsProvider credentials;
     private static String identityId = "";
     //private final static String identityPoolId = "ap-southeast-1:c5bd72e5-6825-429f-8d33-f13046eda875";
-    private final static String identityPoolId = "ap-southeast-1:365da5cf-e75f-4e4f-84bb-d99244df4408";
-    private static final String userPoolId = "ap-southeast-1_SsME563KX";
+    private final static String identityPoolId = LocAdocApp.getContext().getString(R.string.aws_identitypool);
+    private static final String userPoolId = LocAdocApp.getContext().getString(R.string.aws_userpool);
     public enum OperationType {
        INSERT, DELETE, GET_RECORD, GET_ALL
     }

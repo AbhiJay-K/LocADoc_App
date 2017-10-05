@@ -9,7 +9,10 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserCodeDel
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.SignUpHandler;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocalDB.ApplicationInstance;
+import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
+import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.Password;
+import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.CheckPassword;
 import com.locadoc_app.locadoc.helper.EmailValidation;
 import com.locadoc_app.locadoc.helper.Hash;
@@ -19,7 +22,7 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * Created by AbhiJay_PC on 12/9/2017.
+ *
  */
 
 public class SignUpPresenter  implements SignUPPresenterInterface{
@@ -119,6 +122,7 @@ public class SignUpPresenter  implements SignUPPresenterInterface{
         if(checkEmail() == 1 && isValidPassword() == 1 && checkPasswordSame() == 1 &&
                 checkFName() && checkLName() && CheckContactNum() == 1)
         {
+            //getting user credentials and creating a local record
             String password = activity.getPwdView().getText().toString();
             String email = activity.getEmailView().getText().toString();
             String fname = activity.getFNameView().getText().toString();
@@ -128,6 +132,31 @@ public class SignUpPresenter  implements SignUPPresenterInterface{
             String random =  UUID.randomUUID().toString();
             String Instance = Hash.Hash(TimeStamp,random);
             ApplicationInstance.insert(Instance);
+            Password p = new Password();
+            String salt = Hash.SecureRandomGen();
+            String pwdDigest = Hash.Hash(password,salt);
+            p.setPasswordid(1);
+            p.setPassword(pwdDigest);
+            p.setSalt(salt);
+            Credential.setPassword(p);
+            Credential.setEmail(email);
+            User usr = new User();
+            usr.setUser(email);
+            usr.setFirstname(fname);
+            usr.setLastname(lname);
+            usr.setPasswordid(1);
+            usr.setAdminareaid(0);
+            UserSQLHelper.insert(usr,Credential.getPassword());
+            User usr2 = UserSQLHelper.getRecord(usr.getUser(),Credential.getPassword());
+            Log.d(">User ID",usr2.getUser());
+            Log.d(">User First Name",usr2.getFirstname());
+            Log.d(">User Last Name",usr2.getLastname());
+            Log.d(">User pwd ID",Integer.toString(usr2.getPasswordid()));
+            Log.d(">User Area ID",Integer.toString(usr2.getAdminareaid()));
+            String Instance4 = ApplicationInstance.getRecord();
+            Log.d(">Instance ",Instance4);
+
+            //Cognito request
             Log.d("LocAdoc", "GetEmail");
             userAttributes.addAttribute(AppHelper.getSignUpFieldsC2O().get("Email").toString(), email);
             Log.d("LocAdoc", "GetConNum");

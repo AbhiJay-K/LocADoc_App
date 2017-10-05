@@ -79,8 +79,8 @@ public class UserDynamoHelper {
         String id = getIdentity();
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         User user = mapper.load(User.class, id, email);
-        Log.d("LocAdoc", "user: " + user.getUser() + ", first name: " + user.getFirstname()
-                + ", last name: " + user.getLastname() + ", pass id: " + user.getPasswordid());
+        //Log.d("LocAdoc", "user: " + user.getUser() + ", first name: " + user.getFirstname()
+               // + ", last name: " + user.getLastname() + ", pass id: " + user.getPasswordid());
         return user;
     }
 

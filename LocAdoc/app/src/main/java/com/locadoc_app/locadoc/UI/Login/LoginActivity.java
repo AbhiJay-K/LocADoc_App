@@ -9,11 +9,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.facebook.CallbackManager;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocalDB.DBHelper;
+import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.Test;
 import com.locadoc_app.locadoc.UI.ConfirmSignUp.Activity_SignUp_Confirm;
@@ -34,11 +36,16 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     private LoginPresenterInterface loginPres;
     private ProgressDialog waitDialog;
     private AlertDialog userDialog;
+
+    private ProgressDialog progress;
+    private static boolean curUSer = false;
     CallbackManager callbackManager;
     @BindView(R.id.UserID)
     AutoCompleteTextView userIDView;
     @BindView(R.id.Password)
     EditText passView;
+    @BindView(R.id.SignupButton)
+    Button signupButton;
 
     private ProgressDialog dialog;
 
@@ -50,6 +57,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         setContentView(R.layout.activity_login);
         DBHelper.init(getApplicationContext());
         ButterKnife.bind(this);
+        checkLogin();
         AppHelper.init(getApplicationContext());
         // wipe data
         AppHelper.getPool().getCurrentUser().signOut();
@@ -104,7 +112,36 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         homeActivity.putExtra("name", userIDView.getText().toString());
         startActivity(homeActivity);
     }
-
+    public void startProgressDialog()
+    {
+        progress = new ProgressDialog(LoginActivity.this);
+        progress.setTitle("Setup");
+        progress.setMessage("Setting up services...");
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setCancelable(true);
+    }
+    public void dismissProgressDialog()
+    {
+        progress.dismiss();
+    }
+    public boolean checkLogin()
+    {
+        Log.d("Numer of User ",String.valueOf(UserSQLHelper.getNumberofRecords()));
+        if(UserSQLHelper.getNumberofRecords() > 0){
+            Log.d("Numer of User ",String.valueOf(UserSQLHelper.getNumberofRecords()));
+            String email = UserSQLHelper.getUser();
+            userIDView.setText(email);
+            userIDView.setFocusable(false);
+            userIDView.setClickable(true);
+            signupButton.setVisibility(View.GONE);
+            curUSer = true;
+            return true;
+        }
+        return false;
+    }
+    public static boolean isCurUSer() {
+        return curUSer;
+    }
     public void openForgotPasswordActivity() {
         Intent ForgetPasswordActivity = new Intent(this, PasswordRecovery.class);
         ForgetPasswordActivity.putExtra("name", userIDView.getText().toString());
