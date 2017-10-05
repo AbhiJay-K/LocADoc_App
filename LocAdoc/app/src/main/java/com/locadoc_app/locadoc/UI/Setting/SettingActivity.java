@@ -106,19 +106,21 @@ public class SettingActivity extends AppCompatActivity  {
     }
     
     public void openPhoneNumberActivity() {
-        Intent homeActivity = new Intent(this, HomePageActivity.class);
-       // homeActivity.putExtra("name", userIDView.getText().toString());
-        startActivity(homeActivity);    	
+        // Intent homeActivity = new Intent(this, HomePageActivity.class);
+        // homeActivity.putExtra("name", userIDView.getText().toString());
+        // startActivity(homeActivity);
     }
 
     public void openResetPasswordActivity() {
-        Intent homeActivity = new Intent(this, HomePageActivity.class);
-       // homeActivity.putExtra("name", userIDView.getText().toString());
-        startActivity(homeActivity);
+        Intent resetPassword = new Intent(this, ResetPassword.class);
+        // homeActivity.putExtra("name", userIDView.getText().toString());
+        startActivity(resetPassword);
     }
 
     public void openSetAdminAreaActivity() {
-        
+        // Intent homeActivity = new Intent(this, HomePageActivity.class);
+        // homeActivity.putExtra("name", userIDView.getText().toString());
+        // startActivity(homeActivity);
     }
 
     /********** View List Method **********/
