@@ -52,6 +52,17 @@ public class FileSQLHelper implements BaseColumns {
         long newRowId = FileSQLHelper.getDbHelper().WRITE.insert(FileSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
+    public static long insertWithoutEncryption(File file,Password pwd)
+    {
+        ContentValues values = new ContentValues();
+        values.put(FileSQLHelper.COLUMN_CURRENT_NAME, file.getCurrentfilename());
+        values.put(FileSQLHelper.COLUMN_ORIGINAL_NAME, file.getOriginalfilename());
+        values.put(FileSQLHelper.COLUMN_MODIFIED, file.getModified());
+        values.put(FileSQLHelper.COLUMN_PWD, file.getPasswordId());
+        values.put(FileSQLHelper.COLUMN_AREA, file.getAreaId());
+        long newRowId = FileSQLHelper.getDbHelper().WRITE.insert(FileSQLHelper.TABLE_NAME, null, values);
+        return newRowId;
+    }
     public static int maxID()
     {
         Cursor crs = FileSQLHelper.getDbHelper().READ.rawQuery("SELECT * FROM file WHERE _id = ( SELECT MAX(_id) FROM file)",null);

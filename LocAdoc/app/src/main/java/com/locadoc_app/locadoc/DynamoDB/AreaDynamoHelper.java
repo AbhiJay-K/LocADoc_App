@@ -115,7 +115,6 @@ public class AreaDynamoHelper {
             DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
                     .withHashKeyValues(area)
                     .withConsistentRead(false);
-
             DynamoDBMapper mapper = DynamoDBHelper.getMapper();
             result = mapper.query(Area.class, queryExpression);
         } catch (AmazonServiceException ex){

@@ -57,6 +57,16 @@ public class AreaSQLHelper implements BaseColumns {
         long newRowId = AreaSQLHelper.getDbHelper().WRITE.insert(AreaSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
+    public static long insertWithoutEncryption(Area ar, Password pwd) {
+        ContentValues values = new ContentValues();
+        values.put(AreaSQLHelper.COLUMN_NAME, ar.getName());
+        values.put(AreaSQLHelper.COLUMN_DESCRIPTION, ar.getDescription());
+        values.put(AreaSQLHelper.COLUMN_LATITUDE, ar.getLatitude());
+        values.put(AreaSQLHelper.COLUMN_LONGITUDE, ar.getLongitude());
+        values.put(AreaSQLHelper.COLUMN_RADIUS, ar.getRadius());
+        long newRowId = AreaSQLHelper.getDbHelper().WRITE.insert(AreaSQLHelper.TABLE_NAME, null, values);
+        return newRowId;
+    }
     public static int maxID()
     {
         Cursor crs = AreaSQLHelper.getDbHelper().READ.rawQuery("SELECT * FROM area WHERE _id = ( SELECT MAX(_id) FROM area)",null);

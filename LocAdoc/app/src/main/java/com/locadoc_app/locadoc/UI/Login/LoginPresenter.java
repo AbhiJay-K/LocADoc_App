@@ -199,11 +199,11 @@ public class LoginPresenter implements LoginPresenterInterface
                 AreaSQLHelper.clearRecord();
                 List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
                 for(Area ar : areaList) {
-                    AreaSQLHelper.insert(ar,Credential.getPassword());
+                    AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
                 }
                 List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
                 for(File file : fileList) {
-                    FileSQLHelper.insert(file, Credential.getPassword());
+                    FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
                 }
             }
             else if(usr == null && numberUser > 0){
@@ -227,11 +227,11 @@ public class LoginPresenter implements LoginPresenterInterface
                 UserDynamoHelper.getInstance().insert(usr);
                 List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
                 for(Area ar : areaList) {
-                    AreaSQLHelper.insert(ar,Credential.getPassword());
+                    AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
                 }
                 List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
                 for(File file : fileList) {
-                    FileSQLHelper.insert(file, Credential.getPassword());
+                    FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
                 }
             }
             return null;
