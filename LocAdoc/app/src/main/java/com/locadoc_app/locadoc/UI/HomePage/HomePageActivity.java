@@ -121,6 +121,8 @@ public class HomePageActivity extends AppCompatActivity
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(checkLocationPermission()){
                 buildGoogleApiClient();
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, gMapFrag).commit();
             }
         } else{
             buildGoogleApiClient();
@@ -128,8 +130,6 @@ public class HomePageActivity extends AppCompatActivity
 
         requestFocus = true;
         gMapFrag = new GoogleMapFragment();
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, gMapFrag).commit();
         fileExplorerFragment = new FileExplorerFragment();
 
         Bundle extras = getIntent().getExtras();
@@ -332,16 +332,20 @@ public class HomePageActivity extends AppCompatActivity
                     if (ContextCompat.checkSelfPermission(this,
                             android.Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
-
                         if (mGoogleApiClient == null) {
                             buildGoogleApiClient();
                         }
+
+                        getSupportFragmentManager().beginTransaction()
+                                .add(R.id.fragment_container, gMapFrag).commit();
                     }
 
                 } else {
 
                     // Permission denied, Disable the functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                            MY_PERMISSIONS_REQUEST_LOCATION);
                 }
                 return;
             }
