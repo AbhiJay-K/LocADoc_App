@@ -104,7 +104,7 @@ public class SettingActivity extends AppCompatActivity  {
         }
 
     }
-    
+
     public void openPhoneNumberActivity() {
         // Intent homeActivity = new Intent(this, HomePageActivity.class);
         // homeActivity.putExtra("name", userIDView.getText().toString());

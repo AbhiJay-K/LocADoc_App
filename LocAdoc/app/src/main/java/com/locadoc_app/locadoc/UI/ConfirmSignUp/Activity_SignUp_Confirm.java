@@ -92,7 +92,7 @@ public class Activity_SignUp_Confirm extends AppCompatActivity implements SignUp
             }
         });
 
-        confirm = (Button) findViewById(R.id.reset_pwd_button);
+        confirm = (Button) findViewById(R.id.confirm_button);
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -131,7 +131,7 @@ public class Activity_SignUp_Confirm extends AppCompatActivity implements SignUp
 
     public void setLabelConfirmUserID(String str)
     {
-        TextView label = (TextView) findViewById(R.id.textViewConfirmCurPwdMessage);
+        TextView label = (TextView) findViewById(R.id.textViewConfirmUserIdMessage);
         label.setText(str);
         username.setBackground(getDrawable(R.drawable.text_border_error));
     }
@@ -159,7 +159,7 @@ public class Activity_SignUp_Confirm extends AppCompatActivity implements SignUp
     }
     public void SetConfhandlerMessage()
     {
-        TextView label = (TextView) findViewById(R.id.textViewConfirmCurPwdMessage);
+        TextView label = (TextView) findViewById(R.id.textViewConfirmUserIdMessage);
         label.setText("Confirmation failed!");
         username.setBackground(getDrawable(R.drawable.text_border_error));
 
@@ -174,7 +174,7 @@ public class Activity_SignUp_Confirm extends AppCompatActivity implements SignUp
     }
     public void SetReConfCodeHandlerFailMessage()
     {
-        TextView label = (TextView) findViewById(R.id.textViewConfirmCurPwdMessage);
+        TextView label = (TextView) findViewById(R.id.textViewConfirmUserIdMessage);
         label.setText("Confirmation code resend failed");
         username.setBackground(getDrawable(R.drawable.text_border_error));
     }

@@ -63,7 +63,7 @@
                 android:layout_gravity="center" />
 
             <TextView
-                android:id="@+id/textViewConfirmCurPwdLabel"
+                android:id="@+id/textViewConfirmUserIdLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/space_confirm_1A"
@@ -77,7 +77,7 @@
                 android:id="@+id/editTextConfirmUserId"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/activity_text_height"
-                android:layout_below="@id/textViewConfirmCurPwdLabel"
+                android:layout_below="@id/textViewConfirmUserIdLabel"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
                 android:layout_margin="15dp"
@@ -90,7 +90,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/textViewConfirmCurPwdMessage"
+                android:id="@+id/textViewConfirmUserIdMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/editTextConfirmUserId"
@@ -105,7 +105,7 @@
                 android:id="@+id/textViewConfirmCodeLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/textViewConfirmCurPwdMessage"
+                android:layout_below="@id/textViewConfirmUserIdMessage"
                 android:layout_centerHorizontal="true"
                 android:paddingLeft="15dp"
                 android:text=" "
@@ -148,7 +148,7 @@
                 android:layout_margin="15dp" />
 
             <Button
-                android:id="@+id/reset_pwd_button"
+                android:id="@+id/confirm_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/space_confirm_2"
@@ -165,7 +165,7 @@
                 android:id="@+id/space_confirm_3"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
-                android:layout_below="@id/reset_pwd_button" />
+                android:layout_below="@id/confirm_button" />
 
             <TextView
                 android:id="@+id/resend_confirm_req"

@@ -13,8 +13,6 @@ import android.widget.Toast;
 
 import com.locadoc_app.locadoc.R;
 
-import static android.R.attr.password;
-
 public class ResetPassword extends AppCompatActivity {
 
     private EditText curPwd, newPwd, confirmNewPwd, confirmCode;
@@ -32,69 +30,86 @@ public class ResetPassword extends AppCompatActivity {
     }
 
     void init() {
-        /*
+
         // Current Password + SQLHelper Need to compare
-        curPwd = (EditText) findViewById(R.id.editTextCurPwd);
+        curPwd = (EditText) findViewById(R.id.resetPwd_editTextCurPwd);
         curPwd.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 if(s.length() == 0) {
-                    TextView label = (TextView) findViewById(R.id.editTextCurPwd);    //Label
-                    label.setText(curPwd.getHint());
+                    // When finishing text input
+                    setLabelCurPwd("");
                     curPwd.setBackground(getDrawable(R.drawable.text_border_selector));
-                    presenter.isValidPwd();
+                    presenter.isValidCurPwd();
                 }
+                else {
+                    setLabelCurPwd("");
+                    presenter.isValidCurPwd();
+                }
+
             }
+
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                TextView label = (TextView) findViewById(R.id.editTextCurPwd);
-                label.setText(" ");
+                // When text is changed
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) {
-                    TextView label = (TextView) findViewById(R.id.editTextCurPwd);
-                    label.setText("");
+                    // Before the text input
+                    setLabelCurPwd("");
+                    presenter.isValidCurPwd();
                 }
             }
         });
 
 
         // New Password
-        newPwd = (EditText) findViewById(R.id.editTextNewPwd);
+        newPwd = (EditText) findViewById(R.id.resetPwd_editTextNewPwd);
         newPwd.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 if(s.length() == 0) {
-                    TextView label = (TextView) findViewById(R.id.editTextNewPwd);
-                    label.setText(newPwd.getHint());
-                    newPwd.setBackground(getDrawable(R.drawable.text_border_selected));
+                    // When finishing text input
+                    setLabelNewPwd("");
+                    curPwd.setBackground(getDrawable(R.drawable.text_border_selector));
+                    presenter.isValidNewPwd();
+                }
+                else {
+                    setLabelNewPwd("");
+                    presenter.isValidCurPwd();
                 }
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                // When text is changed
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                TextView label = (TextView) findViewById(R.id.editTextNewPwd);
-                label.setText("");
+                // Before the text input
+                setLabelNewPwd("");
+                presenter.isValidNewPwd();
             }
         });
 
         // Confrim New Password
-        confirmNewPwd = (EditText) findViewById(R.id.editTextConfirmNewPwd);
+        confirmNewPwd = (EditText) findViewById(R.id.resetPwd_editTextConfirmNewPwd);
         confirmNewPwd.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 if(s.length() == 0) {
-                    TextView label = (TextView) findViewById(R.id.editTextConfirmNewPwd);
-                    label.setText(newPwd.getHint());
-                    newPwd.setBackground(getDrawable(R.drawable.text_border_selected));
+                    // When finishing text input
+                    setLabelConfirmNewPwd("");
+                    curPwd.setBackground(getDrawable(R.drawable.text_border_selector));
+                    presenter.isValidPwdWithNewPwd();
+                }
+                else {
+                    setLabelConfirmNewPwd("");
+                    presenter.isValidPwdWithNewPwd();
                 }
             }
 
@@ -105,44 +120,20 @@ public class ResetPassword extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                TextView label = (TextView) findViewById(R.id.editTextConfirmNewPwd);
-                label.setText("");
-            }
-        });
-
-
-        // Confirmation Code
-        confirmCode = (EditText) findViewById(R.id.editTextConfirmCode);
-        confirmCode.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                TextView label = (TextView) findViewById(R.id.editTextConfirmCode);
-                label.setText(newPwd.getHint());
-                newPwd.setBackground(getDrawable(R.drawable.text_border_selected));
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                TextView label = (TextView) findViewById(R.id.editTextConfirmCode);
-                label.setText("");
+                // Before the text input
+                setLabelConfirmNewPwd("");
+                presenter.isValidPwdWithNewPwd();
             }
         });
 
                 /* Submit Button */
-        submit = (Button) findViewById(R.id.reset_pwd_button);
+        submit = (Button) findViewById(R.id.resetPwd_reset_pwd_button);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(ResetPassword.this, "Clicked Submit Button", Toast.LENGTH_SHORT).show();
             }
         });
-
-
 
     }
 
@@ -152,15 +143,45 @@ public class ResetPassword extends AppCompatActivity {
     public EditText getCurPwd(){
         return this.curPwd;
     }
+    public EditText getNewPwd() {
+        return this.newPwd;
+    }
+    public EditText getConfirmNewPwd() {
+        return this.confirmNewPwd;
+    }
 
     public void setLabelCurPwd(String str) {
-        TextView label = (TextView) findViewById(R.id.textViewConfirmCurPwdMessage);
+        TextView label = (TextView) findViewById(R.id.resetPwd_textViewCurPwdMessage);
         label.setText(str);
         curPwd.setBackground(getDrawable(R.drawable.text_border_error));
     }
 
     public void setLabelCurPwdOK(String str) {
-        TextView label = (TextView) findViewById(R.id.textViewConfirmCurPwdMessage);
+        TextView label = (TextView) findViewById(R.id.resetPwd_textViewCurPwdMessage);
+        label.setText(str);
+        curPwd.setBackground(getDrawable(R.drawable.text_border_selector));
+    }
+
+    public void setLabelNewPwd(String str) {
+        TextView label = (TextView) findViewById(R.id.resetPwd_textViewNewPwdMessage);
+        label.setText(str);
+        curPwd.setBackground(getDrawable(R.drawable.text_border_error));
+    }
+
+    public void setLabelNewPwdOK(String str) {
+        TextView label = (TextView) findViewById(R.id.resetPwd_textViewNewPwdMessage);
+        label.setText(str);
+        curPwd.setBackground(getDrawable(R.drawable.text_border_selector));
+    }
+
+    public void setLabelConfirmNewPwd(String str) {
+        TextView label = (TextView) findViewById(R.id.resetPwd_textViewConfirmNewPwdMessage);
+        label.setText(str);
+        curPwd.setBackground(getDrawable(R.drawable.text_border_error));
+    }
+
+    public void setLabelConfirmNewPwdOK(String str) {
+        TextView label = (TextView) findViewById(R.id.resetPwd_textViewConfirmNewPwdMessage);
         label.setText(str);
         curPwd.setBackground(getDrawable(R.drawable.text_border_selector));
     }
