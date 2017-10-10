@@ -114,11 +114,12 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     }
     public void startProgressDialog()
     {
-        progress = new ProgressDialog(LoginActivity.this);
+        progress = new ProgressDialog(this);
         progress.setTitle("Setup");
         progress.setMessage("Setting up services...");
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progress.setCancelable(true);
+        progress.setCancelable(false);
+        progress.show();
     }
     public void dismissProgressDialog()
     {

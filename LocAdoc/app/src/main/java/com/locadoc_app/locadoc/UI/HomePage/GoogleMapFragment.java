@@ -81,7 +81,6 @@ public class GoogleMapFragment extends Fragment
             }
         });
 
-        //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(getActivity(),
                     android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -128,6 +127,16 @@ public class GoogleMapFragment extends Fragment
         mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
     }
 
+    public void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            if(mMap != null) {
+                mMap.setMyLocationEnabled(true);
+            }
+        }
+    }
+
     @Override
     public boolean onMarkerClick(final Marker marker) {
         if (circleShown != null){
@@ -135,7 +144,29 @@ public class GoogleMapFragment extends Fragment
         }
 
         Log.d("LocAdoc", marker.getTitle());
+        Log.d("LocAdoc", "pass: " + Credential.getPassword().getPassword()+
+                ", salt: " + Credential.getPassword().getSalt());
         Area area = AreaSQLHelper.getAreaName(marker.getTitle(), Credential.getPassword());
+
+        Log.d("LocAdoc", "START TEST");
+        Log.d("LocAdoc", "id: " + area.getAreaId());
+        if(area.getName() != null){
+            Log.d("LocAdoc", area.getName());
+        }
+        if(area.getRadius() != null){
+            Log.d("LocAdoc", area.getRadius());
+        }
+        if(area.getLatitude() != null){
+            Log.d("LocAdoc", area.getLatitude());
+        }
+        if(area.getLongitude() != null){
+            Log.d("LocAdoc", area.getLongitude());
+        }
+        if(area.getDescription() != null){
+            Log.d("LocAdoc", area.getDescription());
+        }
+        Log.d("LocAdoc", "STOP TEST");
+
         circleShown = mMap.addCircle(new CircleOptions()
                 .center(marker.getPosition())
                 .radius(Integer.parseInt(area.getRadius()))

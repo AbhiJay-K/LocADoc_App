@@ -125,6 +125,7 @@ public class LoginPresenter implements LoginPresenterInterface
         public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
             //Log.e(TAG, "Auth Success");
             loginAct.closeWaitDialog();
+            loginAct.startProgressDialog();
             AppHelper.setCurrSession(cognitoUserSession);
             AppHelper.newDevice(device);
             Credential.setEmail(loginAct.getUserIDView().getText().toString());
@@ -180,11 +181,6 @@ public class LoginPresenter implements LoginPresenterInterface
 
     private class DBSynchronise extends
             AsyncTask<Void, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-           loginAct.startProgressDialog();
-        }
-
         @Override
         protected Void doInBackground(Void... objects) {
             DynamoDBHelper.init(LocAdocApp.getContext());

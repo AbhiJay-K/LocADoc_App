@@ -56,6 +56,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 
 public class HomePageActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -121,8 +123,6 @@ public class HomePageActivity extends AppCompatActivity
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(checkLocationPermission()){
                 buildGoogleApiClient();
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, gMapFrag).commit();
             }
         } else{
             buildGoogleApiClient();
@@ -131,6 +131,8 @@ public class HomePageActivity extends AppCompatActivity
         requestFocus = true;
         gMapFrag = new GoogleMapFragment();
         fileExplorerFragment = new FileExplorerFragment();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, gMapFrag).commit();
 
         Bundle extras = getIntent().getExtras();
         if (extras !=null) {
@@ -138,6 +140,20 @@ public class HomePageActivity extends AppCompatActivity
                 userName = extras.getString("name");
             }
         }
+
+        List<Area> areaL = AreaSQLHelper.getAllRecord(Credential.getPassword());
+        Map<String,Integer> fileL = FileSQLHelper.getFilesInArea(1, Credential.getPassword());
+        for(Area a: areaL){
+            Log.d("LocAdoc", "id: " + a.getAreaId() + ", area name: " + a.getName() + ", radius" + a.getRadius());
+        }
+        for (Map.Entry<String, Integer> entry : fileL.entrySet())
+        {
+            com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(entry.getValue(), Credential.getPassword());
+            Log.d("LocAdoc", "id: "+file.getFileId()+", name: " + file.getOriginalfilename() + ", area id: " + file.getAreaId()
+                    + ", pass: " + file.getPasswordId());
+
+        }
+
     }
 
     public void openFileExplorer(){
@@ -335,9 +351,9 @@ public class HomePageActivity extends AppCompatActivity
                         if (mGoogleApiClient == null) {
                             buildGoogleApiClient();
                         }
-
-                        getSupportFragmentManager().beginTransaction()
-                                .add(R.id.fragment_container, gMapFrag).commit();
+                        if (gMapFrag != null){
+                            gMapFrag.enableMyLocation();
+                        }
                     }
 
                 } else {
@@ -379,13 +395,7 @@ public class HomePageActivity extends AppCompatActivity
                     if (resultData != null){
                         String fileName = resultData.getStringExtra("filename");
                         File dst = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/vault/~" + fileName);
-                        if(dst.exists()){
-                            Log.d("LocAdoc", "Exist");
-                        }
                         dst.delete();
-                        if(!dst.exists()){
-                            Log.d("LocAdoc", "Not Exist");
-                        }
                     }
             }
         }
@@ -437,13 +447,15 @@ public class HomePageActivity extends AppCompatActivity
 
     @Override
     public int createNewArea(String filename, Area area) {
-        AreaSQLHelper.insert(area, Credential.getPassword());
         Log.d("LocAdoc", "pass: " + Credential.getPassword().getPassword()+
                 ", salt: " + Credential.getPassword().getSalt());
+        Log.d("LocAdoc", "area name: " + area.getName() + ", radius" + area.getRadius());
+        AreaSQLHelper.insert(area, Credential.getPassword());
         int newId = AreaSQLHelper.maxID();
         area.setAreaId(newId);
-        AreaDynamoHelper.getInstance().insert(area);
         gMapFrag.addMarker(area);
+        AreaDynamoHelper.getInstance().insert(area);
+        Log.d("LocAdoc", "area name: " + area.getName() + ", radius" + area.getRadius());
         return newId;
     }
 
@@ -451,13 +463,12 @@ public class HomePageActivity extends AppCompatActivity
     public void saveFile(String filename, int areaid){
         File dir = new File(getApplicationContext().getFilesDir().getAbsolutePath()+"/vault");
         if(!dir.exists()){
-            Log.d("LocAdoc", "Make new dir");
             dir.mkdir();
         }
         String currFileName = Credential.getEmail() + (FileSQLHelper.maxID() + 1);
 
         File dst = new File(dir.getAbsolutePath() + "/" + currFileName);
-        Log.d("LocAdoc", dst.getAbsolutePath());
+        Log.d("LocAdoc", dst.getAbsolutePath() + ", pwd: " + Credential.getPassword().getPassword());
         InputStream in = null;
         OutputStream out = null;
 
@@ -472,9 +483,11 @@ public class HomePageActivity extends AppCompatActivity
             file.setOriginalfilename(filename);
             file.setCurrentfilename(currFileName);
             file.setAreaId(areaid);
+            Log.d("LocAdoc", "name: " + file.getOriginalfilename() + ", area id: " + file.getAreaId());
             FileSQLHelper.insert(file, Credential.getPassword());
             file.setFileId(FileSQLHelper.maxID());
             FileDynamoHelper.getInstance().insert(file);
+            Log.d("LocAdoc", "name: " + file.getOriginalfilename() + ", area id: " + file.getAreaId() + ", id: " + file.getFileId());
         } catch (Exception e){
             Log.e("LocAdoc", e.toString());
         }

@@ -174,6 +174,7 @@ public class FileSQLHelper implements BaseColumns {
     }
     public static void clearRecord()
     {
-        AreaSQLHelper.getDbHelper().WRITE.execSQL("delete from "+ AreaSQLHelper.TABLE_NAME);
+        dbHelper.WRITE.execSQL("delete from "+ TABLE_NAME);
+        dbHelper.WRITE.execSQL("delete from sqlite_sequence where name='" + TABLE_NAME + "'");
     }
 }
