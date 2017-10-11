@@ -26,7 +26,7 @@ public class FileSQLHelper implements BaseColumns {
     private static DBHelper dbHelper;
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + " (" +
-            _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
+            _ID + " INTEGER PRIMARY KEY, "+
             COLUMN_CURRENT_NAME + " TEXT, " +
             COLUMN_ORIGINAL_NAME + " TEXT, " +
             COLUMN_MODIFIED + " TEXT, " +
@@ -44,6 +44,7 @@ public class FileSQLHelper implements BaseColumns {
     {
         ContentValues values = new ContentValues();
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
+        values.put(AreaSQLHelper._ID, file.getFileId());
         values.put(FileSQLHelper.COLUMN_CURRENT_NAME, en.encryptString(file.getCurrentfilename()));
         values.put(FileSQLHelper.COLUMN_ORIGINAL_NAME, en.encryptString(file.getOriginalfilename()));
         values.put(FileSQLHelper.COLUMN_MODIFIED, en.encryptString(file.getModified()));

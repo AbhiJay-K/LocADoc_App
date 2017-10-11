@@ -30,7 +30,7 @@ public class AreaSQLHelper implements BaseColumns {
     private static DBHelper dbHelper;
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + " (" +
-            _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            _ID + " INTEGER PRIMARY KEY, " +
             COLUMN_NAME + " TEXT, " +
             COLUMN_DESCRIPTION + " TEXT, " +
             COLUMN_LONGITUDE + " TEXT, " +
@@ -49,7 +49,8 @@ public class AreaSQLHelper implements BaseColumns {
     public static long insert(Area ar, Password pwd) {
         ContentValues values = new ContentValues();
         Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
-        values.put(AreaSQLHelper.COLUMN_NAME, en.encryptString(ar.getName()));
+        values.put(AreaSQLHelper._ID, ar.getAreaId());
+        values.put(AreaSQLHelper.COLUMN_NAME,ar.getName());
         values.put(AreaSQLHelper.COLUMN_DESCRIPTION, en.encryptString(ar.getDescription()));
         values.put(AreaSQLHelper.COLUMN_LATITUDE, en.encryptString(ar.getLatitude()));
         values.put(AreaSQLHelper.COLUMN_LONGITUDE, en.encryptString(ar.getLongitude()));
@@ -59,7 +60,8 @@ public class AreaSQLHelper implements BaseColumns {
     }
     public static long insertWithoutEncryption(Area ar, Password pwd) {
         ContentValues values = new ContentValues();
-        values.put(AreaSQLHelper.COLUMN_NAME, ar.getName());
+        Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+        values.put(AreaSQLHelper.COLUMN_NAME, en.decrypttString(ar.getName()));
         values.put(AreaSQLHelper.COLUMN_DESCRIPTION, ar.getDescription());
         values.put(AreaSQLHelper.COLUMN_LATITUDE, ar.getLatitude());
         values.put(AreaSQLHelper.COLUMN_LONGITUDE, ar.getLongitude());
@@ -119,7 +121,7 @@ public class AreaSQLHelper implements BaseColumns {
                Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
                Area ar = new Area();
                ar.setAreaId(id);
-               ar.setName(en.decrypttString(name));
+               ar.setName(name);
                ar.setDescription(en.decrypttString(description));
                ar.setLatitude(en.decrypttString(Lat));
                ar.setLongitude(en.decrypttString(Long));
@@ -143,7 +145,7 @@ public class AreaSQLHelper implements BaseColumns {
             do {
                 Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
                 int id = crs.getInt(crs.getColumnIndex("_id"));
-                String AreaName = en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME)));
+                String AreaName = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
                 Double longitude = Double.parseDouble(en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE))));
                 Double latitude = Double.parseDouble(en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE))));
                 float radius = Float.parseFloat(en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_RADIUS))));
@@ -155,6 +157,25 @@ public class AreaSQLHelper implements BaseColumns {
                 {
                     AreaMap.put(AreaName,id);
                 }
+            } while (crs.moveToNext());
+            crs.close();
+            return AreaMap;
+        }
+        else {
+            crs.close();
+            return AreaMap;
+        }
+    }
+    public static Map<String,Integer> getSearchValue(String ar)
+    {
+        String [] args = {"%"+ar+"%"};
+        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area WHERE areaname LIKE ",args);
+        Map<String,Integer> AreaMap = new HashMap<String,Integer>();
+        if (crs != null && crs.moveToFirst()) {
+            do {
+                int id = crs.getInt(crs.getColumnIndex("_id"));
+                String AreaName = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
+                AreaMap.put(AreaName,id);
             } while (crs.moveToNext());
             crs.close();
             return AreaMap;
@@ -215,7 +236,7 @@ public class AreaSQLHelper implements BaseColumns {
     public static long updateRecord(Area ar,Password pwd) {
         ContentValues values = new ContentValues();
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
-        values.put(AreaSQLHelper.COLUMN_NAME, en.encryptString(ar.getName()));
+        values.put(AreaSQLHelper.COLUMN_NAME, ar.getName());
         values.put(AreaSQLHelper.COLUMN_DESCRIPTION, en.encryptString(ar.getDescription()));
         values.put(AreaSQLHelper.COLUMN_LATITUDE, en.encryptString(ar.getLatitude()));
         values.put(AreaSQLHelper.COLUMN_LONGITUDE, en.encryptString(ar.getLongitude()));
@@ -246,28 +267,24 @@ public class AreaSQLHelper implements BaseColumns {
     }
 
     public static Area getAreaName(String Arname,Password pwd) {
-        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area",null);
+        String [] arg = {Arname};
+        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area WHERE areaname = ",arg);
         Area ar = new Area();
         Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
         if (crs != null && crs.moveToFirst()) {
-            do {
-                String name = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
-                ar.setName(en.decrypttString(name));
-                if(ar.getName().equals(Arname)) {
-                    int id = crs.getInt(crs.getColumnIndex("_id"));
-                    String description = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_DESCRIPTION));
-                    String Long = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE));
-                    String Lat = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE));
-                    String Rad = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_RADIUS));
-                    crs.close();
-                    ar.setAreaId(id);
-                    ar.setDescription(en.decrypttString(description));
-                    ar.setLatitude(en.decrypttString(Lat));
-                    ar.setLongitude(en.decrypttString(Long));
-                    ar.setRadius(en.decrypttString(Rad));
-                    return ar;
-                }
-            }while(crs.moveToNext());
+            String name = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
+            ar.setName(name);
+            int id = crs.getInt(crs.getColumnIndex("_id"));
+            String description = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_DESCRIPTION));
+            String Long = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE));
+            String Lat = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE));
+            String Rad = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_RADIUS));
+            crs.close();
+            ar.setAreaId(id);
+            ar.setDescription(en.decrypttString(description));
+            ar.setLatitude(en.decrypttString(Lat));
+            ar.setLongitude(en.decrypttString(Long));
+            ar.setRadius(en.decrypttString(Rad));
             crs.close();
         }
         return ar;

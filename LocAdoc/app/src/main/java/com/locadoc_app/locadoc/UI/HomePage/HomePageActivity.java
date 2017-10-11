@@ -1,9 +1,11 @@
 package com.locadoc_app.locadoc.UI.HomePage;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
@@ -56,6 +58,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -66,10 +69,11 @@ public class HomePageActivity extends AppCompatActivity
         LocationListener,
         SelectAreaFragment.SelectAreaDialogListener,
         FileExplorerFragment.FileExplorerFragmentListener,
-        GoogleMapFragment.GoogleMapFragmentListener{
+        GoogleMapFragment.GoogleMapFragmentListener,
+        SearchView.OnQueryTextListener{
     private final int PICKFILE = 1;
     private final int PDFVIEW = 2;
-
+    private Map<String,Integer> AreaList;
     private SearchView searchView;
     private SearchView.OnQueryTextListener queryTextListener;
     private GoogleApiClient mGoogleApiClient;
@@ -146,6 +150,7 @@ public class HomePageActivity extends AppCompatActivity
         for(Area a: areaL){
             Log.d("LocAdoc", "id: " + a.getAreaId() + ", area name: " + a.getName() + ", radius" + a.getRadius());
         }
+
         for (Map.Entry<String, Integer> entry : fileL.entrySet())
         {
             com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(entry.getValue(), Credential.getPassword());
@@ -153,7 +158,6 @@ public class HomePageActivity extends AppCompatActivity
                     + ", pass: " + file.getPasswordId());
 
         }
-
     }
 
     public void openFileExplorer(){
@@ -178,7 +182,7 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.home_page, menu);
         username = (TextView) findViewById(R.id.USerEmail);
@@ -189,12 +193,22 @@ public class HomePageActivity extends AppCompatActivity
             return true;
         }
 
+
+        SearchManager searchManager = (SearchManager)
+                getSystemService(getApplicationContext().SEARCH_SERVICE);
+        searchMenuItem = menu.findItem(R.id.action_search);
         searchView = (SearchView) searchMenuItem.getActionView();
-        MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
+
+        searchView.setSearchableInfo(searchManager.
+                getSearchableInfo(getComponentName()));
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(HomePageActivity.this);
+        /*MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
                 // Set styles for expanded state here
                 if (getSupportActionBar() != null) {
+
                 }
                 return true;
             }
@@ -207,7 +221,7 @@ public class HomePageActivity extends AppCompatActivity
                 }
                 return true;
             }
-        });
+        });*/
 
         return true;
     }
@@ -226,7 +240,17 @@ public class HomePageActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }*/
+   @Override
+   public boolean onQueryTextSubmit(String query) {
+       return false;
+   }
 
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        //friendListAdapter.getFilter().filter(newText);
+
+        return true;
+    }
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
