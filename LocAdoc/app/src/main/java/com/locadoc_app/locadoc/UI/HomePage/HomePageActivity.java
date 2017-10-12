@@ -5,11 +5,13 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -18,16 +20,21 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.SearchView;
+import android.app.SearchManager;
+import android.support.v7.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,7 +80,8 @@ public class HomePageActivity extends AppCompatActivity
         SearchView.OnQueryTextListener{
     private final int PICKFILE = 1;
     private final int PDFVIEW = 2;
-    private Map<String,Integer> AreaList;
+    private List<String> AreaList;
+    private RecyclerView mRecyclerView;
     private SearchView searchView;
     private SearchView.OnQueryTextListener queryTextListener;
     private GoogleApiClient mGoogleApiClient;
@@ -82,6 +90,7 @@ public class HomePageActivity extends AppCompatActivity
     private String userName;
     private TextView username;
     private boolean requestFocus;
+    private SimpleCursorAdapter mAdapter;
 
     GoogleMapFragment gMapFrag;
     FileExplorerFragment fileExplorerFragment;
@@ -95,7 +104,24 @@ public class HomePageActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
         returnWithResult = false;
-
+        AreaList = new ArrayList<String>();
+        AreaList.add("Home1");
+        AreaList.add("Home2");
+        AreaList.add("Home3");
+        AreaList.add("Home4");
+        AreaList.add("Home5");
+        AreaList.add("Office");
+        AreaList.add("Office2");
+        AreaList.add("Uni");
+        AreaList.add("test");
+        final String[] from = new String[] {"AreaName"};
+        final int[] to = new int[] {android.R.id.text1};
+        mAdapter = new SimpleCursorAdapter(HomePageActivity.this,
+                android.R.layout.simple_spinner_dropdown_item,
+                null,
+                from,
+                to,
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -123,6 +149,7 @@ public class HomePageActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(checkLocationPermission()){
@@ -182,27 +209,51 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.home_page, menu);
         username = (TextView) findViewById(R.id.USerEmail);
         username.setText(userName);
-
-        MenuItem searchMenuItem = menu.findItem(R.id.toolbar);
+        MenuItem searchMenuItem = menu.findItem(R.id.action_search);
         if (searchMenuItem == null) {
             return true;
         }
-
-
+        Log.d("Error search","i am here");
         SearchManager searchManager = (SearchManager)
                 getSystemService(getApplicationContext().SEARCH_SERVICE);
-        searchMenuItem = menu.findItem(R.id.action_search);
         searchView = (SearchView) searchMenuItem.getActionView();
+        //searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconified(false);
+        searchView.setSuggestionsAdapter(mAdapter);
+        //searchView.setSubmitButtonEnabled(true);
+        //searchView.setOnQueryTextListener(HomePageActivity.this);
+        // Getting selected (clicked) item suggestion
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionClick(int position) {
+                // Your code here
+                return true;
+            }
 
-        searchView.setSearchableInfo(searchManager.
-                getSearchableInfo(getComponentName()));
-        searchView.setSubmitButtonEnabled(true);
-        searchView.setOnQueryTextListener(HomePageActivity.this);
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                // Your code here
+                return true;
+            }
+        });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String s) {
+                Log.d("Search1 ",s);
+                populateAdapter(s);
+                return false;
+            }
+        });
+
         /*MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
@@ -225,7 +276,16 @@ public class HomePageActivity extends AppCompatActivity
 
         return true;
     }
-
+    // You must implements your logic to get data using OrmLite
+    private void populateAdapter(String query) {
+        final MatrixCursor c = new MatrixCursor(new String[]{BaseColumns._ID, "AreaName" });
+        for (int i=0; i<AreaList.size(); i++) {
+            Log.d("Search ",query);
+            if (AreaList.get(i).toLowerCase().startsWith(query.toLowerCase()))
+                c.addRow(new Object[] {i, AreaList.get(i)});
+        }
+        mAdapter.changeCursor(c);
+    }
    /* @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will

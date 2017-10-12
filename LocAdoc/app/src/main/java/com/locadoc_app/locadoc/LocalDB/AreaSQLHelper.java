@@ -166,23 +166,21 @@ public class AreaSQLHelper implements BaseColumns {
             return AreaMap;
         }
     }
-    public static Map<String,Integer> getSearchValue(String ar)
+    public static List<String> getSearchValue(String ar)
     {
-        String [] args = {"%"+ar+"%"};
-        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area WHERE areaname LIKE ",args);
-        Map<String,Integer> AreaMap = new HashMap<String,Integer>();
+        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT areaname FROM area",null);
+        List<String> AreaList = new ArrayList<String>();
         if (crs != null && crs.moveToFirst()) {
             do {
-                int id = crs.getInt(crs.getColumnIndex("_id"));
                 String AreaName = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
-                AreaMap.put(AreaName,id);
+                AreaList.add(AreaName);
             } while (crs.moveToNext());
             crs.close();
-            return AreaMap;
+            return AreaList;
         }
         else {
             crs.close();
-            return AreaMap;
+            return AreaList;
         }
     }
     public static int checkLocExist(Area ar,Password pwd) {
