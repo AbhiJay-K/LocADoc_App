@@ -142,30 +142,7 @@ public class GoogleMapFragment extends Fragment
         if (circleShown != null){
             circleShown.remove();
         }
-
-        Log.d("LocAdoc", marker.getTitle());
-        Log.d("LocAdoc", "pass: " + Credential.getPassword().getPassword()+
-                ", salt: " + Credential.getPassword().getSalt());
         Area area = AreaSQLHelper.getAreaName(marker.getTitle(), Credential.getPassword());
-
-        Log.d("LocAdoc", "START TEST");
-        Log.d("LocAdoc", "id: " + area.getAreaId());
-        if(area.getName() != null){
-            Log.d("LocAdoc", area.getName());
-        }
-        if(area.getRadius() != null){
-            Log.d("LocAdoc", area.getRadius());
-        }
-        if(area.getLatitude() != null){
-            Log.d("LocAdoc", area.getLatitude());
-        }
-        if(area.getLongitude() != null){
-            Log.d("LocAdoc", area.getLongitude());
-        }
-        if(area.getDescription() != null){
-            Log.d("LocAdoc", area.getDescription());
-        }
-        Log.d("LocAdoc", "STOP TEST");
 
         circleShown = mMap.addCircle(new CircleOptions()
                 .center(marker.getPosition())

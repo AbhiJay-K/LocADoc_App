@@ -139,7 +139,6 @@ public class PasswordDynamoHelper {
                 insertToDB(password);
             } else if (operation == OperationType.DELETE) {
                 Password password = (Password) objects[1];
-                password.setUser(DynamoDBHelper.getCache().getIdentityId());
                 deleteFromDB(password);
             } else if (operation == OperationType.GET_RECORD) {
                 int passwordid = (Integer) objects[1];

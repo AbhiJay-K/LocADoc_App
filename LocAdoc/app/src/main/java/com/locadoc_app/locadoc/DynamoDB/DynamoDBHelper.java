@@ -11,6 +11,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.Model.Area;
+import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
 
 import java.util.HashMap;
@@ -24,26 +25,13 @@ public class DynamoDBHelper {
     private static DynamoDBHelper dynamoDBHelper;
     private static AmazonDynamoDBClient ddb;
     private static DynamoDBMapper mapper;
-    private static CognitoCachingCredentialsProvider credentials;
-    private static String identityId = "";
-    //private final static String identityPoolId = "ap-southeast-1:c5bd72e5-6825-429f-8d33-f13046eda875";
-    private final static String identityPoolId = LocAdocApp.getContext().getString(R.string.aws_identitypool);
-    private static final String userPoolId = LocAdocApp.getContext().getString(R.string.aws_userpool);
     public enum OperationType {
        INSERT, DELETE, GET_RECORD, GET_ALL
     }
 
     private DynamoDBHelper(Context context)
     {
-        credentials = new CognitoCachingCredentialsProvider(
-                context,
-                identityPoolId,
-                Regions.AP_SOUTHEAST_1);
-        Map<String, String> logins = new HashMap<String, String>();
-        logins.put("cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId,
-                AppHelper.getCurrSession().getIdToken().getJWTToken());
-        credentials.setLogins(logins);
-        ddb = new AmazonDynamoDBClient(credentials);
+        ddb = new AmazonDynamoDBClient(Credential.getCredentials());
         ddb.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
         mapper = DynamoDBMapper.builder().dynamoDBClient(ddb).build();
         new FetchIdentityId().execute();
@@ -66,20 +54,15 @@ public class DynamoDBHelper {
         }
     }
 
-    public static CognitoCachingCredentialsProvider getCache()
-    {
-        return credentials;
-    }
-
     public static String getIdentity()
     {
-        return identityId;
+        return Credential.getIdentity();
     }
 
     public static synchronized void setIdentity()
     {
-        if(identityId.isEmpty()){
-            identityId = credentials.getIdentityId();
+        if(Credential.getIdentity().isEmpty()){
+            Credential.setIdentity();
         }
     }
 

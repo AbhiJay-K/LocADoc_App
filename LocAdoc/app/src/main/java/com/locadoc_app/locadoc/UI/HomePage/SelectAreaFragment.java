@@ -3,6 +3,7 @@ package com.locadoc_app.locadoc.UI.HomePage;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,15 +28,16 @@ import java.util.List;
 import java.util.Map;
 
 public class SelectAreaFragment extends DialogFragment {
-    EditText newAreaName;
-    EditText newAreaDesc;
-    Button btnCreateNewArea;
-    Button btnSelectExistingArea;
-    Button btnCancel;
-    Spinner radiusSpinner;
-    Spinner existingArea;
-    String filename;
-    Map<String, Integer> allAreaAround;
+    private EditText newAreaName;
+    private EditText newAreaDesc;
+    private Button btnCreateNewArea;
+    private Button btnSelectExistingArea;
+    private Button btnCancel;
+    private Spinner radiusSpinner;
+    private Spinner existingArea;
+
+    private String filename;
+    private Map<String, Integer> allAreaAround;
     private final static String[] RADIUS_LIST = new String[]{"20m", "50m", "100m", "200m", "500m", "1000m"};
 
     public interface SelectAreaDialogListener {

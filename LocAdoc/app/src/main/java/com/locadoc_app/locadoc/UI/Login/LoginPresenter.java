@@ -130,7 +130,7 @@ public class LoginPresenter implements LoginPresenterInterface
             AppHelper.newDevice(device);
             Credential.setEmail(loginAct.getUserIDView().getText().toString());
             loginAct.checkLogin();
-            new DBSynchronise().execute();
+            new DBSynchronise().execute(loginAct.getPassView().getText().toString());
         }
 
 
@@ -180,26 +180,35 @@ public class LoginPresenter implements LoginPresenterInterface
     };
 
     private class DBSynchronise extends
-            AsyncTask<Void, Void, Void> {
+            AsyncTask<String, Void, Void> {
         @Override
-        protected Void doInBackground(Void... objects) {
+        protected Void doInBackground(String... objects) {
             DynamoDBHelper.init(LocAdocApp.getContext());
             User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
             long numberUser = UserSQLHelper.getNumberofRecords();
+
             if(numberUser > 0 &&  usr != null) {
-                String userEmail = UserSQLHelper.getUser();
+
                 Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
-                Credential.setEmail(usr.getUser());
                 Credential.setPassword(pwd);
-                FileSQLHelper.clearRecord();
-                AreaSQLHelper.clearRecord();
-                List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
-                for(Area ar : areaList) {
-                    AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
-                }
-                List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
-                for(File file : fileList) {
-                    FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
+                String instanceId = ApplicationInstance.getRecord();
+
+                if(!instanceId.equals(usr.getInstanceID())){
+                    FileSQLHelper.clearRecord();
+                    AreaSQLHelper.clearRecord();
+
+                    List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
+                    for(Area ar : areaList) {
+                        AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
+                    }
+
+                    List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
+                    for(File file : fileList) {
+                        FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
+                    }
+
+                    usr.setInstanceID(instanceId);
+                    UserDynamoHelper.getInstance().insert(usr);
                 }
             }
             else if(usr == null && numberUser > 0){
@@ -207,20 +216,34 @@ public class LoginPresenter implements LoginPresenterInterface
                 String instance = ApplicationInstance.getRecord();
                 newusr.setInstanceID(instance);
                 UserDynamoHelper.getInstance().insert(newusr);
+
+                if(Credential.getPassword() == null){
+                    Password p = new Password();
+                    String salt = Hash.SecureRandomGen();
+                    String pwdDigest = Hash.Hash(objects[0],salt);
+                    p.setPasswordid(1);
+                    p.setPassword(pwdDigest);
+                    p.setSalt(salt);
+                    Credential.setPassword(p);
+                }
+
                 PasswordDynamoHelper.getInstance().insert(Credential.getPassword());
             }
             else if(usr != null && numberUser <= 0)
             {
                 Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
-                Credential.setEmail(usr.getUser());
                 Credential.setPassword(pwd);
+
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
                 String TimeStamp = simpleDateFormat.format(new Date());
                 String random =  UUID.randomUUID().toString();
                 String Instance = Hash.Hash(TimeStamp,random);
                 ApplicationInstance.insert(Instance);
+
                 usr.setInstanceID(Instance);
                 UserDynamoHelper.getInstance().insert(usr);
+                UserSQLHelper.insert(usr, Credential.getPassword());
+
                 List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
                 for(Area ar : areaList) {
                     AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
@@ -228,6 +251,7 @@ public class LoginPresenter implements LoginPresenterInterface
                 List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
                 for(File file : fileList) {
                     FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
+                    Log.d("LocAdoc", "File id: " + file.getFileId() + ", area id: " + file.getAreaId());
                 }
             }
             return null;

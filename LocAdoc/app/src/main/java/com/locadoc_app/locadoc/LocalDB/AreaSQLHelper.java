@@ -61,6 +61,7 @@ public class AreaSQLHelper implements BaseColumns {
     public static long insertWithoutEncryption(Area ar, Password pwd) {
         ContentValues values = new ContentValues();
         Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+        values.put(AreaSQLHelper._ID, ar.getAreaId());
         values.put(AreaSQLHelper.COLUMN_NAME, en.decrypttString(ar.getName()));
         values.put(AreaSQLHelper.COLUMN_DESCRIPTION, ar.getDescription());
         values.put(AreaSQLHelper.COLUMN_LATITUDE, ar.getLatitude());
@@ -261,12 +262,12 @@ public class AreaSQLHelper implements BaseColumns {
     public static void clearRecord()
     {
         dbHelper.WRITE.execSQL("delete from "+ TABLE_NAME);
-        dbHelper.WRITE.execSQL("delete from sqlite_sequence where name='" + TABLE_NAME + "'");
+        //dbHelper.WRITE.execSQL("delete from sqlite_sequence where name='" + TABLE_NAME + "'");
     }
 
     public static Area getAreaName(String Arname,Password pwd) {
         String [] arg = {Arname};
-        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area WHERE areaname = ",arg);
+        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area WHERE areaname = ?",arg);
         Area ar = new Area();
         Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
         if (crs != null && crs.moveToFirst()) {

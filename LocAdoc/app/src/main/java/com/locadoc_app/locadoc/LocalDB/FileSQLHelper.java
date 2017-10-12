@@ -44,7 +44,7 @@ public class FileSQLHelper implements BaseColumns {
     {
         ContentValues values = new ContentValues();
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
-        values.put(AreaSQLHelper._ID, file.getFileId());
+        values.put(FileSQLHelper._ID, file.getFileId());
         values.put(FileSQLHelper.COLUMN_CURRENT_NAME, en.encryptString(file.getCurrentfilename()));
         values.put(FileSQLHelper.COLUMN_ORIGINAL_NAME, en.encryptString(file.getOriginalfilename()));
         values.put(FileSQLHelper.COLUMN_MODIFIED, en.encryptString(file.getModified()));
@@ -56,6 +56,7 @@ public class FileSQLHelper implements BaseColumns {
     public static long insertWithoutEncryption(File file,Password pwd)
     {
         ContentValues values = new ContentValues();
+        values.put(FileSQLHelper._ID, file.getAreaId());
         values.put(FileSQLHelper.COLUMN_CURRENT_NAME, file.getCurrentfilename());
         values.put(FileSQLHelper.COLUMN_ORIGINAL_NAME, file.getOriginalfilename());
         values.put(FileSQLHelper.COLUMN_MODIFIED, file.getModified());
@@ -176,6 +177,6 @@ public class FileSQLHelper implements BaseColumns {
     public static void clearRecord()
     {
         dbHelper.WRITE.execSQL("delete from "+ TABLE_NAME);
-        dbHelper.WRITE.execSQL("delete from sqlite_sequence where name='" + TABLE_NAME + "'");
+        //dbHelper.WRITE.execSQL("delete from sqlite_sequence where name='" + TABLE_NAME + "'");
     }
 }

@@ -55,6 +55,7 @@ import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.S3.S3Helper;
 import com.locadoc_app.locadoc.UI.PDFViewer.PDFViewer;
 import com.locadoc_app.locadoc.UI.Setting.SettingActivity;
 import com.locadoc_app.locadoc.helper.Encryption;
@@ -104,6 +105,8 @@ public class HomePageActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
         returnWithResult = false;
+        S3Helper.init();
+
         AreaList = new ArrayList<String>();
         AreaList.add("Home1");
         AreaList.add("Home2");
@@ -531,16 +534,12 @@ public class HomePageActivity extends AppCompatActivity
 
     @Override
     public int createNewArea(String filename, Area area) {
-        Log.d("LocAdoc", "pass: " + Credential.getPassword().getPassword()+
-                ", salt: " + Credential.getPassword().getSalt());
-        Log.d("LocAdoc", "area name: " + area.getName() + ", radius" + area.getRadius());
+        int newAreaId = AreaSQLHelper.maxID() + 1;
+        area.setAreaId(newAreaId);
         AreaSQLHelper.insert(area, Credential.getPassword());
-        int newId = AreaSQLHelper.maxID();
-        area.setAreaId(newId);
         gMapFrag.addMarker(area);
         AreaDynamoHelper.getInstance().insert(area);
-        Log.d("LocAdoc", "area name: " + area.getName() + ", radius" + area.getRadius());
-        return newId;
+        return newAreaId;
     }
 
     @Override
@@ -549,7 +548,9 @@ public class HomePageActivity extends AppCompatActivity
         if(!dir.exists()){
             dir.mkdir();
         }
-        String currFileName = Credential.getEmail() + (FileSQLHelper.maxID() + 1);
+
+        int newFileId = FileSQLHelper.maxID() + 1;
+        String currFileName = Credential.getEmail() + newFileId;
 
         File dst = new File(dir.getAbsolutePath() + "/" + currFileName);
         Log.d("LocAdoc", dst.getAbsolutePath() + ", pwd: " + Credential.getPassword().getPassword());
@@ -563,15 +564,14 @@ public class HomePageActivity extends AppCompatActivity
             Encryption.getInstance(password.getPassword(), password.getSalt()).encryptFile(in,out);
 
             com.locadoc_app.locadoc.Model.File file = new com.locadoc_app.locadoc.Model.File();
+            file.setFileId(newFileId);
             file.setPasswordId(Credential.getPassword().getPasswordid());
             file.setOriginalfilename(filename);
             file.setCurrentfilename(currFileName);
             file.setAreaId(areaid);
-            Log.d("LocAdoc", "name: " + file.getOriginalfilename() + ", area id: " + file.getAreaId());
+
             FileSQLHelper.insert(file, Credential.getPassword());
-            file.setFileId(FileSQLHelper.maxID());
             FileDynamoHelper.getInstance().insert(file);
-            Log.d("LocAdoc", "name: " + file.getOriginalfilename() + ", area id: " + file.getAreaId() + ", id: " + file.getFileId());
         } catch (Exception e){
             Log.e("LocAdoc", e.toString());
         }
@@ -583,6 +583,10 @@ public class HomePageActivity extends AppCompatActivity
                 Log.e("LocAdoc", e.toString());
             }
         }
+
+        // Upload to S3
+        Log.d("LocAdoc", "Uploading " + currFileName);
+        S3Helper.uploadFile(dst);
     }
 
     public void openFile(int fileid){
