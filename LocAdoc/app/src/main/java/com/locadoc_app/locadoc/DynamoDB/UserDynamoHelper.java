@@ -6,8 +6,11 @@ import android.util.Log;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.locadoc_app.locadoc.Model.Credential;
+import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;
+import com.locadoc_app.locadoc.helper.Encryption;
 
 /**
  * Created by Admin on 9/25/2017.
@@ -47,6 +50,10 @@ public class UserDynamoHelper {
     public void insertToDB(User user)
     {
         user.setIdentity(getIdentity());
+        Password pwd = Credential.getPassword();
+        Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
+        user.setFirstname(en.encryptString(user.getFirstname()));
+        user.setLastname(en.encryptString(user.getLastname()));
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         try{
             mapper.save(user);
@@ -79,8 +86,6 @@ public class UserDynamoHelper {
         String id = getIdentity();
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         User user = mapper.load(User.class, id, email);
-        //Log.d("LocAdoc", "user: " + user.getUser() + ", first name: " + user.getFirstname()
-               // + ", last name: " + user.getLastname() + ", pass id: " + user.getPasswordid());
         return user;
     }
 

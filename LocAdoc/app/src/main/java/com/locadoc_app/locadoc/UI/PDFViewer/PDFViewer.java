@@ -100,7 +100,19 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
         finish();
     }
 
+    @Override
+    public void onBackPressed(){
+        exit();
+    }
+
     public void closeActivity(){
         exit();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        exit();
+        Log.d("LocAdoc", "STOP!!!!!!!!!");
     }
 }

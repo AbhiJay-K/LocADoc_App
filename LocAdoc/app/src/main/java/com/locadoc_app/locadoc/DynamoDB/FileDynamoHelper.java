@@ -69,6 +69,18 @@ public class FileDynamoHelper {
         }
     }
 
+    // call using thread
+    public void insertToDBWithoutEncryption(File file)
+    {
+        file.setUser(getIdentity());
+        DynamoDBMapper mapper = DynamoDBHelper.getMapper();
+        try{
+            mapper.save(file);
+        }catch (AmazonServiceException ex){
+            Log.e("LocAdoc", "Error: " + ex);
+        }
+    }
+
     public void delete (File file)
     {
         OperationType operation = OperationType.DELETE;

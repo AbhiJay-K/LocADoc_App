@@ -71,6 +71,18 @@ public class AreaDynamoHelper {
         }
     }
 
+    public void insertToDBWithoutEncryption(Area area)
+    {
+        area.setOwner(getIdentity());
+        DynamoDBMapper mapper = DynamoDBHelper.getMapper();
+
+        try{
+            mapper.save(area);
+        }catch (AmazonServiceException ex){
+            Log.e("LocAdoc", "Error: " + ex);
+        }
+    }
+
     public void delete (Area area)
     {
         OperationType operation = OperationType.DELETE;

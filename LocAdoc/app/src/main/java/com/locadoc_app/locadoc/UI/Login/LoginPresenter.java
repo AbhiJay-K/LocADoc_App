@@ -188,7 +188,6 @@ public class LoginPresenter implements LoginPresenterInterface
             long numberUser = UserSQLHelper.getNumberofRecords();
 
             if(numberUser > 0 &&  usr != null) {
-
                 Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
                 Credential.setPassword(pwd);
                 String instanceId = ApplicationInstance.getRecord();
