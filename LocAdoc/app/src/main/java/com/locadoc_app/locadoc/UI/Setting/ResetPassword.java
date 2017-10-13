@@ -1,23 +1,30 @@
 package com.locadoc_app.locadoc.UI.Setting;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
 
 public class ResetPassword extends AppCompatActivity {
 
-    private EditText curPwd, newPwd, confirmNewPwd, confirmCode;
+    private EditText curPwd, newPwd, confirmNewPwd;
     private Button submit;
     private ResetPasswordPresenter presenter;
+    private AlertDialog aDialog;
+    private ProgressDialog pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,11 +33,14 @@ public class ResetPassword extends AppCompatActivity {
         setTitle("Reset Password");
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         presenter = new ResetPasswordPresenter(this);
+
+        TextView text = (TextView) findViewById(R.id.resetPwd_textViewConfirmSubtext_1);
+        text.setText("Reset Password in " + Credential.getEmail());
+
         init();
     }
 
     void init() {
-
         // Current Password + SQLHelper Need to compare
         curPwd = (EditText) findViewById(R.id.resetPwd_editTextCurPwd);
         curPwd.addTextChangedListener(new TextWatcher() {
@@ -132,14 +142,15 @@ public class ResetPassword extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(ResetPassword.this, "Clicked Submit Button", Toast.LENGTH_SHORT).show();
+                Log.d("SUBMIT BUTTON CALL", "FOR RESET PASSWORD");
+                presenter.changePassword();
             }
         });
 
     }
 
-
-
     /* Getter and Settor */
+
     public EditText getCurPwd(){
         return this.curPwd;
     }
@@ -165,26 +176,54 @@ public class ResetPassword extends AppCompatActivity {
     public void setLabelNewPwd(String str) {
         TextView label = (TextView) findViewById(R.id.resetPwd_textViewNewPwdMessage);
         label.setText(str);
-        curPwd.setBackground(getDrawable(R.drawable.text_border_error));
+        newPwd.setBackground(getDrawable(R.drawable.text_border_error));
     }
 
     public void setLabelNewPwdOK(String str) {
         TextView label = (TextView) findViewById(R.id.resetPwd_textViewNewPwdMessage);
         label.setText(str);
-        curPwd.setBackground(getDrawable(R.drawable.text_border_selector));
+        newPwd.setBackground(getDrawable(R.drawable.text_border_selector));
     }
 
     public void setLabelConfirmNewPwd(String str) {
         TextView label = (TextView) findViewById(R.id.resetPwd_textViewConfirmNewPwdMessage);
         label.setText(str);
-        curPwd.setBackground(getDrawable(R.drawable.text_border_error));
+        confirmNewPwd.setBackground(getDrawable(R.drawable.text_border_error));
     }
 
     public void setLabelConfirmNewPwdOK(String str) {
         TextView label = (TextView) findViewById(R.id.resetPwd_textViewConfirmNewPwdMessage);
         label.setText(str);
-        curPwd.setBackground(getDrawable(R.drawable.text_border_selector));
+        confirmNewPwd.setBackground(getDrawable(R.drawable.text_border_selector));
     }
 
+    public void showProgressDialog(String title, String msg) {
+        pDialog = new ProgressDialog(this);
+        pDialog.setTitle(title);
+        pDialog.setMessage(msg);
+        pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pDialog.setCancelable(false);
+        pDialog.show();
+    }
+
+    public void dismissProgresDialog() {
+        pDialog.dismiss();
+    }
+
+    public void showDialogMessage(String title, String body) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title).setMessage(body).setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    aDialog.dismiss();
+                } catch (Exception e) {
+                    //
+                }
+            }
+        });
+        aDialog = builder.create();
+        aDialog.show();
+    }
 
 }
