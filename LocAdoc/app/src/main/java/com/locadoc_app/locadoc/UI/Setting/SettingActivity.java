@@ -1,8 +1,6 @@
 package com.locadoc_app.locadoc.UI.Setting;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -16,13 +14,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.locadoc_app.locadoc.R;
-import com.locadoc_app.locadoc.UI.HomePage.HomePageActivity;
+
+import static com.locadoc_app.locadoc.R.id.profile_usrEmail;
 
 public class SettingActivity extends AppCompatActivity  {
 
     private ListView listView;
-    private String userName;
-    private TextView text_userName;
+    private String userEmail;
+    private TextView text_userEmail;
     String[] settingMenuListArray = {"Phone Number", "Password", "Set Administration Area", "Backup", "Delete Account"};
 
     @Override
@@ -49,12 +48,12 @@ public class SettingActivity extends AppCompatActivity  {
         Bundle extras = getIntent().getExtras();
         if (extras !=null) {
             if (extras.containsKey("name")) {
-                userName = extras.getString("name");
+                userEmail = extras.getString("name");
             }
         }
 
-        text_userName = (TextView) findViewById(R.id.profile_usrEmail);
-        text_userName.setText(userName);
+        text_userEmail = (TextView) findViewById(profile_usrEmail);
+        text_userEmail.setText(userEmail);
 
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -113,7 +112,7 @@ public class SettingActivity extends AppCompatActivity  {
 
     public void openResetPasswordActivity() {
         Intent resetPassword = new Intent(this, ResetPassword.class);
-        // homeActivity.putExtra("name", userIDView.getText().toString());
+        resetPassword.putExtra("Email", text_userEmail.getText().toString());
         startActivity(resetPassword);
     }
 

@@ -27,9 +27,7 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
     private String email;
 
     private Button submit;
-    private Button resendCode;
-
-    private AlertDialog userDialog;
+    //private AlertDialog userDialog;
     private PasswordRecoveryPresenterInterface presenter;
 
     /******************** Normal Method ********************/
