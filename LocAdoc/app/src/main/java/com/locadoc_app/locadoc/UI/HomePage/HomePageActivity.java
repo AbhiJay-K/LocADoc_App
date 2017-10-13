@@ -106,17 +106,7 @@ public class HomePageActivity extends AppCompatActivity
         setContentView(R.layout.activity_home_page);
         returnWithResult = false;
         S3Helper.init();
-
-        AreaList = new ArrayList<String>();
-        AreaList.add("Home1");
-        AreaList.add("Home2");
-        AreaList.add("Home3");
-        AreaList.add("Home4");
-        AreaList.add("Home5");
-        AreaList.add("Office");
-        AreaList.add("Office2");
-        AreaList.add("Uni");
-        AreaList.add("test");
+        AreaList = AreaSQLHelper.getSearchValue();
         final String[] from = new String[] {"AreaName"};
         final int[] to = new int[] {android.R.id.text1};
         mAdapter = new SimpleCursorAdapter(HomePageActivity.this,
@@ -152,8 +142,6 @@ public class HomePageActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(checkLocationPermission()){
                 buildGoogleApiClient();
@@ -221,7 +209,7 @@ public class HomePageActivity extends AppCompatActivity
         if (searchMenuItem == null) {
             return true;
         }
-        Log.d("Error search","i am here");
+
         SearchManager searchManager = (SearchManager)
                 getSystemService(getApplicationContext().SEARCH_SERVICE);
         searchView = (SearchView) searchMenuItem.getActionView();
@@ -234,7 +222,12 @@ public class HomePageActivity extends AppCompatActivity
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionClick(int position) {
-                // Your code here
+                String name = AreaList.get(position);
+                Area ar = AreaSQLHelper.getAreaName(name,Credential.getPassword());
+                Location l = new Location("");
+                l.setLongitude(Double.parseDouble(ar.getLongitude()));
+                l.setLatitude(Double.parseDouble(ar.getLatitude()));
+                gMapFrag.focusCamera (l);
                 return true;
             }
 

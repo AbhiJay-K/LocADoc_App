@@ -167,7 +167,7 @@ public class AreaSQLHelper implements BaseColumns {
             return AreaMap;
         }
     }
-    public static List<String> getSearchValue(String ar)
+    public static List<String> getSearchValue()
     {
         Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT areaname FROM area",null);
         List<String> AreaList = new ArrayList<String>();
