@@ -239,9 +239,7 @@ public class HomePageActivity extends AppCompatActivity
         });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String s) {
-                return false;
-            }
+            public boolean onQueryTextSubmit(String s) {return false;}
             @Override
             public boolean onQueryTextChange(String s) {
                 Log.d("Search1 ",s);
