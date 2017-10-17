@@ -136,11 +136,14 @@ public class LoginPresenter implements LoginPresenterInterface
 
         @Override
         public void getAuthenticationDetails(AuthenticationContinuation authenticationContinuation, String username) {
-            loginAct.closeWaitDialog();
             Locale.setDefault(Locale.US);
             AuthenticationDetails authenticationDetails = new AuthenticationDetails(
                     loginAct.getUserIDView().getText().toString(),
                     loginAct.getPassView().getText().toString(), null);
+
+            loginAct.getPassView().setText("");
+            loginAct.clearFocus();
+
             authenticationContinuation.setAuthenticationDetails(authenticationDetails);
             authenticationContinuation.continueTask();
         }

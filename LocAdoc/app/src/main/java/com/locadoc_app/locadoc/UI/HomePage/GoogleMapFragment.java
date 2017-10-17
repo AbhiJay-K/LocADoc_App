@@ -7,6 +7,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -41,16 +42,38 @@ public class GoogleMapFragment extends Fragment
     public interface GoogleMapFragmentListener{
         void requestFocus();
         Location getLastKnownLoc();
+        void showImportFileFragment();
+        void openFileExplorer();
     }
 
     MapView mMapView;
     private GoogleMap mMap;
     private Circle circleShown;
+    private FloatingActionButton newFilefab;
+    private FloatingActionButton fileExplorerfab;
     private static final int DEFAULT_ZOOM = 17;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_google_map, container, false);
+
+        newFilefab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+        newFilefab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GoogleMapFragmentListener listener = (GoogleMapFragmentListener) getActivity();
+                listener.showImportFileFragment();
+            }
+        });
+
+        fileExplorerfab = (FloatingActionButton) rootView.findViewById(R.id.FileExplorerFloatingActionButton);
+        fileExplorerfab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GoogleMapFragmentListener listener = (GoogleMapFragmentListener) getActivity();
+                listener.openFileExplorer();
+            }
+        });
 
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -64,6 +87,16 @@ public class GoogleMapFragment extends Fragment
 
         mMapView.getMapAsync(this);
         return rootView;
+    }
+
+    public void hideFAB() {
+        fileExplorerfab.setVisibility(View.GONE);
+        newFilefab.setVisibility(View.GONE);
+    }
+
+    public void showFAB() {
+        fileExplorerfab.setVisibility(View.VISIBLE);
+        newFilefab.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -139,17 +172,24 @@ public class GoogleMapFragment extends Fragment
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
+        Area area = AreaSQLHelper.getAreaName(marker.getTitle(), Credential.getPassword());
+        drawCircle(marker.getPosition(), Integer.parseInt(area.getRadius()));
+        return false;
+    }
+
+    public void drawCircle (LatLng latLng, int radius){
+        clearCircle();
+        circleShown = mMap.addCircle(new CircleOptions()
+                .center(latLng)
+                .radius(radius)
+                .strokeColor(Color.argb(25,30,100,255))
+                .fillColor(Color.argb(90,135,206,250)));
+    }
+
+    public void clearCircle(){
         if (circleShown != null){
             circleShown.remove();
         }
-        Area area = AreaSQLHelper.getAreaName(marker.getTitle(), Credential.getPassword());
-
-        circleShown = mMap.addCircle(new CircleOptions()
-                .center(marker.getPosition())
-                .radius(Integer.parseInt(area.getRadius()))
-                .strokeColor(Color.argb(25,30,100,255))
-                .fillColor(Color.argb(90,135,206,250)));
-        return false;
     }
 
     @Override

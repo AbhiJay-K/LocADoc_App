@@ -59,12 +59,15 @@
     <string name="aws_identitypool">ap-southeast-1:365da5cf-e75f-4e4f-84bb-d99244df4408</string>;
     <string name="aws_appid">44ftbv7gbpmjnvjih4ckpemokl</string>
     <string name="aws_appsec">dg4a9hisgrqdenj81rcgagt9pc66837m2fp5ike31ddpc7kt8js</string>
+    <string name="file_label">New File</string>
     <string name="new_area_label">New Area</string>
     <string name="new_area_name_hint">Area name</string>
     <string name="new_area_desc_hint">Small description</string>
-    <string name="radius_label">Radius</string>
     <string name="create_new_area_btn">Create new area</string>
     <string name="existing_area_label">Select existing area</string>
     <string name="existing_area_btn">Choose existing area</string>
-    <string name="cancel_import_button">Cancel</string>
+    <string name="radius_label">Radius:</string>
+    <string name="radius_hint">5-1000</string>
+    <string name="select_file_label">...</string>
+    <string name="meter_label">m</string>
 </resources>

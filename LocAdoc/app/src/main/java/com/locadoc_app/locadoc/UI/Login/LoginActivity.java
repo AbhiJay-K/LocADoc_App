@@ -252,6 +252,14 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
             showDialogMessage("Facebook login", "Unable to get user name from Facebook");
         }
     }
+
+    public void clearFocus(){
+        View current = getCurrentFocus();
+        if (current != null){
+            current.clearFocus();
+        }
+    }
+
     public void closeWaitDialog() {
         try {
             waitDialog.dismiss();

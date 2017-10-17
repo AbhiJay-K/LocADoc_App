@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
@@ -19,7 +18,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -31,12 +29,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.app.SearchManager;
 import android.support.v7.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import com.google.android.gms.common.ConnectionResult;
@@ -49,7 +46,6 @@ import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.DynamoDB.AreaDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
-import com.locadoc_app.locadoc.LocalDB.DBHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
@@ -59,14 +55,12 @@ import com.locadoc_app.locadoc.S3.S3Helper;
 import com.locadoc_app.locadoc.UI.PDFViewer.PDFViewer;
 import com.locadoc_app.locadoc.UI.Setting.SettingActivity;
 import com.locadoc_app.locadoc.helper.Encryption;
-import com.locadoc_app.locadoc.helper.Hash;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -75,12 +69,12 @@ public class HomePageActivity extends AppCompatActivity
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
-        SelectAreaFragment.SelectAreaDialogListener,
+        ImportFileFragment.ImportFileFragmentListener,
         FileExplorerFragment.FileExplorerFragmentListener,
         GoogleMapFragment.GoogleMapFragmentListener,
         SearchView.OnQueryTextListener{
+
     private final int PICKFILE = 1;
-    private final int PDFVIEW = 2;
     private List<String> AreaList;
     private RecyclerView mRecyclerView;
     private SearchView searchView;
@@ -95,6 +89,7 @@ public class HomePageActivity extends AppCompatActivity
 
     GoogleMapFragment gMapFrag;
     FileExplorerFragment fileExplorerFragment;
+    ImportFileFragment importFileFragment;
 
     // create area
     private boolean returnWithResult;
@@ -104,7 +99,7 @@ public class HomePageActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
-        returnWithResult = false;
+        //returnWithResult = false;
         S3Helper.init();
         AreaList = AreaSQLHelper.getSearchValue();
         final String[] from = new String[] {"AreaName"};
@@ -117,22 +112,6 @@ public class HomePageActivity extends AppCompatActivity
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                performFileSearch();
-            }
-        });
-
-        FloatingActionButton fileExplorerfab = (FloatingActionButton) findViewById(R.id.FileExplorerFloatingActionButton);
-        fileExplorerfab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openFileExplorer();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -153,8 +132,12 @@ public class HomePageActivity extends AppCompatActivity
         requestFocus = true;
         gMapFrag = new GoogleMapFragment();
         fileExplorerFragment = new FileExplorerFragment();
+        importFileFragment = new ImportFileFragment();
+
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, gMapFrag).commit();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.areaContainer, importFileFragment).commit();
 
         Bundle extras = getIntent().getExtras();
         if (extras !=null) {
@@ -178,6 +161,25 @@ public class HomePageActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void showImportFileFragment(){
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
+        FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
+        layout.setLayoutParams(lp);
+        importFileFragment.updateAreaAround();
+        gMapFrag.hideFAB();
+    }
+
+    @Override
+    public void hideImportFileFragment(){
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0);
+        FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
+        layout.setLayoutParams(lp);
+        gMapFrag.showFAB();
+        gMapFrag.clearCircle();
+    }
+
+    @Override
     public void openFileExplorer(){
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fileExplorerFragment).commit();
@@ -449,6 +451,7 @@ public class HomePageActivity extends AppCompatActivity
         }
     }
 
+    @Override
     public void performFileSearch() {
 
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
@@ -460,6 +463,12 @@ public class HomePageActivity extends AppCompatActivity
         startActivityForResult(intent, PICKFILE);
     }
 
+    @Override
+    public void drawCircle (int radius){
+        LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+        gMapFrag.drawCircle(latLng, radius);
+    }
+
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
         if (resultCode == Activity.RESULT_OK) {
@@ -467,13 +476,8 @@ public class HomePageActivity extends AppCompatActivity
                 case PICKFILE:
                     if (resultData != null) {
                         filePathUri = resultData.getData();
-                        returnWithResult = true;
-                    }
-                case PDFVIEW:
-                    if (resultData != null){
-                        String fileName = resultData.getStringExtra("filename");
-                        File dst = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/vault/~" + fileName);
-                        dst.delete();
+                        String fileName = getFileName(filePathUri);
+                        importFileFragment.setFileName(fileName);
                     }
             }
         }
@@ -502,33 +506,12 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        if (returnWithResult) {
-            String fileName = getFileName(filePathUri);
-            showSelectAreaDialog(fileName);
-        }
-        // Reset the boolean flag back to false for next time.
-        returnWithResult = false;
-    }
-
-
-    private void showSelectAreaDialog(String fileName) {
-        Bundle args = new Bundle();
-        args.putString("filename", fileName);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        SelectAreaFragment inputNameDialog = new SelectAreaFragment();
-        inputNameDialog.setArguments(args);
-        inputNameDialog.setCancelable(false);
-        inputNameDialog.show(fragmentManager, "Input Dialog");
-    }
-
-    @Override
     public int createNewArea(String filename, Area area) {
         int newAreaId = AreaSQLHelper.maxID() + 1;
         area.setAreaId(newAreaId);
         AreaSQLHelper.insert(area, Credential.getPassword());
         gMapFrag.addMarker(area);
+        gMapFrag.clearCircle();
         AreaDynamoHelper.getInstance().insert(area);
         return newAreaId;
     }
@@ -581,38 +564,9 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     public void openFile(int fileid){
-        com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(fileid, Credential.getPassword());
-        String fileName = file.getCurrentfilename();
-        File src = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/vault/" + fileName);
-        File dst = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/vault/~" + fileName);
-        decryptFile(src, dst);
-
         Intent PDFVIEWER = new Intent(this, PDFViewer.class);
-        PDFVIEWER.putExtra("filename", fileName);
-        PDFVIEWER.putExtra("FILE", Uri.fromFile(dst).toString());
-        startActivityForResult(PDFVIEWER, PDFVIEW);
-    }
-
-    public void decryptFile(File src, File dst){
-        InputStream in = null;
-        OutputStream out = null;
-
-        try{
-            in = new FileInputStream(src);
-            out = new FileOutputStream(dst);
-            Password password = Credential.getPassword();
-            Encryption.getInstance(password.getPassword(), password.getSalt()).decryptFile(in,out);
-        } catch (Exception e){
-            Log.e("LocAdoc", e.toString());
-        }
-        finally {
-            try{
-                in.close();
-                out.close();
-            } catch (Exception e){
-                Log.e("LocAdoc", e.toString());
-            }
-        }
+        PDFVIEWER.putExtra("fileid", fileid);
+        startActivity(PDFVIEWER);
     }
 
     @Override

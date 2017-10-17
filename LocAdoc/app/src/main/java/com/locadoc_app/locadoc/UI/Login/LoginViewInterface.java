@@ -22,4 +22,5 @@ public interface LoginViewInterface {
     boolean checkLogin();
     void startProgressDialog();
     void dismissProgressDialog();
+    void clearFocus();
 }
