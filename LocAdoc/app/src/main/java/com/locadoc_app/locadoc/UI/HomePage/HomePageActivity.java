@@ -34,6 +34,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.gms.common.ConnectionResult;
@@ -207,11 +208,10 @@ public class HomePageActivity extends AppCompatActivity
         inflater.inflate(R.menu.home_page, menu);
         username = (TextView) findViewById(R.id.USerEmail);
         username.setText(userName);
-        MenuItem searchMenuItem = menu.findItem(R.id.action_search);
+        final MenuItem searchMenuItem = menu.findItem(R.id.action_search);
         if (searchMenuItem == null) {
             return true;
         }
-
         SearchManager searchManager = (SearchManager)
                 getSystemService(getApplicationContext().SEARCH_SERVICE);
         searchView = (SearchView) searchMenuItem.getActionView();
@@ -224,12 +224,16 @@ public class HomePageActivity extends AppCompatActivity
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionClick(int position) {
-                String name = AreaList.get(position);
+                Cursor cursor = (Cursor) mAdapter.getItem(position);
+                String name = cursor.getString(1);
+                Toast.makeText(HomePageActivity.this, name,
+                        Toast.LENGTH_SHORT).show();
                 Area ar = AreaSQLHelper.getAreaName(name,Credential.getPassword());
                 Location l = new Location("");
                 l.setLongitude(Double.parseDouble(ar.getLongitude()));
                 l.setLatitude(Double.parseDouble(ar.getLatitude()));
                 gMapFrag.focusCamera (l);
+                searchMenuItem.collapseActionView();
                 return true;
             }
 
@@ -248,6 +252,7 @@ public class HomePageActivity extends AppCompatActivity
                 populateAdapter(s);
                 return false;
             }
+
         });
 
         /*MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
@@ -274,13 +279,15 @@ public class HomePageActivity extends AppCompatActivity
     }
     // You must implements your logic to get data using OrmLite
     private void populateAdapter(String query) {
+        mAdapter.notifyDataSetChanged();
         final MatrixCursor c = new MatrixCursor(new String[]{BaseColumns._ID, "AreaName" });
         for (int i=0; i<AreaList.size(); i++) {
-            Log.d("Search ",query);
-            if (AreaList.get(i).toLowerCase().startsWith(query.toLowerCase()))
-                c.addRow(new Object[] {i, AreaList.get(i)});
+            if (AreaList.get(i).toLowerCase().startsWith(query.toLowerCase())) {
+                c.addRow(new Object[]{i, AreaList.get(i)});
+            }
         }
-        mAdapter.changeCursor(c);
+        //mAdapter.changeCursor(c);
+        mAdapter.swapCursor(c);
     }
    /* @Override
     public boolean onOptionsItemSelected(MenuItem item) {
