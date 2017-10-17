@@ -1,7 +1,5 @@
 package com.locadoc_app.locadoc.UI.HomePage;
 
-import android.app.Activity;
-import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -18,60 +16,49 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
-import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
 
 import java.util.Map;
 
-public class ImportFileFragment extends Fragment {
+public class NewAreaFragment extends Fragment {
     private EditText newAreaName;
     private EditText newAreaDesc;
     private Button btnCreateNewArea;
-    private Button btnSelectExistingArea;
-    private Button btnSelectFile;
-    private TextView fileNameText;
     private SeekBar radiusSeekBar;
     private EditText radiusText;
-    private Spinner existingArea;
 
     private int radius;
-    private Map<String, Integer> allAreaAround;
-    ImportFileFragmentListener listener;
+    NewAreaFragmentListener activity;
 
-    public interface ImportFileFragmentListener {
+    public interface NewAreaFragmentListener {
         int createNewArea(Area area);
-        void saveFile(String filename, int areaid);
         Location getLastKnownLoc();
-        void performFileSearch();
-        void hideImportFileFragment();
+        void hideNewAreaFragment();
         void drawCircle(int radius);
     }
 
     //---empty constructor required
-    public ImportFileFragment() {
+    public NewAreaFragment() {
 
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState){
-        View view = inflater.inflate(R.layout.fragment_import_file, container, false);
+        View view = inflater.inflate(R.layout.fragment_new_area, container, false);
 
         radius = 5;
-        listener = (ImportFileFragmentListener) getActivity();
-        fileNameText = (TextView) view.findViewById(R.id.NewFileName);
+        activity = (NewAreaFragmentListener) getActivity();
         newAreaName = (EditText) view.findViewById(R.id.NewAreaName);
         newAreaDesc = (EditText) view.findViewById(R.id.NewAreaDesc);
         btnCreateNewArea = (Button) view.findViewById(R.id.CreateNewAreaBtn);
-        btnSelectExistingArea = (Button) view.findViewById(R.id.ExistingAreaBtn);
-        btnSelectFile = (Button) view.findViewById(R.id.SelectFileButton);
 
         FloatingActionButton closeFAB = (FloatingActionButton) view.findViewById(R.id.CloseImportFileFAB);
         closeFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.hideImportFileFragment();
+                activity.hideNewAreaFragment();
             }
         });
 
@@ -100,39 +87,22 @@ public class ImportFileFragment extends Fragment {
             public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
                 radius = progressValue + 5;
                 radiusText.setText(radius + "");
-                listener.drawCircle(radius);
+                activity.drawCircle(radius);
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                //radiusText.setText(radius + "");
-            }
-        });
-
-        existingArea = (Spinner) view.findViewById(R.id.ExistingArea);
-
-        //---event handler for the button
-        btnSelectFile.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                listener.performFileSearch();
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
         btnCreateNewArea.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
                 String areaName = newAreaName.getText().toString();
-                String filename = fileNameText.getText().toString();
 
-                if(filename.isEmpty()){
-                    Toast.makeText(getActivity(), "No file selected",
-                            Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                else if(areaName.trim().length() <= 1) {
+                if(areaName.trim().length() <= 1) {
                     Toast.makeText(getActivity(), "Area name must at least contain 2 characters",
                             Toast.LENGTH_SHORT).show();
                     return;
@@ -152,7 +122,7 @@ public class ImportFileFragment extends Fragment {
                 area.setName(areaName);
                 area.setDescription(areaDesc);
                 area.setRadius(radius + "");
-                Location loc = listener.getLastKnownLoc();
+                Location loc = activity.getLastKnownLoc();
                 area.setLatitude("" + loc.getLatitude());
                 area.setLongitude("" + loc.getLongitude());
 
@@ -162,87 +132,19 @@ public class ImportFileFragment extends Fragment {
                     return;
                 }
 
-                int id = listener.createNewArea(area);
-                listener.saveFile(filename, id);
+                int id = activity.createNewArea(area);
 
                 resetForm();
-                listener.hideImportFileFragment();
+                activity.hideNewAreaFragment();
             }
         });
 
-        btnSelectExistingArea.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view) {
-                Object obj = existingArea.getSelectedItem();
-                String filename = fileNameText.getText().toString();
-
-                if(filename.isEmpty()){
-                    Toast.makeText(getActivity(), "No file selected",
-                            Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                else if (obj == null) {
-                    Toast.makeText(getActivity(), "No area selected",
-                            Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                int areaid = allAreaAround.get(obj.toString());
-                String tempName = filename;
-                int result;
-                int count = 2;
-                do{
-                    result = FileSQLHelper.checkFileNameInAnAreaExist(filename, areaid, Credential.getPassword());
-
-                    if(result > 0){
-                        filename = tempName + " (" + count + ")";
-                        count++;
-                    }
-                } while (result > 0);
-
-                //---gets the calling activity
-                listener.saveFile(filename, areaid);
-
-                resetForm();
-                listener.hideImportFileFragment();
-            }
-        });
-
-        updateAreaAround();
         return view;
-    }
-
-    @Override
-    public void onAttach(Context context){
-        super.onAttach(context);
-    }
-
-    public void getAllAreaAround(Location loc)
-    {
-        allAreaAround = AreaSQLHelper.getAreaNameInLoc(loc, Credential.getPassword());
-    }
-
-    public void updateAreaAround(){
-        Location loc = listener.getLastKnownLoc();
-        if(loc == null){
-            return ;
-        }
-
-        getAllAreaAround(loc);
-        String[] strArr = allAreaAround.keySet().toArray(new String[allAreaAround.size()]);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_dropdown_item_1line, strArr);
-        existingArea.setAdapter(adapter);
-    }
-
-    public void setFileName(String fileName){
-        fileNameText.setText(fileName);
     }
 
     public void resetForm(){
         newAreaName.setText("");
         newAreaDesc.setText("");
-        fileNameText.setText("");
         radiusText.setText("");
     }
 }

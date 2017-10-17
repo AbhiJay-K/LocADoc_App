@@ -24,6 +24,7 @@ public class FileSQLHelper implements BaseColumns {
     public static final String COLUMN_PWD = "password";
     public static final String COLUMN_AREA = "area";
     private static DBHelper dbHelper;
+
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + " (" +
             _ID + " INTEGER PRIMARY KEY, "+
@@ -34,12 +35,15 @@ public class FileSQLHelper implements BaseColumns {
             COLUMN_AREA + " INTEGER, "+
             " FOREIGN KEY ("+COLUMN_AREA+") REFERENCES "+ AreaSQLHelper.TABLE_NAME+"("+ AreaSQLHelper._ID +
             ")) ";
+
     public static DBHelper getDbHelper() {
         return dbHelper;
     }
+
     public static void setDbHelper(DBHelper Helper) {
         dbHelper = Helper;
     }
+
     public static long insert(File file,Password pwd)
     {
         ContentValues values = new ContentValues();
@@ -53,6 +57,7 @@ public class FileSQLHelper implements BaseColumns {
         long newRowId = FileSQLHelper.getDbHelper().WRITE.insert(FileSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
+
     public static long insertWithoutEncryption(File file,Password pwd)
     {
         ContentValues values = new ContentValues();
@@ -65,6 +70,7 @@ public class FileSQLHelper implements BaseColumns {
         long newRowId = FileSQLHelper.getDbHelper().WRITE.insert(FileSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
+
     public static int maxID()
     {
         Cursor crs = FileSQLHelper.getDbHelper().READ.rawQuery("SELECT * FROM file WHERE _id = ( SELECT MAX(_id) FROM file)",null);
@@ -75,6 +81,7 @@ public class FileSQLHelper implements BaseColumns {
         crs.close();
         return ID;
     }
+
     //Query to search file table using original file name
     public static File getFile(int FileID,Password pwd)
     {
@@ -107,6 +114,7 @@ public class FileSQLHelper implements BaseColumns {
             return file;
         }
     }
+
     //Query to search file table using original area id and returns a list
     public static Map<String,Integer> getFilesInArea(int AreaID, Password pwd)
     {
@@ -129,6 +137,7 @@ public class FileSQLHelper implements BaseColumns {
         }
 
     }
+
     public static long updateRecord(File file,Password pwd)
     {
         ContentValues values = new ContentValues();
@@ -142,6 +151,7 @@ public class FileSQLHelper implements BaseColumns {
 
         return newRowId;
     }
+
     public static long getNumberofRecords()
     {
         String countQuery = "SELECT  * FROM " + FileSQLHelper.TABLE_NAME;
@@ -150,12 +160,14 @@ public class FileSQLHelper implements BaseColumns {
         cursor.close();
         return cnt;
     }
+
     public static int deleteRecord(String FileName)
     {
         String [] arg = {FileName};
         int deleted = FileSQLHelper.getDbHelper().WRITE.delete(FileSQLHelper.TABLE_NAME,FileSQLHelper.COLUMN_ORIGINAL_NAME +"=?",arg);
         return deleted;
     }
+
     public static int checkFileNameExist(String name,Password pwd)
     {
         Cursor crs = FileSQLHelper.dbHelper.READ.rawQuery("SELECT originalfilename FROM file",null);
@@ -174,6 +186,27 @@ public class FileSQLHelper implements BaseColumns {
         }
         return -1;
     }
+
+    public static int checkFileNameInAnAreaExist(String name, int areaid, Password pwd)
+    {
+        Cursor crs = FileSQLHelper.dbHelper.READ.rawQuery("SELECT originalfilename FROM file where " +
+                COLUMN_AREA + " = " + areaid, null);
+        Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
+        int count = 0;
+        if (crs != null && crs.moveToFirst()) {
+            do {
+                String fname = crs.getString(crs.getColumnIndex(FileSQLHelper.COLUMN_ORIGINAL_NAME));
+                fname = en.decrypttString(fname);
+                if(fname.equals(name)) {
+                    return 1;
+                }
+            }while(crs.moveToNext());
+            crs.close();
+            return count;
+        }
+        return 0;
+    }
+
     public static void clearRecord()
     {
         dbHelper.WRITE.execSQL("delete from "+ TABLE_NAME);

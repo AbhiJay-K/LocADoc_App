@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/CloseImportFileFAB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:fabSize="mini"
+        app:backgroundTint="@color/LocadocC"
+        app:srcCompat="@drawable/ic_arrow_downward_black_24dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/screen_background_light_transparent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/NewAreaLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="@string/new_area_label"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/NewAreaName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_area_name_hint"
+                android:imeOptions="actionDone"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/NewAreaDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/text_border_selector"
+                android:ems="10"
+                android:gravity="top"
+                android:hint="@string/new_area_desc_hint"
+                android:inputType="textMultiLine"
+                android:minLines="3" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/RadiusLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/radius_label"
+                    android:textSize="20sp" />
+
+                <EditText
+                    android:id="@+id/RadiusEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="0.9"
+                    android:background="@drawable/text_border_default"
+                    android:hint="@string/radius_hint"
+                    android:inputType="numberSigned" />
+
+                <TextView
+                    android:id="@+id/MeterLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="2.8"
+                    android:text="@string/meter_label"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/RadiusSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:max="995"
+                android:progress="5" />
+
+            <Button
+                android:id="@+id/CreateNewAreaBtn"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="@string/create_new_area_btn" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

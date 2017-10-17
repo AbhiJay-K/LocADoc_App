@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
@@ -32,7 +33,8 @@ import com.locadoc_app.locadoc.S3.S3Helper;
 import java.util.Map;
 
 public class FileExplorerFragment extends Fragment
-        implements AdapterView.OnItemClickListener {
+        implements AdapterView.OnItemClickListener,
+        AdapterView.OnItemLongClickListener{
     public interface FileExplorerFragmentListener{
         void openGoogleMap();
         Location getLastKnownLoc();
@@ -57,6 +59,7 @@ public class FileExplorerFragment extends Fragment
         listView = (ListView) rootView.findViewById(R.id.ListView);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
 
         FloatingActionButton fileExplorerfab = (FloatingActionButton) rootView.findViewById(R.id.floatingActionButton);
         fileExplorerfab.setOnClickListener(new View.OnClickListener() {
@@ -83,7 +86,6 @@ public class FileExplorerFragment extends Fragment
     public void onItemClick(AdapterView<?> args, View v, int position, long id) {
         if(exploreArea) {
             String data = (String) args.getItemAtPosition(position);
-            Log.d("LocAdoc", "Item: " + data);
             int areaid = allAreaAround.get(data);
             allFileInArea = FileSQLHelper.getFilesInArea(areaid, Credential.getPassword());
             String[] strArr = allFileInArea.keySet().toArray(new String[allFileInArea.size()]);
@@ -106,8 +108,25 @@ public class FileExplorerFragment extends Fragment
             } else{
                 showDownloadMessage(key, fileInfo.getOriginalfilename(), file);
             }
-
         }
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> args, View v, int position, long id) {
+        if(exploreArea) {
+            String data = (String) args.getItemAtPosition(position);
+            int areaid = allAreaAround.get(data);
+            Toast.makeText(getActivity(), "Area name: " + data + " selected",
+                    Toast.LENGTH_SHORT).show();
+
+        } else{
+            String data = (String) args.getItemAtPosition(position);
+            int fileid = allFileInArea.get(data);
+            Toast.makeText(getActivity(), "File name: " + data + " selected",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        return true;
     }
 
     public void getAllAreaAround()

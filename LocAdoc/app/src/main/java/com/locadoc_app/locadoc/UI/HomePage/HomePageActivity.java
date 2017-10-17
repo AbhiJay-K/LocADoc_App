@@ -73,7 +73,8 @@ public class HomePageActivity extends AppCompatActivity
         ImportFileFragment.ImportFileFragmentListener,
         FileExplorerFragment.FileExplorerFragmentListener,
         GoogleMapFragment.GoogleMapFragmentListener,
-        SearchView.OnQueryTextListener{
+        SearchView.OnQueryTextListener,
+        NewAreaFragment.NewAreaFragmentListener{
 
     private final int PICKFILE = 1;
     private List<String> AreaList;
@@ -91,16 +92,16 @@ public class HomePageActivity extends AppCompatActivity
     GoogleMapFragment gMapFrag;
     FileExplorerFragment fileExplorerFragment;
     ImportFileFragment importFileFragment;
+    NewAreaFragment newAreaFragment;
 
     // create area
-    private boolean returnWithResult;
     private Uri filePathUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
-        //returnWithResult = false;
+
         S3Helper.init();
         AreaList = AreaSQLHelper.getSearchValue();
         final String[] from = new String[] {"AreaName"};
@@ -134,6 +135,7 @@ public class HomePageActivity extends AppCompatActivity
         gMapFrag = new GoogleMapFragment();
         fileExplorerFragment = new FileExplorerFragment();
         importFileFragment = new ImportFileFragment();
+        newAreaFragment = new NewAreaFragment();
 
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, gMapFrag).commit();
@@ -164,6 +166,8 @@ public class HomePageActivity extends AppCompatActivity
 
     @Override
     public void showImportFileFragment(){
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.areaContainer, importFileFragment).commit();
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
         FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
         layout.setLayoutParams(lp);
@@ -173,6 +177,25 @@ public class HomePageActivity extends AppCompatActivity
 
     @Override
     public void hideImportFileFragment(){
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0);
+        FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
+        layout.setLayoutParams(lp);
+        gMapFrag.showFAB();
+        gMapFrag.clearCircle();
+    }
+
+    @Override
+    public void showNewAreaFragment(){
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.areaContainer, newAreaFragment).commit();
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
+        FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
+        layout.setLayoutParams(lp);
+        gMapFrag.hideFAB();
+    }
+
+    @Override
+    public void hideNewAreaFragment(){
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0);
         FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
         layout.setLayoutParams(lp);
@@ -513,7 +536,7 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     @Override
-    public int createNewArea(String filename, Area area) {
+    public int createNewArea(Area area) {
         int newAreaId = AreaSQLHelper.maxID() + 1;
         area.setAreaId(newAreaId);
         AreaSQLHelper.insert(area, Credential.getPassword());

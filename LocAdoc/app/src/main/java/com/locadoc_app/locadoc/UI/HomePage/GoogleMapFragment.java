@@ -44,6 +44,7 @@ public class GoogleMapFragment extends Fragment
         Location getLastKnownLoc();
         void showImportFileFragment();
         void openFileExplorer();
+        void showNewAreaFragment();
     }
 
     MapView mMapView;
@@ -51,6 +52,7 @@ public class GoogleMapFragment extends Fragment
     private Circle circleShown;
     private FloatingActionButton newFilefab;
     private FloatingActionButton fileExplorerfab;
+    private FloatingActionButton newAreafab;
     private static final int DEFAULT_ZOOM = 17;
 
     @Override
@@ -75,6 +77,15 @@ public class GoogleMapFragment extends Fragment
             }
         });
 
+        newAreafab = (FloatingActionButton) rootView.findViewById(R.id.NewAreaFloatingActionButton);
+        newAreafab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GoogleMapFragmentListener listener = (GoogleMapFragmentListener) getActivity();
+                listener.showNewAreaFragment();
+            }
+        });
+
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();
@@ -92,11 +103,13 @@ public class GoogleMapFragment extends Fragment
     public void hideFAB() {
         fileExplorerfab.setVisibility(View.GONE);
         newFilefab.setVisibility(View.GONE);
+        newAreafab.setVisibility(View.GONE);
     }
 
     public void showFAB() {
         fileExplorerfab.setVisibility(View.VISIBLE);
         newFilefab.setVisibility(View.VISIBLE);
+        newAreafab.setVisibility(View.VISIBLE);
     }
 
     @Override
