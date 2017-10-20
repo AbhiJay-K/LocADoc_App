@@ -2,6 +2,7 @@ package com.locadoc_app.locadoc.UI.Setting;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
 
+import static android.R.attr.label;
+
 public class ResetPassword extends AppCompatActivity {
 
     private EditText curPwd, newPwd, confirmNewPwd;
@@ -25,6 +28,8 @@ public class ResetPassword extends AppCompatActivity {
     private ResetPasswordPresenter presenter;
     private AlertDialog aDialog;
     private ProgressDialog pDialog;
+
+    private boolean confPwdStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,14 +141,22 @@ public class ResetPassword extends AppCompatActivity {
             }
         });
 
-                /* Submit Button */
+        /* Submit Button */
         submit = (Button) findViewById(R.id.resetPwd_reset_pwd_button);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ResetPassword.this, "Clicked Submit Button", Toast.LENGTH_SHORT).show();
+
                 Log.d("SUBMIT BUTTON CALL", "FOR RESET PASSWORD");
-                presenter.changePassword();
+
+
+                if(confPwdStatus) {
+                    Toast.makeText(ResetPassword.this, "Clicked Submit Button", Toast.LENGTH_SHORT).show();
+                    presenter.changePassword();
+                }
+                else {
+                    Toast.makeText(ResetPassword.this, "Confirmed New Password is not match with New Password", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -186,17 +199,24 @@ public class ResetPassword extends AppCompatActivity {
     }
 
     public void setLabelConfirmNewPwd(String str) {
+
+        confPwdStatus = false;
+
         TextView label = (TextView) findViewById(R.id.resetPwd_textViewConfirmNewPwdMessage);
         label.setText(str);
         confirmNewPwd.setBackground(getDrawable(R.drawable.text_border_error));
     }
 
     public void setLabelConfirmNewPwdOK(String str) {
+
+        confPwdStatus = true;
+
         TextView label = (TextView) findViewById(R.id.resetPwd_textViewConfirmNewPwdMessage);
         label.setText(str);
         confirmNewPwd.setBackground(getDrawable(R.drawable.text_border_selector));
     }
 
+    /*************************  *************************/
     public void showProgressDialog(String title, String msg) {
         pDialog = new ProgressDialog(this);
         pDialog.setTitle(title);
@@ -210,13 +230,22 @@ public class ResetPassword extends AppCompatActivity {
         pDialog.dismiss();
     }
 
-    public void showDialogMessage(String title, String body) {
+    public void ToastMessage(Exception e) {
+        Toast.makeText(ResetPassword.this, "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+    }
+    /*************************  *************************/
+
+    public void showDialogMessage(String title, String body, boolean status) {
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final boolean result = status;
+
         builder.setTitle(title).setMessage(body).setNeutralButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
                     aDialog.dismiss();
+                    exit(result);
                 } catch (Exception e) {
                     //
                 }
@@ -224,6 +253,15 @@ public class ResetPassword extends AppCompatActivity {
         });
         aDialog = builder.create();
         aDialog.show();
+    }
+
+    public void exit(boolean result) {
+        if(result) {
+            Intent intent = new Intent();
+            intent.putExtra("result",result);
+            setResult(RESULT_OK, intent);
+            finish();
+        }
     }
 
 }

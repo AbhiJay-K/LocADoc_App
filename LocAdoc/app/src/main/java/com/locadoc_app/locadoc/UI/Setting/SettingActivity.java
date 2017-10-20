@@ -13,8 +13,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.locadoc_app.locadoc.Cognito.AppHelper;
+import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
+import com.locadoc_app.locadoc.Model.Credential;
+import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 
+import static com.locadoc_app.locadoc.R.id.CreateNewAreaBtn;
+import static com.locadoc_app.locadoc.R.id.UserName;
 import static com.locadoc_app.locadoc.R.id.profile_usrEmail;
 
 public class SettingActivity extends AppCompatActivity  {
@@ -24,28 +30,52 @@ public class SettingActivity extends AppCompatActivity  {
     private TextView text_userEmail;
     String[] settingMenuListArray = {"Phone Number", "Password", "Set Administration Area", "Backup", "Delete Account"};
 
+    private SettingActivityPresenter presenter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        // Presenter Setting
+        presenter = new SettingActivityPresenter(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.setting_toolbar);
         setSupportActionBar(toolbar);
 
-        ListView listview;
+        init();
+    }
+
+    public void init() {
+        Log.d("CREDENTIALCHECK","Setting Activity Email: " + Credential.getEmail() + "\t Password: " + Credential.getPassword().getPassword());
+
+        User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+        String firstName = user.getFirstname();
+        String lastName = user.getLastname();
+        String userName = lastName + " " + firstName;
+
+        TextView userNameTextView = (TextView) findViewById(R.id.profile_usrName);
+        userNameTextView.setText(userName);
+
+        presenter.profileName(user.getFirstname(), user.getLastname());
+
+        Log.d("SEPERATE" , "=======================================================================");
+        Log.d("USER INFO", "Info: " + user.getLastname() + " " + user.getFirstname());
+        Log.d("SEPERATE" , "=======================================================================");
+
         SettingListViewAdapter adapter = new SettingListViewAdapter();
 
-        listview = (ListView) findViewById(R.id.setting_menuList);
-        listview.setAdapter(adapter);
+        listView = (ListView) findViewById(R.id.setting_menuList);
+        listView.setAdapter(adapter);
 
         adapter.addItem(settingMenuListArray[0], "subItem for phone Number");
-        adapter.addItem(settingMenuListArray[1], "subItem for ResetPassword");
+        adapter.addItem(settingMenuListArray[1], "********");
         adapter.addItem(settingMenuListArray[2], "subItem for admin area");
         adapter.addItem(settingMenuListArray[3], "");
         adapter.addItem(settingMenuListArray[4], "");
 
-
         Bundle extras = getIntent().getExtras();
+
         if (extras !=null) {
             if (extras.containsKey("name")) {
                 userEmail = extras.getString("name");
@@ -55,7 +85,7 @@ public class SettingActivity extends AppCompatActivity  {
         text_userEmail = (TextView) findViewById(profile_usrEmail);
         text_userEmail.setText(userEmail);
 
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View v, int position, long id) {
                 // get item
@@ -68,21 +98,24 @@ public class SettingActivity extends AppCompatActivity  {
                 Toast.makeText(SettingActivity.this, titleStr, Toast.LENGTH_SHORT).show();
 
                 switch(position) {
-                    case 0: openPhoneNumberActivity();
+                    case 0: openPhoneNumberActivity();      // Activity Num: 30
                         break;
-                    case 1:	openResetPasswordActivity();
+                    case 1:	openResetPasswordActivity();    // Activity Num: 31
                         break;
-                    case 2: openSetAdminAreaActivity();
+                    case 2: openSetAdminAreaActivity();     // Activity Num: 32
                         break;
-                    case 3:
+                    case 3:                                 // Activity Num: 33
                         break;
-                    case 4:
+                    case 4:                                 // Activity Num: 34
                         break;
                 }
+
             }
         });
 
+
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -113,13 +146,45 @@ public class SettingActivity extends AppCompatActivity  {
     public void openResetPasswordActivity() {
         Intent resetPassword = new Intent(this, ResetPassword.class);
         resetPassword.putExtra("Email", text_userEmail.getText().toString());
-        startActivity(resetPassword);
+        startActivityForResult(resetPassword, 30);
     }
 
     public void openSetAdminAreaActivity() {
         // Intent homeActivity = new Intent(this, HomePageActivity.class);
         // homeActivity.putExtra("name", userIDView.getText().toString());
         // startActivity(homeActivity);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+       // Make sure the request was successful
+       if (resultCode == RESULT_OK) {        // Check which request we're responding to
+           switch(requestCode) {
+               case 30:
+                   break;
+               case 31:
+                   boolean result = data.getBooleanExtra("result", false);
+                   Log.d("RECEIVING RESULT","RESULT IS " + result);
+
+                   if(result) {
+                       Toast.makeText(SettingActivity.this, "Success to Change Password", Toast.LENGTH_SHORT).show();
+                   }
+
+                   break;
+               case 32:
+                   break;
+               case 33:
+                   break;
+               case 34:
+                   break;
+           }
+        }
+    }
+
+
+    public void setProfileInitial(String inital) {
+        TextView profileText = (TextView) findViewById(R.id.profile_text);
+        profileText.setText(inital);
     }
 
     /********** View List Method **********/

@@ -96,7 +96,7 @@ public class UserSQLHelper implements BaseColumns{
         values.put(UserSQLHelper.COLUMN_PWD,usr.getPasswordid());
         values.put(UserSQLHelper.COLUMN_AREA,usr.getAdminareaid());
         String [] arg = {usr.getUser()};
-        long newRowId = UserSQLHelper.dbHelper.WRITE.update(UserSQLHelper.TABLE_NAME,values,UserSQLHelper.COLUMN_EMAIL+"=?",arg);
+        long newRowId = UserSQLHelper.dbHelper.WRITE.update(UserSQLHelper.TABLE_NAME,values,UserSQLHelper.COLUMN_EMAIL+" = ?",arg);
         return newRowId;
     }
     public static long getNumberofRecords()

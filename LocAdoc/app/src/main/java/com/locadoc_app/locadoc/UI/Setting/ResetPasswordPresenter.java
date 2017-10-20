@@ -12,6 +12,7 @@ import com.locadoc_app.locadoc.DynamoDB.PasswordDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.UserDynamoHelper;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.File;
@@ -35,6 +36,7 @@ import static java.sql.DriverManager.println;
 public class ResetPasswordPresenter {
 
     private ResetPassword activity;
+    private boolean resultStatus;
 
     public ResetPasswordPresenter(ResetPassword activity) {
         this.activity = activity;
@@ -102,9 +104,12 @@ public class ResetPasswordPresenter {
         Log.d("APPHELPER CALL", "changePassword (" + activity.getCurPwd().getText().toString() + ", " + activity.getNewPwd().getText().toString() + ", Handler) And the Credential PWD " + Credential.getPassword());
         // Should password be hashed one?
         // Old Pwd as Credential
-        activity.showProgressDialog("Reset Password","Changing Password...");
-        new resetPwdCognitoSyn().execute(activity.getCurPwd().getText().toString(), activity.getNewPwd().getText().toString());
-        activity.dismissProgresDialog();
+        // activity.showProgressDialog("Reset Password","Changing Password...");
+
+        AppHelper.getPool().getUser(Credential.getEmail()).changePasswordInBackground(activity.getCurPwd().getText().toString(), activity.getNewPwd().getText().toString(), changePwdHandler);
+        Log.d("UPDATE IN COGNITO","UPDATE IN " + Credential.getEmail() + " | OLDPWD: " +  activity.getCurPwd().getText().toString() + " | NEWPWD " + activity.getNewPwd().getText().toString());
+
+        // activity.dismissProgresDialog();
 
     }
 
@@ -121,8 +126,22 @@ public class ResetPasswordPresenter {
              */
             Log.d("SUCCESS_RESET_PWD","UPDATE IN DYNAMODB IN CLOUD SERVER");
             Log.d("SEPERATE", "SUCCESS--------------------------------------------------------------------------------");
+
             String newPassword = activity.getNewPwd().getText().toString();
-            new resetPwdDynamoDBSyn().execute(newPassword);
+            String oldPassword = activity.getCurPwd().getText().toString();
+
+            // Update passwordID and new Password with new salt in Password Table
+            String salt = Hash.SecureRandomGen();
+            //newPassword.setPassword(Hash.Hash(objects[0], salt));
+
+            // Update SQLITE, DYNAMODB
+            resetPwdLocalDB(oldPassword, newPassword, salt);
+            new resetPwdDynamoDBSyn().execute(newPassword, salt);
+
+            resultStatus = true;
+
+            activity.showDialogMessage("SUCCESS","SUCCESS TO CHANGE PASSWORD", resultStatus);
+
         }
 
         @Override
@@ -132,22 +151,39 @@ public class ResetPasswordPresenter {
             Log.d("FAIL_RESET_PWD","UNMATCH OLD PWD");
             Log.d("EXCEPTION MESSAGE", exception.toString());
             Log.d("SEPERATE", "FAIL--------------------------------------------------------------------------------");
+
             activity.setLabelCurPwd("PasswordSQLHelper: incorrect Current Password");
-            //new resetPwdTestSyn().execute();
+            resultStatus = false;
+
+            activity.showDialogMessage("FAIL","FAIL TO CHANGE PASSWORD\n" + exception.getMessage(), resultStatus);
         }
     };
 
-    private class resetPwdCognitoSyn extends
-            AsyncTask<String, Void, Void> {
-        @Override
-        protected Void doInBackground(String... objects) {
+    // Update Local DB in Device : located in onSuccess() in GenericHandler
+    void resetPwdLocalDB(String oldPassword, String newPassword, String salt) {
 
-            AppHelper.getPool().getUser(Credential.getEmail()).changePassword(objects[0], objects[1], changePwdHandler);
-            Log.d("UPDATE IN COGNITO","UPDATE IN " + Credential.getEmail() + " | OLDPWD: " + objects[0] + " | NEWPWD " + objects[1]);
+        // Get User Data from Local DB
+        User user = UserSQLHelper.getRecord(Credential.getEmail(),Credential.getPassword());
+        user.setPasswordid(user.getPasswordid() + 1);
+        Log.d("LOCALDB", "User Email: " + user.getUser() + " | User Name: " + user.getLastname() + " " + user.getFirstname());
 
-            return null;
-        };
+        // Delete the users data encrypted with oldPassword
+        // UserSQLHelper.deleteRecord(Credential.getEmail());
+        // Log.d("LOCALDB", "DELETE OLD DATA: " + UserSQLHelper.getNumberofRecords());
+
+        // Get New Password
+        Password newPwd = new Password();
+        newPwd.setPasswordid(user.getPasswordid());
+        newPwd.setSalt(salt);
+        newPwd.setPassword(Hash.Hash(newPassword, salt));
+
+        Log.d("CREDENTIALCHECK","BEFORE LOCALDB UPDATE: " + Credential.getEmail() + "\t Password: " + newPwd.getPassword());
+
+        // Insert new user data encrypted with newPassword
+        UserSQLHelper.UpdateRecord(user, newPwd);
+        Log.d("LOCALDB", "SUCCESS TO UPDATE: " + UserSQLHelper.getNumberofRecords());
     }
+
 
     private class resetPwdDynamoDBSyn extends
             AsyncTask<String, Void, Void> {
@@ -160,6 +196,7 @@ public class ResetPasswordPresenter {
 
             int pwdIDUserTable = user.getPasswordid();
             int pwdIDPwdTable = password.getPasswordid();
+
             Log.d("PWDID IN USER", "User Password ID in USER TABLE: " + pwdIDUserTable++);
             Log.d("PWDID IN USER", "User Password ID in PASSWORD TABLE: " + pwdIDPwdTable++);
 
@@ -176,20 +213,22 @@ public class ResetPasswordPresenter {
             // Update passwordID and new Password with new salt in Password Table
             Password newPassword = new Password();
             newPassword.setPasswordid(pwdIDPwdTable);
-            String salt = Hash.SecureRandomGen();
-            newPassword.setSalt(salt);
-            newPassword.setPassword(Hash.Hash(objects[0], salt));
+            newPassword.setSalt(objects[1]);
+            newPassword.setPassword(Hash.Hash(objects[0], objects[1]));
 
             // Update user and password in DynamoDB
-            UserDynamoHelper.getInstance().insert(user);
             PasswordDynamoHelper.getInstance().insert(newPassword);
+            UserDynamoHelper.getInstance().insert(user);
 
-            // clear local DB
+            /************************/
+
+            // CLEAR LOCAL DATABASE: AREA and FILE
             AreaSQLHelper.clearRecord();
             FileSQLHelper.clearRecord();
 
             Password pwd = Credential.getPassword();
             Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+
             List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
             for(Area ar : areaList) {
                 // decrypt
@@ -208,11 +247,12 @@ public class ResetPasswordPresenter {
                 file.setModified(en.decrypttString(file.getModified()));
             }
 
-            // set the new key
+            // set the New Encryption Key as New Password
             en.setKey(newPassword.getPassword(), newPassword.getSalt());
-            // reencrypt
+
+            // ReEncryption into AREA and FILE
             for(Area ar : areaList) {
-                // decrypt
+                // encryption
                 ar.setDescription(en.encryptString(ar.getDescription()));
                 ar.setLatitude(en.encryptString(ar.getLatitude()));
                 ar.setLongitude(en.encryptString(ar.getLongitude()));
@@ -227,7 +267,7 @@ public class ResetPasswordPresenter {
             }
 
             for(File file : fileList) {
-                // decrypt
+                // encryption
                 file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
                 file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
                 file.setModified(en.encryptString(file.getModified()));
@@ -240,9 +280,16 @@ public class ResetPasswordPresenter {
             }
 
             Log.d("BEFORE UPDATE CRDL", "OLD PWDID: " + Credential.getPassword().getPasswordid() + "| OLD PWD: " + Credential.getPassword().getPassword() + " | OLD SALT" + Credential.getPassword().getSalt());
+
+            Log.d("CREDENTIALCHECK","BEFORE CHANGE PASSWORD Email: " + Credential.getEmail() + "\t Password: " + Credential.getPassword().getPassword());
+
+            /************************/
             // Update in Credential in App
             Credential.setPassword(newPassword);
+
             Log.d("AFTER UPDATE CRDL", "NEW PWDID: " + Credential.getPassword().getPasswordid() + "| NEW PWD: " + Credential.getPassword().getPassword() + " | NEW SALT" + Credential.getPassword().getSalt());
+            Log.d("CREDENTIALCHECK","AFTER CHANGE PASSWORD Email: " + Credential.getEmail() + "\t Password: " + Credential.getPassword().getPassword());
+
             return null;
         };
     }
