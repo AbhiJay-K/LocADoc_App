@@ -23,4 +23,5 @@ public interface LoginViewInterface {
     void startProgressDialog();
     void dismissProgressDialog();
     void clearFocus();
+    void startDelay();
 }

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import com.facebook.CallbackManager;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocalDB.DBHelper;
+import com.locadoc_app.locadoc.LocalDB.GuestSession;
 import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.Test;
@@ -56,6 +58,19 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         loginPres = new LoginPresenter(this);
         setContentView(R.layout.activity_login);
         DBHelper.init(getApplicationContext());
+        if(GuestSession.getNumberofRecords() <= 0)
+        {
+            GuestSession.insert();
+        }
+        else
+        {
+            long [] grecord = GuestSession.getRecord();
+            if(grecord[1] != 0L)
+            {
+                startDelay();
+            }
+
+        }
         ButterKnife.bind(this);
         checkLogin();
         AppHelper.init(getApplicationContext());
@@ -267,5 +282,37 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         catch (Exception e) {
             //
         }
+    }
+    public void startDelay()
+    {
+        final AlertDialog lockDialog = new AlertDialog.Builder(LoginActivity.this).create();
+        lockDialog.setCancelable(false);
+        long [] grecord = GuestSession.getRecord();
+        Log.e("Delay check3", String.valueOf(grecord[0]) + " " + String.valueOf(grecord[1]));
+        long milliseconds = grecord[1];
+        long seconds = milliseconds/1000;
+        long minutes = seconds / 60;
+        seconds     = seconds % 60;
+        lockDialog.setTitle("Too many password attempts!");
+        lockDialog.setMessage("You can try again after "+minutes+" min "+seconds+ " sec");
+        lockDialog.show();
+        new CountDownTimer(milliseconds, 1000){
+            @Override
+            public void onTick(long millisUntilFinished) {
+                long [] grecord2 = GuestSession.getRecord();
+                grecord2[1] = millisUntilFinished;
+                GuestSession.updateNumTries(grecord2);
+                long milliseconds = millisUntilFinished;
+                long seconds = milliseconds/1000;
+                long minutes = seconds / 60;
+                seconds     = seconds % 60;
+                lockDialog.setMessage("You can try again after "+minutes+" min "+seconds+ " sec");
+            }
+
+            @Override
+            public void onFinish() {
+                lockDialog.dismiss();
+            }
+        }.start();
     }
 }

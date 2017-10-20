@@ -3,6 +3,7 @@ package com.locadoc_app.locadoc.UI.Login;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserSession;
@@ -23,6 +24,7 @@ import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.LocalDB.ApplicationInstance;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.GuestSession;
 import com.locadoc_app.locadoc.LocalDB.PasswordSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
@@ -34,6 +36,7 @@ import com.locadoc_app.locadoc.helper.CheckPassword;
 import com.locadoc_app.locadoc.helper.EmailValidation;
 import com.locadoc_app.locadoc.helper.Hash;
 
+import java.sql.Array;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -124,6 +127,7 @@ public class LoginPresenter implements LoginPresenterInterface
         @Override
         public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
             //Log.e(TAG, "Auth Success");
+            GuestSession.ResetReacord();
             loginAct.closeWaitDialog();
             loginAct.startProgressDialog();
             AppHelper.setCurrSession(cognitoUserSession);
@@ -161,10 +165,31 @@ public class LoginPresenter implements LoginPresenterInterface
                 loginAct.confirmUser();
             }
             else {
-                loginAct.showDialogMessage("Sign-in failed", AppHelper.formatException(e));
+                //Add delay if the user guest try password many times
+                long [] grecord = GuestSession.getRecord();
+                Log.e("Delay check1", String.valueOf(grecord[0]) + " " + String.valueOf(grecord[1]));
+                grecord[0]++;
+                Log.e("Delay check2", String.valueOf(grecord[0]) + " " + String.valueOf(grecord[1]));
+                GuestSession.updateNumTries(grecord);
+                if(grecord[0] >= 3L)
+                {
+                    if(grecord[1] <= 180000L) {
+                        grecord[1] = 10000L * (grecord[0] - 2);
+                        GuestSession.updateNumTries(grecord);
+                    }
+                    else{
+                        grecord[1] = 180000L;
+                        GuestSession.updateNumTries(grecord);
+                    }
+                    loginAct.startDelay();
+                }
+                else{
+                    loginAct.showDialogMessage("Sign-in failed", AppHelper.formatException(e));
+                }
             }
-        }
 
+        }
+        
         @Override
         public void authenticationChallenge(ChallengeContinuation continuation) {
             /**

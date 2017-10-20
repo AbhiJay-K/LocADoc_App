@@ -41,13 +41,13 @@ public class GuestSession implements BaseColumns {
     }
     public static long ResetReacord() {
         ContentValues values = new ContentValues();
-        values.put(GuestSession.COLUMN_TRY, 0);
-        values.put(GuestSession.COLUMN_COUNTDOWN, 0);
+        values.put(GuestSession.COLUMN_TRY, 0L);
+        values.put(GuestSession.COLUMN_COUNTDOWN, 0L);
         String [] arg = {String.valueOf(1)};
         long newRowId = GuestSession.getDbHelper().WRITE.update(GuestSession.TABLE_NAME,values,"_id=?",arg);
         return newRowId;
     }
-    public static long updateNumTries(int [] val) {
+    public static long updateNumTries(long [] val) {
         ContentValues values = new ContentValues();
         values.put(GuestSession.COLUMN_TRY, val[0]);
         values.put(GuestSession.COLUMN_COUNTDOWN,val[1]);
@@ -55,16 +55,24 @@ public class GuestSession implements BaseColumns {
         long newRowId = GuestSession.getDbHelper().WRITE.update(GuestSession.TABLE_NAME,values,"_id=?",arg);
         return newRowId;
     }
-    public static int [] getRecord() {
+    public static long [] getRecord() {
         String[] args = {String.valueOf(1)};
         Cursor crs = dbHelper.READ.rawQuery("SELECT * FROM guestsession WHERE _id = ?", args);
-        int [] val = new int[2];
+        long [] val = new long[2];
         if (crs != null) {
             crs.moveToFirst();
-            val[0] = crs.getInt(crs.getColumnIndex(COLUMN_TRY));
-            val[1] = crs.getInt(crs.getColumnIndex(COLUMN_COUNTDOWN));
+            val[0] = crs.getLong(crs.getColumnIndex(COLUMN_TRY));
+            val[1] = crs.getLong(crs.getColumnIndex(COLUMN_COUNTDOWN));
         }
         crs.close();
         return val;
+    }
+    public static long getNumberofRecords()
+    {
+        String countQuery = "SELECT  * FROM " + GuestSession.TABLE_NAME;
+        Cursor cursor = dbHelper.READ.rawQuery(countQuery, null);
+        int cnt = cursor.getCount();
+        cursor.close();
+        return cnt;
     }
 }
