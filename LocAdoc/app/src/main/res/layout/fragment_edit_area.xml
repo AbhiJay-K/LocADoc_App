@@ -28,33 +28,21 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/NewAreaLabel"
+                android:id="@+id/EditAreaTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:layout_marginLeft="5dp"
-                android:text="@string/new_area_label"
+                android:text=""
                 android:textSize="20sp" />
 
-            <EditText
-                android:id="@+id/NewAreaName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/new_area_name_hint"
-                android:imeOptions="actionDone"
-                android:inputType="text" />
-
-            <EditText
-                android:id="@+id/NewAreaDesc"
+            <TextView
+                android:id="@+id/EditAreaLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/text_border_selector"
-                android:ems="10"
-                android:gravity="top"
-                android:hint="@string/new_area_desc_hint"
-                android:inputType="textMultiLine"
-                android:minLines="3" />
+                android:text="@string/edit_area_label"
+                android:textSize="20sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -100,12 +88,22 @@
                 android:progress="5" />
 
             <Button
-                android:id="@+id/CreateNewAreaBtn"
+                android:id="@+id/EditRadiusBtn"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:text="@string/create_new_area_btn" />
+                android:text="@string/edit_radius_btn" />
+
+            <Button
+                android:id="@+id/DeleteAreaBtn"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:backgroundTint="@color/alert"
+                android:text="@string/delete_area_btn"
+                android:textStyle="bold" />
 
         </LinearLayout>
     </ScrollView>

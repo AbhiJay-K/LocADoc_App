@@ -91,6 +91,9 @@ public class ImportFileFragment extends Fragment {
                 } else if(rad > 1000){
                     radiusText.setText("1000");
                 }
+
+                radius = Integer.parseInt(radiusText.getText().toString());
+                listener.drawCircle(radius);
             }
         });
 
@@ -224,7 +227,7 @@ public class ImportFileFragment extends Fragment {
 
     public void updateAreaAround(){
         Location loc = listener.getLastKnownLoc();
-        if(loc == null){
+        if(loc == null || getActivity() == null){
             return ;
         }
 

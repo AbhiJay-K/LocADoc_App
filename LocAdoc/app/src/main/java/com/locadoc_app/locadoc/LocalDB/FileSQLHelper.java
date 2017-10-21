@@ -138,6 +138,23 @@ public class FileSQLHelper implements BaseColumns {
 
     }
 
+    //Query to search file table using original area id and returns a list
+    public static boolean checkFilesInAreaExist(int AreaID, Password pwd)
+    {
+        String [] args = {String.valueOf(AreaID)};
+        Cursor crs = FileSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM file WHERE area = ?", args);
+        Map<String,Integer> FileMap = new HashMap<String,Integer>();
+        if (crs != null && crs.moveToFirst()) {
+            crs.close();
+            return true;
+        }
+        else {
+            crs.close();
+            return false;
+        }
+
+    }
+
     public static long updateRecord(File file,Password pwd)
     {
         ContentValues values = new ContentValues();

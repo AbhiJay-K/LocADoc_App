@@ -14,14 +14,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.itextpdf.text.List;
 import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
@@ -30,11 +31,12 @@ import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.S3.S3Helper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class FileExplorerFragment extends Fragment
-        implements AdapterView.OnItemClickListener,
-        AdapterView.OnItemLongClickListener{
+        implements AdapterView.OnItemClickListener {
     public interface FileExplorerFragmentListener{
         void openGoogleMap();
         Location getLastKnownLoc();
@@ -43,8 +45,8 @@ public class FileExplorerFragment extends Fragment
 
     private ListView listView;
     private boolean exploreArea;
+    Map<String,Integer> allFileInArea;
     private Map<String, Integer> allAreaAround;
-    private Map<String,Integer> allFileInArea;
     private AlertDialog userDialog;
 
     @Override
@@ -59,7 +61,6 @@ public class FileExplorerFragment extends Fragment
         listView = (ListView) rootView.findViewById(R.id.ListView);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
-        listView.setOnItemLongClickListener(this);
 
         FloatingActionButton fileExplorerfab = (FloatingActionButton) rootView.findViewById(R.id.floatingActionButton);
         fileExplorerfab.setOnClickListener(new View.OnClickListener() {
@@ -88,9 +89,8 @@ public class FileExplorerFragment extends Fragment
             String data = (String) args.getItemAtPosition(position);
             int areaid = allAreaAround.get(data);
             allFileInArea = FileSQLHelper.getFilesInArea(areaid, Credential.getPassword());
-            String[] strArr = allFileInArea.keySet().toArray(new String[allFileInArea.size()]);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                    android.R.layout.simple_list_item_1, strArr);
+            ArrayList<String> fileList = new ArrayList<>(allFileInArea.keySet());
+            MyCustomAdapter adapter = new MyCustomAdapter(getActivity(), R.layout.item_file, fileList);
             listView.setAdapter(adapter);
             exploreArea = false;
         } else{
@@ -103,30 +103,10 @@ public class FileExplorerFragment extends Fragment
             if(file.exists()){
                 FileExplorerFragmentListener listener = (FileExplorerFragmentListener) getActivity();
                 listener.openFile(fileid);
-                //NEW ONE
-                // listener.openFile(file)
             } else{
                 showDownloadMessage(key, fileInfo.getOriginalfilename(), file);
             }
         }
-    }
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> args, View v, int position, long id) {
-        if(exploreArea) {
-            String data = (String) args.getItemAtPosition(position);
-            int areaid = allAreaAround.get(data);
-            Toast.makeText(getActivity(), "Area name: " + data + " selected",
-                    Toast.LENGTH_SHORT).show();
-
-        } else{
-            String data = (String) args.getItemAtPosition(position);
-            int fileid = allFileInArea.get(data);
-            Toast.makeText(getActivity(), "File name: " + data + " selected",
-                    Toast.LENGTH_SHORT).show();
-        }
-
-        return true;
     }
 
     public void getAllAreaAround()
@@ -203,5 +183,46 @@ public class FileExplorerFragment extends Fragment
         public void onStateChanged(int id, TransferState state) {
             Log.d("LocAdoc", "onStateChanged: " + id + ", " + state);
         }
+    }
+
+    private class MyCustomAdapter extends ArrayAdapter<String> {
+
+        private ArrayList<String> fileList;
+
+        public MyCustomAdapter(Context context, int textViewResourceId,
+                               ArrayList<String> fileList) {
+            super(context, textViewResourceId, fileList);
+            this.fileList = fileList;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            if (convertView == null) {
+                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(
+                        Context.LAYOUT_INFLATER_SERVICE);
+                convertView = vi.inflate(R.layout.item_file, null);
+
+                TextView fileName = (TextView) convertView.findViewById(R.id.ItemFileName);
+                fileName.setText(fileList.get(position));
+                ImageButton imageButton = (ImageButton) convertView.findViewById(R.id.FileSettingsButton);
+                imageButton.setImageResource(R.drawable.ic_menu_black_24dp);
+                imageButton.setTag(position);
+
+                imageButton.setOnClickListener( new View.OnClickListener() {
+                    public void onClick(View v) {
+                        int position = (Integer) v.getTag();
+                        String filename = fileList.get(position);
+                        int fileid = allFileInArea.get(filename);
+                        Toast.makeText(getActivity(),
+                                "Clicked on Settings: " + filename,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            return convertView;
+        }
+
     }
 }

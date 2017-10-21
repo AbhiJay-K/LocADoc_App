@@ -45,6 +45,8 @@ public class GoogleMapFragment extends Fragment
         void showImportFileFragment();
         void openFileExplorer();
         void showNewAreaFragment();
+        void showEditAreaFragment(String areaName);
+        boolean isInArea(Area a);
     }
 
     MapView mMapView;
@@ -53,6 +55,7 @@ public class GoogleMapFragment extends Fragment
     private FloatingActionButton newFilefab;
     private FloatingActionButton fileExplorerfab;
     private FloatingActionButton newAreafab;
+    private Marker lastMarkerClick;
     private static final int DEFAULT_ZOOM = 17;
 
     @Override
@@ -185,8 +188,15 @@ public class GoogleMapFragment extends Fragment
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
+        lastMarkerClick = marker;
         Area area = AreaSQLHelper.getAreaName(marker.getTitle(), Credential.getPassword());
         drawCircle(marker.getPosition(), Integer.parseInt(area.getRadius()));
+        GoogleMapFragmentListener listener = (GoogleMapFragmentListener) getActivity();
+
+        if(listener.isInArea(area)){
+            listener.showEditAreaFragment(area.getName());
+        }
+
         return false;
     }
 
@@ -202,6 +212,12 @@ public class GoogleMapFragment extends Fragment
     public void clearCircle(){
         if (circleShown != null){
             circleShown.remove();
+        }
+    }
+
+    public void removeLastClickedMarker(){
+        if(lastMarkerClick != null){
+            lastMarkerClick.remove();
         }
     }
 

@@ -66,8 +66,14 @@
     <string name="create_new_area_btn">Create new area</string>
     <string name="existing_area_label">Select existing area</string>
     <string name="existing_area_btn">Choose existing area</string>
+    <string name="edit_radius_btn">Change radius</string>
+    <string name="edit_area_label">Edit area</string>
+    <string name="delete_area_btn">Delete area</string>
     <string name="radius_label">Radius:</string>
     <string name="radius_hint">5-1000</string>
     <string name="select_file_label">...</string>
     <string name="meter_label">m</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

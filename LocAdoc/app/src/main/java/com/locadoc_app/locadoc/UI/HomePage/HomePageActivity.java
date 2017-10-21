@@ -74,7 +74,8 @@ public class HomePageActivity extends AppCompatActivity
         FileExplorerFragment.FileExplorerFragmentListener,
         GoogleMapFragment.GoogleMapFragmentListener,
         SearchView.OnQueryTextListener,
-        NewAreaFragment.NewAreaFragmentListener{
+        NewAreaFragment.NewAreaFragmentListener,
+        EditAreaFragment.EditAreaFragmentListener{
 
     private final int PICKFILE = 1;
     private List<String> AreaList;
@@ -89,10 +90,11 @@ public class HomePageActivity extends AppCompatActivity
     private boolean requestFocus;
     private SimpleCursorAdapter mAdapter;
 
-    GoogleMapFragment gMapFrag;
-    FileExplorerFragment fileExplorerFragment;
-    ImportFileFragment importFileFragment;
-    NewAreaFragment newAreaFragment;
+    private GoogleMapFragment gMapFrag;
+    private FileExplorerFragment fileExplorerFragment;
+    private ImportFileFragment importFileFragment;
+    private NewAreaFragment newAreaFragment;
+    private EditAreaFragment editAreaFragment;
 
     // create area
     private Uri filePathUri;
@@ -136,6 +138,7 @@ public class HomePageActivity extends AppCompatActivity
         fileExplorerFragment = new FileExplorerFragment();
         importFileFragment = new ImportFileFragment();
         newAreaFragment = new NewAreaFragment();
+        editAreaFragment = new EditAreaFragment();
 
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, gMapFrag).commit();
@@ -150,28 +153,31 @@ public class HomePageActivity extends AppCompatActivity
         }
 
         List<Area> areaL = AreaSQLHelper.getAllRecord(Credential.getPassword());
-        Map<String,Integer> fileL = FileSQLHelper.getFilesInArea(1, Credential.getPassword());
         for(Area a: areaL){
             Log.d("LocAdoc", "id: " + a.getAreaId() + ", area name: " + a.getName() + ", radius" + a.getRadius());
-        }
+            Map<String,Integer> fileL = FileSQLHelper.getFilesInArea(1, Credential.getPassword());
 
-        for (Map.Entry<String, Integer> entry : fileL.entrySet())
-        {
-            com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(entry.getValue(), Credential.getPassword());
-            Log.d("LocAdoc", "id: "+file.getFileId()+", name: " + file.getOriginalfilename() + ", area id: " + file.getAreaId()
-                    + ", pass: " + file.getPasswordId());
+            for (Map.Entry<String, Integer> entry : fileL.entrySet())
+            {
+                com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(entry.getValue(), Credential.getPassword());
+                Log.d("LocAdoc", "id: "+file.getFileId()+", name: " + file.getOriginalfilename() + ", area id: " + file.getAreaId()
+                        + ", pass: " + file.getPasswordId());
 
+            }
         }
     }
 
     @Override
     public void showImportFileFragment(){
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.areaContainer, importFileFragment).commit();
+        if(!importFileFragment.isVisible()) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.areaContainer, importFileFragment).commit();
+        } else{
+            importFileFragment.updateAreaAround();
+        }
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
         FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
         layout.setLayoutParams(lp);
-        importFileFragment.updateAreaAround();
         gMapFrag.hideFAB();
     }
 
@@ -186,8 +192,11 @@ public class HomePageActivity extends AppCompatActivity
 
     @Override
     public void showNewAreaFragment(){
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.areaContainer, newAreaFragment).commit();
+        if(!newAreaFragment.isVisible()) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.areaContainer, newAreaFragment).commit();
+        }
+
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
         FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
         layout.setLayoutParams(lp);
@@ -201,6 +210,38 @@ public class HomePageActivity extends AppCompatActivity
         layout.setLayoutParams(lp);
         gMapFrag.showFAB();
         gMapFrag.clearCircle();
+    }
+
+    @Override
+    public void showEditAreaFragment(String areaName){
+        if (!editAreaFragment.isVisible()) {
+            Bundle args = new Bundle();
+            args.putString("areaname", areaName);
+            editAreaFragment.setArguments(args);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.areaContainer, editAreaFragment).commit();
+        } else{
+            editAreaFragment.init(areaName);
+        }
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
+        FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
+        layout.setLayoutParams(lp);
+        gMapFrag.hideFAB();
+    }
+
+    @Override
+    public void removeLastClickedMarker(){
+        gMapFrag.removeLastClickedMarker();
+        gMapFrag.clearCircle();
+    }
+
+    @Override
+    public void hideEditAreaFragment(){
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0);
+        FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
+        layout.setLayoutParams(lp);
+        gMapFrag.showFAB();
     }
 
     @Override
@@ -499,6 +540,11 @@ public class HomePageActivity extends AppCompatActivity
         gMapFrag.drawCircle(latLng, radius);
     }
 
+    @Override
+    public void drawCircle (LatLng latLng, int radius){
+        gMapFrag.drawCircle(latLng, radius);
+    }
+
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
         if (resultCode == Activity.RESULT_OK) {
@@ -602,6 +648,22 @@ public class HomePageActivity extends AppCompatActivity
     @Override
     public Location getLastKnownLoc(){
         return mLastLocation;
+    }
+
+    @Override
+    public boolean isInArea (Area a){
+        boolean inArea = false;
+
+        Location loc = new Location("");
+        loc.setLatitude(Double.parseDouble(a.getLatitude()));
+        loc.setLongitude(Double.parseDouble(a.getLongitude()));
+        float rad = loc.distanceTo(mLastLocation);
+
+        if(rad <= Integer.parseInt(a.getRadius())){
+            inArea = true;
+        }
+
+        return inArea;
     }
 
     @Override
