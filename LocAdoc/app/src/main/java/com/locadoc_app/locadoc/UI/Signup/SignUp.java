@@ -23,7 +23,6 @@ import butterknife.OnFocusChange;
 
 public class SignUp extends AppCompatActivity implements SignUPViewInterface{
 
-
     //Views bind to the user interface
     @BindView(R.id.email_signupform)
     AutoCompleteTextView EmailView;

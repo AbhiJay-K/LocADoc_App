@@ -35,10 +35,10 @@ public class DBHelper extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(GuestSession.CREATE_TABLE);
         sqLiteDatabase.execSQL(PasswordSQLHelper.CREATE_TABLE);
-        sqLiteDatabase.execSQL(UserSQLHelper.CREATE_TABLE);
         sqLiteDatabase.execSQL(AreaSQLHelper.CREATE_TABLE);
         sqLiteDatabase.execSQL(FileSQLHelper.CREATE_TABLE);
         sqLiteDatabase.execSQL(ApplicationInstance.CREATE_TABLE);
+        sqLiteDatabase.execSQL(UserSQLHelper.CREATE_TABLE);
     }
 
     // We don't want to delete user data.
