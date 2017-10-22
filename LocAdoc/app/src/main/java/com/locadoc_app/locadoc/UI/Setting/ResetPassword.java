@@ -218,7 +218,9 @@ public class ResetPassword extends AppCompatActivity {
 
     /*************************  *************************/
     public void showProgressDialog(String title, String msg) {
-        pDialog = new ProgressDialog(this);
+        Log.d("PROGRESSDIALOG","Progress Dialog is executed");
+
+        pDialog = new ProgressDialog(ResetPassword.this);
         pDialog.setTitle(title);
         pDialog.setMessage(msg);
         pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -227,7 +229,10 @@ public class ResetPassword extends AppCompatActivity {
     }
 
     public void dismissProgresDialog() {
-        pDialog.dismiss();
+        if(pDialog.isShowing()){
+            Log.d("PROGRESSDIALOG","Progress Dialog is quit");
+            pDialog.dismiss();
+        }
     }
 
     public void ToastMessage(Exception e) {

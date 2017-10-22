@@ -57,7 +57,7 @@ public class SettingActivity extends AppCompatActivity  {
         TextView userNameTextView = (TextView) findViewById(R.id.profile_usrName);
         userNameTextView.setText(userName);
 
-        presenter.profileName(user.getFirstname(), user.getLastname());
+        //presenter.profileName(user.getFirstname(), user.getLastname());
 
         Log.d("SEPERATE" , "=======================================================================");
         Log.d("USER INFO", "Info: " + user.getLastname() + " " + user.getFirstname());

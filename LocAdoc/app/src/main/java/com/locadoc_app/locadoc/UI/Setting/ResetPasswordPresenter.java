@@ -24,6 +24,7 @@ import com.locadoc_app.locadoc.helper.Encryption;
 import com.locadoc_app.locadoc.helper.Hash;
 
 import java.util.List;
+import java.util.Map;
 
 import static android.R.attr.description;
 import static android.R.attr.password;
@@ -128,15 +129,14 @@ public class ResetPasswordPresenter {
             Log.d("SEPERATE", "SUCCESS--------------------------------------------------------------------------------");
 
             String newPassword = activity.getNewPwd().getText().toString();
-            String oldPassword = activity.getCurPwd().getText().toString();
 
             // Update passwordID and new Password with new salt in Password Table
-            String salt = Hash.SecureRandomGen();
+            // String salt = Hash.SecureRandomGen();
             //newPassword.setPassword(Hash.Hash(objects[0], salt));
 
             // Update SQLITE, DYNAMODB
-            resetPwdLocalDB(oldPassword, newPassword, salt);
-            new resetPwdDynamoDBSyn().execute(newPassword, salt);
+            // resetPwdLocalDB(oldPassword, newPassword, salt);
+            new resetPwdDynamoDBSyn().execute(newPassword);
 
             resultStatus = true;
 
@@ -153,12 +153,14 @@ public class ResetPasswordPresenter {
             Log.d("SEPERATE", "FAIL--------------------------------------------------------------------------------");
 
             activity.setLabelCurPwd("PasswordSQLHelper: incorrect Current Password");
+
             resultStatus = false;
 
             activity.showDialogMessage("FAIL","FAIL TO CHANGE PASSWORD\n" + exception.getMessage(), resultStatus);
         }
     };
 
+    /*
     // Update Local DB in Device : located in onSuccess() in GenericHandler
     void resetPwdLocalDB(String oldPassword, String newPassword, String salt) {
 
@@ -183,10 +185,23 @@ public class ResetPasswordPresenter {
         UserSQLHelper.UpdateRecord(user, newPwd);
         Log.d("LOCALDB", "SUCCESS TO UPDATE: " + UserSQLHelper.getNumberofRecords());
     }
-
+    */
 
     private class resetPwdDynamoDBSyn extends
             AsyncTask<String, Void, Void> {
+
+        @Override
+        protected void onPreExecute(){
+            activity.showProgressDialog("Change Password", "Changing password...");
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Void result){
+            activity.dismissProgresDialog();
+            super.onPostExecute(result);
+        }
+
         @Override
         protected Void doInBackground(String... objects) {
             /* Change Pwd ID in User Table */
@@ -213,25 +228,46 @@ public class ResetPasswordPresenter {
             // Update passwordID and new Password with new salt in Password Table
             Password newPassword = new Password();
             newPassword.setPasswordid(pwdIDPwdTable);
-            newPassword.setSalt(objects[1]);
-            newPassword.setPassword(Hash.Hash(objects[0], objects[1]));
+            String salt = Hash.SecureRandomGen();
+            newPassword.setSalt(salt);
+            newPassword.setPassword(Hash.Hash(objects[0], salt));
 
             // Update user and password in DynamoDB
             PasswordDynamoHelper.getInstance().insert(newPassword);
             UserDynamoHelper.getInstance().insert(user);
 
-            /************************/
+            /************ LOCAL DB UPDATE ************/
+            // Get User Data from Local DB
+            Log.d("SQLITEHELPER","BEFORE UPDATE, NUMBER OF USER Data: " + UserSQLHelper.getNumberofRecords());
+            User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+            Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
+
+            // Update and Insert user data encrypted with newPassword
+            Log.d("SQLITEHELPER","BEFORE UPDATE PASSWORD ID: " + userInSQLite.getPasswordid());
+            userInSQLite.setPasswordid(userInSQLite.getPasswordid() + 1);
+            Log.d("SQLITEHELPER","AFTER UPDATE PASSWORD ID: " + userInSQLite.getPasswordid());
+            UserSQLHelper.UpdateRecord(userInSQLite, newPassword);
+            Log.d("SQLITEHELPER","AFTER UPDATE, NUMBER OF USER Data: " + UserSQLHelper.getNumberofRecords());
+
+            User confrimUser = UserSQLHelper.getRecord(Credential.getEmail(), newPassword);
+            Log.d("SQLITEHELPER","User Email: " + confrimUser.getUser() + " | User Name: " + confrimUser.getLastname() + " " + confrimUser.getFirstname());
+
+            /*
+            // Insert new user data encrypted with newPassword
+            UserSQLHelper.UpdateRecord(user, newPwd);
+            Log.d("LOCALDB", "SUCCESS TO UPDATE: " + UserSQLHelper.getNumberofRecords());
+             */
 
             // CLEAR LOCAL DATABASE: AREA and FILE
             AreaSQLHelper.clearRecord();
             FileSQLHelper.clearRecord();
 
-            Password pwd = Credential.getPassword();
-            Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+            // GET ENCRYPTION based on Current Password
+            Encryption en = Encryption.getInstance(password.getPassword(), password.getSalt());
 
+            // AREA DECRYPTION
             List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
             for(Area ar : areaList) {
-                // decrypt
                 ar.setDescription(en.decrypttString(ar.getDescription()));
                 ar.setLatitude(en.decrypttString(ar.getLatitude()));
                 ar.setLongitude(en.decrypttString(ar.getLongitude()));
@@ -239,18 +275,18 @@ public class ResetPasswordPresenter {
                 ar.setName(en.decrypttString(ar.getName()));
             }
 
+            // FILE DECRYPTION
             List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
             for(File file : fileList) {
-                // decrypt
                 file.setCurrentfilename(en.decrypttString(file.getCurrentfilename()));
                 file.setOriginalfilename(en.decrypttString(file.getOriginalfilename()));
                 file.setModified(en.decrypttString(file.getModified()));
             }
 
-            // set the New Encryption Key as New Password
+            // SET New Encryption Key AS New Password
             en.setKey(newPassword.getPassword(), newPassword.getSalt());
 
-            // ReEncryption into AREA and FILE
+            // ReEncryption AREA and FILE
             for(Area ar : areaList) {
                 // encryption
                 ar.setDescription(en.encryptString(ar.getDescription()));
@@ -259,10 +295,10 @@ public class ResetPasswordPresenter {
                 ar.setRadius(en.encryptString(ar.getRadius()));
                 ar.setName(en.encryptString(ar.getName()));
 
-                // insert to local db
+                // INSERT AREA INTO localDB
                 AreaSQLHelper.insertWithoutEncryption(ar,newPassword);
 
-                // insert to DynamoDB
+                // INSERT Area INTO DynamoDB
                 AreaDynamoHelper.getInstance().insert(ar);
             }
 
@@ -272,10 +308,10 @@ public class ResetPasswordPresenter {
                 file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
                 file.setModified(en.encryptString(file.getModified()));
 
-                // insert to local db
+                // INSERT FILE INTO localDB
                 FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
 
-                // insert to dynamo db
+                // INSERT FILE INTO DynamoDB
                 FileDynamoHelper.getInstance().insert(file);
             }
 
@@ -289,6 +325,19 @@ public class ResetPasswordPresenter {
 
             Log.d("AFTER UPDATE CRDL", "NEW PWDID: " + Credential.getPassword().getPasswordid() + "| NEW PWD: " + Credential.getPassword().getPassword() + " | NEW SALT" + Credential.getPassword().getSalt());
             Log.d("CREDENTIALCHECK","AFTER CHANGE PASSWORD Email: " + Credential.getEmail() + "\t Password: " + Credential.getPassword().getPassword());
+
+            List<Area> areaL = AreaSQLHelper.getAllRecord(Credential.getPassword());
+            for(Area a: areaL)
+            {
+                Log.d("LocAdoc", "id: " + a.getAreaId() + ", area name: " + a.getName() + ", radius" + a.getRadius());
+
+                Map<String,Integer> fileL = FileSQLHelper.getFilesInArea(1, Credential.getPassword());
+                for (Map.Entry<String, Integer> entry : fileL.entrySet())
+                {
+                    com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(entry.getValue(), Credential.getPassword());
+                    Log.d("LocAdoc", "id: "+file.getFileId()+", name: " + file.getOriginalfilename() + ", area id: " + file.getAreaId() + ", pass: " + file.getPasswordId());
+                }
+            }
 
             return null;
         };
