@@ -42,6 +42,11 @@ public class ResetPassword extends AppCompatActivity {
         TextView text = (TextView) findViewById(R.id.resetPwd_textViewConfirmSubtext_1);
         text.setText("Reset Password in " + Credential.getEmail());
 
+        Log.d("SQLITEHELPER","SettingActivity to ResetPasswordPresenter--------------------------------------------------------------");
+        Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
+        Log.d("SQLITEHELPER","SettingActivity to ResetPasswordPresenter--------------------------------------------------------------");
+
+
         init();
     }
 
@@ -216,7 +221,7 @@ public class ResetPassword extends AppCompatActivity {
         confirmNewPwd.setBackground(getDrawable(R.drawable.text_border_selector));
     }
 
-    /*************************  *************************/
+    //  ---------------------------------------------------------------------------------
     public void showProgressDialog(String title, String msg) {
         Log.d("PROGRESSDIALOG","Progress Dialog is executed");
 
@@ -238,7 +243,7 @@ public class ResetPassword extends AppCompatActivity {
     public void ToastMessage(Exception e) {
         Toast.makeText(ResetPassword.this, "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
     }
-    /*************************  *************************/
+    //  ---------------------------------------------------------------------------------
 
     public void showDialogMessage(String title, String body, boolean status) {
 

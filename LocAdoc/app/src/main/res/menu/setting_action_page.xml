@@ -5,9 +5,10 @@
       tools:context=".UI.Setting.SettingActivity" >
 
     <!-- Settings, should always be in the overflow -->
-    <item android:id="@+id/setting_save"
-          android:title="save"
-          app:showAsAction="always|collapseActionView"
+    <item
+        android:id="@+id/setting_save"
+        android:title="save"
+        app:showAsAction="always"
         />
 
 </menu>

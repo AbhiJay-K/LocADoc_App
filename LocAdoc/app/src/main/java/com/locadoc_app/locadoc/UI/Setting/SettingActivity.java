@@ -41,7 +41,9 @@ public class SettingActivity extends AppCompatActivity  {
         presenter = new SettingActivityPresenter(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.setting_toolbar);
+        // toolbar.setNavigationIcon(R.drawable.ic_setting_back_24dp);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(null);
 
         init();
     }
@@ -109,13 +111,21 @@ public class SettingActivity extends AppCompatActivity  {
                     case 4:                                 // Activity Num: 34
                         break;
                 }
-
             }
         });
 
+        Menu save = (Menu) findViewById(R.id.setting_save);
+
+        TextView tvBack = (TextView) findViewById(R.id.toolbar_setting_back);
+        tvBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO
+                exit();
+            }
+        });
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -169,7 +179,11 @@ public class SettingActivity extends AppCompatActivity  {
                    if(result) {
                        Toast.makeText(SettingActivity.this, "Success to Change Password", Toast.LENGTH_SHORT).show();
                    }
-
+                   Log.d("SQLITEHELPER","ResetPassword to SettingActivity--------------------------------------------------------------");
+                   User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+                   Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
+                   Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
+                   Log.d("SQLITEHELPER","ResetPassword to SettingActivity--------------------------------------------------------------");
                    break;
                case 32:
                    break;
@@ -181,10 +195,15 @@ public class SettingActivity extends AppCompatActivity  {
         }
     }
 
-
     public void setProfileInitial(String inital) {
         TextView profileText = (TextView) findViewById(R.id.profile_text);
         profileText.setText(inital);
+    }
+
+    public void exit(){
+            Intent intent = new Intent();
+            setResult(RESULT_OK, intent);
+            finish();
     }
 
     /********** View List Method **********/

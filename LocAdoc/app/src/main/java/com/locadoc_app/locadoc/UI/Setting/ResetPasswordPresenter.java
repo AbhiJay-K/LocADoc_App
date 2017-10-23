@@ -238,6 +238,8 @@ public class ResetPasswordPresenter {
 
             /************ LOCAL DB UPDATE ************/
             // Get User Data from Local DB
+            Log.d("SQLITEHELPER","ResetPasswordPresenter--------------------------------------------------------------");
+            Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
             Log.d("SQLITEHELPER","BEFORE UPDATE, NUMBER OF USER Data: " + UserSQLHelper.getNumberofRecords());
             User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
             Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
@@ -339,8 +341,14 @@ public class ResetPasswordPresenter {
                 }
             }
 
+            Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
+            Log.d("SQLITEHELPER","ResetPasswordPresenter--------------------------------------------------------------");
+
             return null;
+
         };
+
+
     }
 
 }

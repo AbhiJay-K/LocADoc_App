@@ -48,9 +48,11 @@ import com.locadoc_app.locadoc.DynamoDB.AreaDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.Password;
+import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.S3.S3Helper;
 import com.locadoc_app.locadoc.UI.PDFViewer.PDFViewer;
@@ -78,6 +80,7 @@ public class HomePageActivity extends AppCompatActivity
         EditAreaFragment.EditAreaFragmentListener{
 
     private final int PICKFILE = 1;
+    private final int SETTING = 10;
     private List<String> AreaList;
     private RecyclerView mRecyclerView;
     private SearchView searchView;
@@ -388,11 +391,18 @@ public class HomePageActivity extends AppCompatActivity
             // Handle the camera action
         } else if (id == R.id.nav_Settings) {
 
+            Log.d("SQLITEHELPER","HomePageActivity To SettingActivty--------------------------------------------------------------");
+            User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+            Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
+            Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
+            Log.d("SQLITEHELPER","HomePageActivity To SettingActivty--------------------------------------------------------------");
+
             // Test code to access Setting Activity
             Intent settingActivity = new Intent(this, SettingActivity.class);
             settingActivity.putExtra("name", userName);
-            startActivity(settingActivity);
-            //startActivityForResult(settingActivity, 10);
+            startActivityForResult(settingActivity, SETTING);
+            //startActivity(settingActivity);
+
 
         } else if (id == R.id.nav_about) {
 
@@ -545,6 +555,10 @@ public class HomePageActivity extends AppCompatActivity
         gMapFrag.drawCircle(latLng, radius);
     }
 
+    //  --------------------------------------------
+    //            onActivityResult
+    //  --------------------------------------------
+
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
         if (resultCode == Activity.RESULT_OK) {
@@ -555,6 +569,16 @@ public class HomePageActivity extends AppCompatActivity
                         String fileName = getFileName(filePathUri);
                         importFileFragment.setFileName(fileName);
                     }
+                    break;
+                case SETTING:
+                    Log.d("SQLITEHELPER","SettingActivity to HomePageActivity--------------------------------------------------------------");
+                    User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+                    Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
+                    Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
+                    Log.d("SQLITEHELPER","SettingActivity to HomePageActivity--------------------------------------------------------------");
+
+                    break;
+
             }
         }
     }
