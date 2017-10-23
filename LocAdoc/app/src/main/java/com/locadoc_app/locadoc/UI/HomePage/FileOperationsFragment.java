@@ -1,109 +1,252 @@
 package com.locadoc_app.locadoc.UI.HomePage;
 
-import android.content.Context;
-import android.net.Uri;
+import android.content.DialogInterface;
+import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager.LayoutParams;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.locadoc_app.locadoc.DynamoDB.AreaDynamoHelper;
+import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
+import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
+import com.locadoc_app.locadoc.Model.Area;
+import com.locadoc_app.locadoc.Model.Credential;
+import com.locadoc_app.locadoc.Model.File;
+import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.S3.S3Helper;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link FileOperationsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link FileOperationsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class FileOperationsFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class FileOperationsFragment extends DialogFragment {
+    private Button btnCopyFile;
+    private Button btnMoveFile;
+    private Button btnDelete;
+    private Button btnBack;
+    private Spinner allAreaSpinner;
+    private File file;
 
-    private OnFragmentInteractionListener mListener;
+    public interface FileOperationDialogListener {
+        void removeFile(String filename);
+        boolean isInArea(Area area);
+    }
 
+    //---empty constructor required
     public FileOperationsFragment() {
-        // Required empty public constructor
-    }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FileOperationsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static FileOperationsFragment newInstance(String param1, String param2) {
-        FileOperationsFragment fragment = new FileOperationsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState){
+        View view = inflater.inflate(
+                R.layout.fragment_file_operations, container);
+
+        Bundle extra = getArguments();
+        int fileid = extra.getInt("fileid");
+        file = FileSQLHelper.getFile(fileid, Credential.getPassword());
+
+        TextView title = (TextView) view.findViewById(R.id.FileNameView);
+        title.setText(file.getOriginalfilename());
+
+        btnCopyFile = (Button) view.findViewById(R.id.buttonCopy);
+        btnMoveFile = (Button) view.findViewById(R.id.buttonMove);
+        btnDelete = (Button) view.findViewById(R.id.buttonDelete);
+        btnBack = (Button) view.findViewById(R.id.buttonBack);
+
+        Area area = AreaSQLHelper.getRecord(file.getAreaId(), Credential.getPassword());
+        allAreaSpinner = (Spinner) view.findViewById(R.id.AreaSpinner);
+        List<String> allArea = AreaSQLHelper.getAllOtherRecordName(area.getName(), Credential.getPassword());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
+                android.R.layout.simple_dropdown_item_1line, allArea);
+        allAreaSpinner.setAdapter(adapter);
+
+        //---event handler for the button
+        btnCopyFile.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View view) {
+                Object obj = allAreaSpinner.getSelectedItem();
+                if (obj == null) {
+                    Toast.makeText(getActivity(), "No area selected",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String areaname = obj.toString();
+                Area area = AreaSQLHelper.getAreaName(areaname, Credential.getPassword());
+                String originalFileName = getOriginalName(file.getOriginalfilename(), area.getAreaId());
+
+                int newFileId = FileSQLHelper.maxID() + 1;
+                String newFileName = Credential.getEmail() + newFileId;
+                java.io.File src = new java.io.File(getActivity().getApplicationContext().getFilesDir().getAbsolutePath() +
+                        "/vault/" + file.getCurrentfilename());
+                java.io.File dst = new java.io.File(getActivity().getApplicationContext().getFilesDir().getAbsolutePath() +
+                        "/vault/" + newFileName);
+
+                InputStream in = null;
+                OutputStream out = null;
+
+                try{
+                    in = new FileInputStream(src);
+                    out = new FileOutputStream(dst);
+
+                    byte [] buffer = new byte [8192];
+                    int r;
+                    while ((r = in.read(buffer)) > 0)
+                    {
+                        out.write(buffer, 0, r);
+                    }
+
+                    file.setFileId(newFileId);
+                    file.setOriginalfilename(originalFileName);
+                    file.setCurrentfilename(newFileName);
+                    file.setAreaId(area.getAreaId());
+
+                    Log.d("LocAdoc", "Name: " + file.getOriginalfilename() + ", current: " + file.getCurrentfilename());
+                    FileSQLHelper.insert(file, Credential.getPassword());
+                    FileDynamoHelper.getInstance().insert(file);
+                } catch (Exception e){
+                    Log.e("LocAdoc", e.toString());
+                }
+                finally {
+                    try{
+                        in.close();
+                        out.close();
+                    } catch (Exception e){
+                        Log.e("LocAdoc", e.toString());
+                    }
+                }
+
+                S3Helper.uploadFile(dst);
+                Toast.makeText(getActivity(), originalFileName + " has been copied to " + areaname,
+                        Toast.LENGTH_SHORT).show();
+                dismiss();
+            }
+        });
+
+        btnMoveFile.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View view) {
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                Object obj = allAreaSpinner.getSelectedItem();
+                                if (obj == null) {
+                                    Toast.makeText(getActivity(), "No area selected",
+                                            Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                String areaname = obj.toString();
+                                Area area = AreaSQLHelper.getAreaName(areaname, Credential.getPassword());
+                                String originalFileName = getOriginalName(file.getOriginalfilename(), area.getAreaId());
+                                file.setOriginalfilename(originalFileName);
+                                file.setAreaId(area.getAreaId());
+
+                                FileSQLHelper.updateRecord(file, Credential.getPassword());
+                                FileDynamoHelper.getInstance().insert(file);
+
+                                FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
+                                activity.removeFile(file.getOriginalfilename());
+                                Toast.makeText(getActivity(), originalFileName + " has been moved to " + areaname,
+                                        Toast.LENGTH_SHORT).show();
+                                dismiss();
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Are you sure to move " + file.getOriginalfilename() + " (file will be removed in this area)?")
+                        .setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
+            }
+        });
+
+        btnDelete.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View view) {
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                java.io.File src = new java.io.File(getActivity().getApplicationContext().getFilesDir().getAbsolutePath() +
+                                        "/vault/" + file.getCurrentfilename());
+                                if(src.exists()) {
+                                    src.delete();
+                                }
+
+                                FileSQLHelper.deleteRecord(file.getFileId());
+                                S3Helper.getHelper().removeFile(file.getCurrentfilename());
+                                FileDynamoHelper.getInstance().delete(file);
+
+                                FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
+                                activity.removeFile(file.getOriginalfilename());
+                                Toast.makeText(getActivity(), file.getOriginalfilename() + " has been deleted",
+                                        Toast.LENGTH_SHORT).show();
+                                dismiss();
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Are you sure to remove " + file.getOriginalfilename() + "?")
+                        .setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
+            }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View view) {
+                dismiss();
+            }
+        });
+
+        getDialog().getWindow().setSoftInputMode(
+                LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        return view;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_file_operations, container, false);
-    }
+    public String getOriginalName (String tempName, int areaid){
+        String originalFileName = tempName;
+        int result;
+        int count = 2;
+        do{
+            result = FileSQLHelper.checkFileNameInAnAreaExist(originalFileName, areaid,
+                    Credential.getPassword());
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+            if(result > 0){
+                originalFileName = tempName.substring(0, tempName.length() - 4) + "(" + count + ").pdf";
+                count++;
+            }
+        } while (result > 0);
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        return originalFileName;
     }
 }

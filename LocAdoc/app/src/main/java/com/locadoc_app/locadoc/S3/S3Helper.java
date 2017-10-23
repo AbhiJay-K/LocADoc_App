@@ -12,6 +12,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.Model.Credential;
 
@@ -34,6 +35,10 @@ public class S3Helper {
         sS3Client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
         transferUtility = TransferUtility.builder().s3Client(sS3Client).context(LocAdocApp.getContext()).build();
         new FetchIdentityId().execute();
+    }
+
+    public static S3Helper getHelper() {
+        return s3Helper;
     }
 
     public static AmazonS3Client getInstance()
@@ -68,8 +73,6 @@ public class S3Helper {
     public static void uploadFile(File file){
         String key = getIdentity();
         key = key + "/" + file.getName();
-        //key = key.replaceAll(":", "%3A");
-        //key = key.replaceAll("@", "%40");
         Log.d("LocAdoc", "UPLOAD: " + key);
         TransferObserver observer = transferUtility.upload(BUCKET_NAME, key, file);
         observer.setTransferListener(new UploadListener());
@@ -81,6 +84,11 @@ public class S3Helper {
         TransferObserver observer = transferUtility.download(BUCKET_NAME, key, file);
         observer.setTransferListener(new DownloadListener());
 
+    }
+
+    public void removeFile (String key){
+        key = getIdentity() + "/" + key;
+        new RemoveObject().execute(key);
     }
 
     public static String getBytesString(long bytes) {
@@ -104,6 +112,15 @@ public class S3Helper {
         @Override
         protected Void doInBackground(Void... params) {
             setIdentity();
+            return null;
+        }
+    }
+
+    private class RemoveObject extends
+            AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... args) {
+            sS3Client.deleteObject(new DeleteObjectRequest(BUCKET_NAME, args[0]));
             return null;
         }
     }

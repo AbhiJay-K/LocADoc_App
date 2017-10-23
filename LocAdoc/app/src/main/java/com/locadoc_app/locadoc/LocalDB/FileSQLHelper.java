@@ -178,10 +178,10 @@ public class FileSQLHelper implements BaseColumns {
         return cnt;
     }
 
-    public static int deleteRecord(String FileName)
+    public static int deleteRecord(int fileid)
     {
-        String [] arg = {FileName};
-        int deleted = FileSQLHelper.getDbHelper().WRITE.delete(FileSQLHelper.TABLE_NAME,FileSQLHelper.COLUMN_ORIGINAL_NAME +"=?",arg);
+        String [] arg = {String.valueOf(fileid)};
+        int deleted = FileSQLHelper.getDbHelper().WRITE.delete(FileSQLHelper.TABLE_NAME,"_id = ?",arg);
         return deleted;
     }
 

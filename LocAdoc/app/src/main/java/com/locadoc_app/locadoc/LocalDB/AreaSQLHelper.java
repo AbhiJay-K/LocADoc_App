@@ -95,7 +95,7 @@ public class AreaSQLHelper implements BaseColumns {
             Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
             Area ar = new Area();
             ar.setAreaId(id);
-            ar.setName(en.decrypttString(name));
+            ar.setName(name);
             ar.setDescription(en.decrypttString(description));
             ar.setLatitude(en.decrypttString(Lat));
             ar.setLongitude(en.decrypttString(Long));
@@ -108,6 +108,7 @@ public class AreaSQLHelper implements BaseColumns {
             return a;
         }
     }
+
     public static List<Area> getAllRecord(Password pwd) {
         Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area",null);
         List<Area> arList = new ArrayList<Area>();
@@ -138,6 +139,27 @@ public class AreaSQLHelper implements BaseColumns {
             return arList;
         }
     }
+
+    public static List<String> getAllOtherRecordName(String areaname, Password pwd) {
+        Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT areaname FROM area",null);
+        List<String> arList = new ArrayList<>();
+        if (crs != null &&  crs.moveToFirst()) {
+            do {
+                String name = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
+                if(!name.equals(areaname)) {
+                    arList.add(name);
+                }
+            }while(crs.moveToNext());
+            crs.close();
+            return arList;
+        } else {
+            crs.close();
+            Area a = new Area();
+            a.setAreaId(-1);
+            return arList;
+        }
+    }
+
     public static Map<String,Integer> getAreaNameInLoc(Location l2,Password pwd)
     {
         Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM area",null);

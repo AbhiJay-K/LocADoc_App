@@ -41,6 +41,7 @@ public class FileExplorerFragment extends Fragment
         void openGoogleMap();
         Location getLastKnownLoc();
         void openFile(int fileid);
+        void showFileOperationFragment(int fileid);
     }
 
     private ListView listView;
@@ -55,9 +56,9 @@ public class FileExplorerFragment extends Fragment
         exploreArea = true;
 
         getAllAreaAround();
-        String[] strArr = allAreaAround.keySet().toArray(new String[allAreaAround.size()]);
+        ArrayList<String> areaList = new ArrayList<>(allAreaAround.keySet());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_1, strArr);
+                android.R.layout.simple_list_item_1, areaList);
         listView = (ListView) rootView.findViewById(R.id.ListView);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
@@ -71,9 +72,9 @@ public class FileExplorerFragment extends Fragment
                     listener.openGoogleMap();
                 } else{
                     getAllAreaAround();
-                    String[] strArr = allAreaAround.keySet().toArray(new String[allAreaAround.size()]);
+                    ArrayList<String> areaList = new ArrayList<>(allAreaAround.keySet());
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                            android.R.layout.simple_list_item_1, strArr);
+                            android.R.layout.simple_list_item_1, areaList);
                     listView.setAdapter(adapter);
                     exploreArea = true;
                 }
@@ -91,6 +92,11 @@ public class FileExplorerFragment extends Fragment
             allFileInArea = FileSQLHelper.getFilesInArea(areaid, Credential.getPassword());
             ArrayList<String> fileList = new ArrayList<>(allFileInArea.keySet());
             MyCustomAdapter adapter = new MyCustomAdapter(getActivity(), R.layout.item_file, fileList);
+
+            for(String s: fileList){
+                Log.d("LocAdoc", "Name: " + s + ", id: " + allFileInArea.get(s));
+            }
+
             listView.setAdapter(adapter);
             exploreArea = false;
         } else{
@@ -114,6 +120,13 @@ public class FileExplorerFragment extends Fragment
         FileExplorerFragmentListener activity = (FileExplorerFragmentListener) getActivity();
         Location loc = activity.getLastKnownLoc();
         allAreaAround = AreaSQLHelper.getAreaNameInLoc(loc, Credential.getPassword());
+    }
+
+    public void removeFile(String filename){
+        allFileInArea.remove(filename);
+        ArrayList<String> fileList = new ArrayList<>(allFileInArea.keySet());
+        MyCustomAdapter adapter = new MyCustomAdapter(getActivity(), R.layout.item_file, fileList);
+        listView.setAdapter(adapter);
     }
 
     public void beginDownload(String key, java.io.File file){
@@ -172,17 +185,13 @@ public class FileExplorerFragment extends Fragment
 
         @Override
         public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-            Log.d("LocAdoc", String.format("onProgressChanged: %d, total: %d, current: %d",
-                    id, bytesTotal, bytesCurrent));
             String current = S3Helper.getBytesString(bytesCurrent);
             String total = S3Helper.getBytesString(bytesTotal);
             userDialog.setMessage(current + "/" + total);
         }
 
         @Override
-        public void onStateChanged(int id, TransferState state) {
-            Log.d("LocAdoc", "onStateChanged: " + id + ", " + state);
-        }
+        public void onStateChanged(int id, TransferState state) {}
     }
 
     private class MyCustomAdapter extends ArrayAdapter<String> {
@@ -214,9 +223,10 @@ public class FileExplorerFragment extends Fragment
                         int position = (Integer) v.getTag();
                         String filename = fileList.get(position);
                         int fileid = allFileInArea.get(filename);
-                        Toast.makeText(getActivity(),
-                                "Clicked on Settings: " + filename,
-                                Toast.LENGTH_LONG).show();
+
+                        FileExplorerFragmentListener listener = (FileExplorerFragmentListener) getActivity();
+                        listener.showFileOperationFragment(fileid);
+
                     }
                 });
             }

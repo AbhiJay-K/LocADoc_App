@@ -198,7 +198,7 @@ public class ImportFileFragment extends Fragment {
                     result = FileSQLHelper.checkFileNameInAnAreaExist(filename, areaid, Credential.getPassword());
 
                     if(result > 0){
-                        filename = tempName + " (" + count + ")";
+                        filename = tempName.substring(0, tempName.length() - 4) + "(" + count + ").pdf";;
                         count++;
                     }
                 } while (result > 0);

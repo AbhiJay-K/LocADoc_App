@@ -77,7 +77,8 @@ public class HomePageActivity extends AppCompatActivity
         GoogleMapFragment.GoogleMapFragmentListener,
         SearchView.OnQueryTextListener,
         NewAreaFragment.NewAreaFragmentListener,
-        EditAreaFragment.EditAreaFragmentListener{
+        EditAreaFragment.EditAreaFragmentListener,
+        FileOperationsFragment.FileOperationDialogListener{
 
     private final int PICKFILE = 1;
     private final int SETTING = 10;
@@ -152,20 +153,6 @@ public class HomePageActivity extends AppCompatActivity
         if (extras !=null) {
             if (extras.containsKey("name")) {
                 userName = extras.getString("name");
-            }
-        }
-
-        List<Area> areaL = AreaSQLHelper.getAllRecord(Credential.getPassword());
-        for(Area a: areaL){
-            Log.d("LocAdoc", "id: " + a.getAreaId() + ", area name: " + a.getName() + ", radius" + a.getRadius());
-            Map<String,Integer> fileL = FileSQLHelper.getFilesInArea(1, Credential.getPassword());
-
-            for (Map.Entry<String, Integer> entry : fileL.entrySet())
-            {
-                com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(entry.getValue(), Credential.getPassword());
-                Log.d("LocAdoc", "id: "+file.getFileId()+", name: " + file.getOriginalfilename() + ", area id: " + file.getAreaId()
-                        + ", pass: " + file.getPasswordId());
-
             }
         }
     }
@@ -251,6 +238,21 @@ public class HomePageActivity extends AppCompatActivity
     public void openFileExplorer(){
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fileExplorerFragment).commit();
+    }
+
+    @Override
+    public void showFileOperationFragment(int fileid){
+        Bundle args = new Bundle();
+        args.putInt("fileid", fileid);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FileOperationsFragment fileOperationsFragment = new FileOperationsFragment();
+        fileOperationsFragment.setArguments(args);
+        fileOperationsFragment.show(fragmentManager, "File Settings");
+    }
+
+    @Override
+    public void removeFile (String filename){
+        fileExplorerFragment.removeFile(filename);
     }
 
     @Override
