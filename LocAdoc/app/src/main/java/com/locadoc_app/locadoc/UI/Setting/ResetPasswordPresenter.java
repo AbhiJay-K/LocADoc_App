@@ -204,7 +204,9 @@ public class ResetPasswordPresenter {
 
         @Override
         protected Void doInBackground(String... objects) {
-            /* Change Pwd ID in User Table */
+            //  ------------------------------------------------------------------------
+            //                          Update in DynamoDB
+            //  ------------------------------------------------------------------------
             // Get Info of user and pwd
             User user = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
             Password password = Credential.getPassword();
@@ -236,29 +238,9 @@ public class ResetPasswordPresenter {
             PasswordDynamoHelper.getInstance().insert(newPassword);
             UserDynamoHelper.getInstance().insert(user);
 
-            /************ LOCAL DB UPDATE ************/
-            // Get User Data from Local DB
-            Log.d("SQLITEHELPER","ResetPasswordPresenter--------------------------------------------------------------");
-            Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
-            Log.d("SQLITEHELPER","BEFORE UPDATE, NUMBER OF USER Data: " + UserSQLHelper.getNumberofRecords());
-            User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
-            Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
-
-            // Update and Insert user data encrypted with newPassword
-            Log.d("SQLITEHELPER","BEFORE UPDATE PASSWORD ID: " + userInSQLite.getPasswordid());
-            userInSQLite.setPasswordid(userInSQLite.getPasswordid() + 1);
-            Log.d("SQLITEHELPER","AFTER UPDATE PASSWORD ID: " + userInSQLite.getPasswordid());
-            UserSQLHelper.UpdateRecord(userInSQLite, newPassword);
-            Log.d("SQLITEHELPER","AFTER UPDATE, NUMBER OF USER Data: " + UserSQLHelper.getNumberofRecords());
-
-            User confrimUser = UserSQLHelper.getRecord(Credential.getEmail(), newPassword);
-            Log.d("SQLITEHELPER","User Email: " + confrimUser.getUser() + " | User Name: " + confrimUser.getLastname() + " " + confrimUser.getFirstname());
-
-            /*
-            // Insert new user data encrypted with newPassword
-            UserSQLHelper.UpdateRecord(user, newPwd);
-            Log.d("LOCALDB", "SUCCESS TO UPDATE: " + UserSQLHelper.getNumberofRecords());
-             */
+            //  ------------------------------------------------------------------------
+            //              Update in SQLite, Encryption, Credential
+            //  ------------------------------------------------------------------------
 
             // CLEAR LOCAL DATABASE: AREA and FILE
             AreaSQLHelper.clearRecord();
@@ -285,8 +267,23 @@ public class ResetPasswordPresenter {
                 file.setModified(en.decrypttString(file.getModified()));
             }
 
+            // Get User Data from Local DB
+            Log.d("SQLITEHELPER","BEFORE UPDATE, NUMBER OF USER Data: " + UserSQLHelper.getNumberofRecords());
+            User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+            Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
+
             // SET New Encryption Key AS New Password
             en.setKey(newPassword.getPassword(), newPassword.getSalt());
+
+            // Update and Insert user data encrypted with newPassword
+            Log.d("SQLITEHELPER","BEFORE UPDATE PASSWORD ID: " + userInSQLite.getPasswordid());
+            userInSQLite.setPasswordid(userInSQLite.getPasswordid() + 1);
+            Log.d("SQLITEHELPER","AFTER UPDATE PASSWORD ID: " + userInSQLite.getPasswordid());
+            UserSQLHelper.UpdateRecord(userInSQLite, newPassword);
+            Log.d("SQLITEHELPER","AFTER UPDATE, NUMBER OF USER Data: " + UserSQLHelper.getNumberofRecords());
+
+            User confrimUser = UserSQLHelper.getRecord(Credential.getEmail(), newPassword);
+            Log.d("SQLITEHELPER","User Email: " + confrimUser.getUser() + " | User Name: " + confrimUser.getLastname() + " " + confrimUser.getFirstname());
 
             // ReEncryption AREA and FILE
             for(Area ar : areaList) {
@@ -321,7 +318,7 @@ public class ResetPasswordPresenter {
 
             Log.d("CREDENTIALCHECK","BEFORE CHANGE PASSWORD Email: " + Credential.getEmail() + "\t Password: " + Credential.getPassword().getPassword());
 
-            /************************/
+
             // Update in Credential in App
             Credential.setPassword(newPassword);
 
@@ -341,11 +338,7 @@ public class ResetPasswordPresenter {
                 }
             }
 
-            Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
-            Log.d("SQLITEHELPER","ResetPasswordPresenter--------------------------------------------------------------");
-
             return null;
-
         };
 
 
