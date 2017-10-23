@@ -43,4 +43,14 @@
         app:backgroundTint="@color/LocadocC"
         android:src="@drawable/ic_note_add_white_24px"/>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/CloseImportFileFAB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:fabSize="mini"
+        app:backgroundTint="@color/LocadocC"
+        app:srcCompat="@drawable/ic_arrow_downward_black_24dp" />
+
 </android.support.design.widget.CoordinatorLayout>

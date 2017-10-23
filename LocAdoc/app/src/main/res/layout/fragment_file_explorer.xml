@@ -6,7 +6,6 @@
     android:layout_margin="10dp"
     tools:context="com.locadoc_app.locadoc.UI.HomePage.FileExplorerFragment">
 
-
     <ListView
         android:id="@+id/ListView"
         android:layout_width="match_parent"
