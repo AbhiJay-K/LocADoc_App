@@ -21,7 +21,8 @@ import com.locadoc_app.locadoc.R;
 
 import static android.R.attr.label;
 
-public class ResetPassword extends AppCompatActivity {
+public class
+ResetPassword extends AppCompatActivity {
 
     private EditText curPwd, newPwd, confirmNewPwd;
     private Button submit;
