@@ -96,6 +96,7 @@ public class HomePageActivity extends AppCompatActivity
     private String userName;
     private TextView username;
     private boolean requestFocus;
+    private boolean isEditArea;
     private SimpleCursorAdapter mAdapter;
 
     private GoogleMapFragment gMapFrag;
@@ -113,6 +114,7 @@ public class HomePageActivity extends AppCompatActivity
         setContentView(R.layout.activity_home_page);
 
         S3Helper.init();
+        isEditArea = false;
         AreaList = AreaSQLHelper.getSearchValue();
         final String[] from = new String[] {"AreaName"};
         final int[] to = new int[] {android.R.id.text1};
@@ -176,12 +178,20 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     @Override
-    public void hideImportFileFragment(){
+    public void hideAreaFragmentContainer(){
+        if(isEditArea){
+            Area area = editAreaFragment.getSelectedArea();
+            LatLng latLng = new LatLng(Double.parseDouble(area.getLatitude()), Double.parseDouble(area.getLongitude()));
+            drawCircle(latLng, Integer.parseInt(area.getRadius()));
+            isEditArea = false;
+        }else{
+            gMapFrag.clearCircle();
+        }
+
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0);
         FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
         layout.setLayoutParams(lp);
         gMapFrag.showFAB();
-        gMapFrag.clearCircle();
     }
 
     @Override
@@ -195,15 +205,6 @@ public class HomePageActivity extends AppCompatActivity
         FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
         layout.setLayoutParams(lp);
         gMapFrag.hideFAB();
-    }
-
-    @Override
-    public void hideNewAreaFragment(){
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0);
-        FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
-        layout.setLayoutParams(lp);
-        gMapFrag.showFAB();
-        gMapFrag.clearCircle();
     }
 
     @Override
@@ -222,20 +223,13 @@ public class HomePageActivity extends AppCompatActivity
         FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
         layout.setLayoutParams(lp);
         gMapFrag.hideFAB();
+        isEditArea = true;
     }
 
     @Override
     public void removeLastClickedMarker(){
         gMapFrag.removeLastClickedMarker();
         gMapFrag.clearCircle();
-    }
-
-    @Override
-    public void hideEditAreaFragment(){
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0);
-        FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
-        layout.setLayoutParams(lp);
-        gMapFrag.showFAB();
     }
 
     @Override

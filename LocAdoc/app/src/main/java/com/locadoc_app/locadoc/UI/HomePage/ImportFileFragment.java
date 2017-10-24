@@ -45,8 +45,8 @@ public class ImportFileFragment extends Fragment {
         void saveFile(String filename, int areaid);
         Location getLastKnownLoc();
         void performFileSearch();
-        void hideImportFileFragment();
         void drawCircle(int radius);
+        void hideAreaFragmentContainer();
     }
 
     //---empty constructor required
@@ -66,14 +66,6 @@ public class ImportFileFragment extends Fragment {
         btnCreateNewArea = (Button) view.findViewById(R.id.CreateNewAreaBtn);
         btnSelectExistingArea = (Button) view.findViewById(R.id.ExistingAreaBtn);
         btnSelectFile = (Button) view.findViewById(R.id.SelectFileButton);
-
-        FloatingActionButton closeFAB = (FloatingActionButton) view.findViewById(R.id.CloseImportFileFAB);
-        closeFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.hideImportFileFragment();
-            }
-        });
 
         radiusText = (EditText) view.findViewById(R.id.RadiusEditText);
         radiusText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -169,7 +161,7 @@ public class ImportFileFragment extends Fragment {
                 listener.saveFile(filename, id);
 
                 resetForm();
-                listener.hideImportFileFragment();
+                listener.hideAreaFragmentContainer();
             }
         });
 
@@ -207,7 +199,7 @@ public class ImportFileFragment extends Fragment {
                 listener.saveFile(filename, areaid);
 
                 resetForm();
-                listener.hideImportFileFragment();
+                listener.hideAreaFragmentContainer();
             }
         });
 
