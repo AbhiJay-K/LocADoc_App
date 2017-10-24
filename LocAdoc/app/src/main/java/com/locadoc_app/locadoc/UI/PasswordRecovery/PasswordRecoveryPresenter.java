@@ -1,17 +1,9 @@
 package com.locadoc_app.locadoc.UI.PasswordRecovery;
 
-import android.os.AsyncTask;
-
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.ForgotPasswordContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.ForgotPasswordHandler;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
-import com.locadoc_app.locadoc.DynamoDB.PasswordDynamoHelper;
-import com.locadoc_app.locadoc.DynamoDB.UserDynamoHelper;
-import com.locadoc_app.locadoc.Model.Credential;
-import com.locadoc_app.locadoc.Model.Password;
-import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.CheckPassword;
-import com.locadoc_app.locadoc.helper.Hash;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,40 +72,35 @@ public class PasswordRecoveryPresenter implements PasswordRecoveryPresenterInter
         forgotPasswordContinuation.continueTask();
     }
 
-    public void forgotPassword(String email) {
-        AppHelper.getPool().getUser(email).forgotPasswordInBackground(forgotPasswordHandler);
+    // ForMat checking with Regular Expression pattern
+    public boolean patternCheck(String password, String pattern) {
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(password);
+        return m.find();
     }
 
-    public void forgotPwdCredential(String userEmail, String newPassword) {
-        Password newPwd = new Password();
-        newPwd.setPasswordid(-1);
-        String salt = Hash.SecureRandomGen();
-        newPwd.setUser(userEmail);
-        newPwd.setPassword(Hash.Hash(newPassword, salt));
 
-        Credential.setEmail(userEmail);
-        Credential.setPassword(newPwd);
+    public void forgotPassword(String email)
+    {
+        AppHelper.getPool().getUser(email).forgotPasswordInBackground(forgotPasswordHandler);
     }
 
     // Callbacks
     ForgotPasswordHandler forgotPasswordHandler = new ForgotPasswordHandler() {
         @Override
         public void onSuccess() {
-            String userEmail = activity.getEmail();
-            String newPassword = activity.getPwdView().getText().toString();
-
-            forgotPwdCredential(userEmail, newPassword);
-
             activity.exit(0);
+        }
+
+        @Override
+        public void getResetCode(ForgotPasswordContinuation forgotPassContinuation) {
+            forgotPasswordContinuation = forgotPassContinuation;
         }
 
         @Override
         public void onFailure(Exception e) {
             activity.exit(-1);
         }
-        @Override
-        public void getResetCode(ForgotPasswordContinuation forgotPassContinuation) {
-            forgotPasswordContinuation = forgotPassContinuation;
-        }
     };
+
 }
