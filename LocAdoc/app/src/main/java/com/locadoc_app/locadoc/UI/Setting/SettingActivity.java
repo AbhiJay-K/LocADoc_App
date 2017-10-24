@@ -54,12 +54,12 @@ public class SettingActivity extends AppCompatActivity  {
         User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
         String firstName = user.getFirstname();
         String lastName = user.getLastname();
-        String userName = lastName + " " + firstName;
+        String userName = firstName + " " + lastName;
 
         TextView userNameTextView = (TextView) findViewById(R.id.profile_usrName);
         userNameTextView.setText(userName);
 
-        //presenter.profileName(user.getFirstname(), user.getLastname());
+        presenter.profileName(user.getFirstname(), user.getLastname());
 
         Log.d("SEPERATE" , "=======================================================================");
         Log.d("USER INFO", "Info: " + user.getLastname() + " " + user.getFirstname());
