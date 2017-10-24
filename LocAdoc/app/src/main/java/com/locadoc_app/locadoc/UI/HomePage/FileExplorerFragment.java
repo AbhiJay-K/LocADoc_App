@@ -93,10 +93,6 @@ public class FileExplorerFragment extends Fragment
             ArrayList<String> fileList = new ArrayList<>(allFileInArea.keySet());
             MyCustomAdapter adapter = new MyCustomAdapter(getActivity(), R.layout.item_file, fileList);
 
-            for(String s: fileList){
-                Log.d("LocAdoc", "Name: " + s + ", id: " + allFileInArea.get(s));
-            }
-
             listView.setAdapter(adapter);
             exploreArea = false;
         } else{
@@ -191,7 +187,11 @@ public class FileExplorerFragment extends Fragment
         }
 
         @Override
-        public void onStateChanged(int id, TransferState state) {}
+        public void onStateChanged(int id, TransferState state) {
+            if(state == TransferState.COMPLETED){
+                userDialog.setMessage("Download Complete");
+            }
+        }
     }
 
     private class MyCustomAdapter extends ArrayAdapter<String> {
