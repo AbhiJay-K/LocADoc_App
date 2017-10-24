@@ -1,4 +1,4 @@
-package com.locadoc_app.locadoc.UI;
+package com.locadoc_app.locadoc;
 
 import android.location.Location;
 import android.os.Bundle;

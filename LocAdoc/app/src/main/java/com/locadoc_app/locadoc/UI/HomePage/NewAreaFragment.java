@@ -35,7 +35,7 @@ public class NewAreaFragment extends Fragment {
     public interface NewAreaFragmentListener {
         int createNewArea(Area area);
         Location getLastKnownLoc();
-        void hideNewAreaFragment();
+        void hideAreaFragmentContainer();
         void drawCircle(int radius);
     }
 
@@ -53,14 +53,6 @@ public class NewAreaFragment extends Fragment {
         newAreaName = (EditText) view.findViewById(R.id.NewAreaName);
         newAreaDesc = (EditText) view.findViewById(R.id.NewAreaDesc);
         btnCreateNewArea = (Button) view.findViewById(R.id.CreateNewAreaBtn);
-
-        FloatingActionButton closeFAB = (FloatingActionButton) view.findViewById(R.id.CloseImportFileFAB);
-        closeFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                activity.hideNewAreaFragment();
-            }
-        });
 
         radiusText = (EditText) view.findViewById(R.id.RadiusEditText);
         radiusText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -132,10 +124,10 @@ public class NewAreaFragment extends Fragment {
                     return;
                 }
 
-                int id = activity.createNewArea(area);
+                activity.createNewArea(area);
 
                 resetForm();
-                activity.hideNewAreaFragment();
+                activity.hideAreaFragmentContainer();
             }
         });
 

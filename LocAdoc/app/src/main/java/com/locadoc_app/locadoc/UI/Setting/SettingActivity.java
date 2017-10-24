@@ -14,13 +14,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.locadoc_app.locadoc.Cognito.AppHelper;
+import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 
+import java.util.List;
+
 import static com.locadoc_app.locadoc.R.id.CreateNewAreaBtn;
 import static com.locadoc_app.locadoc.R.id.UserName;
+import static com.locadoc_app.locadoc.R.id.all;
 import static com.locadoc_app.locadoc.R.id.profile_usrEmail;
 
 public class SettingActivity extends AppCompatActivity  {
@@ -28,6 +32,8 @@ public class SettingActivity extends AppCompatActivity  {
     private ListView listView;
     private String userEmail;
     private TextView text_userEmail;
+    List<Integer> allFileId;
+    int noOfFilesProcessesed;
     String[] settingMenuListArray = {"Phone Number", "Password", "Set Administration Area", "Backup", "Delete Account"};
 
     private SettingActivityPresenter presenter;
@@ -104,7 +110,7 @@ public class SettingActivity extends AppCompatActivity  {
                         break;
                     case 1:	openResetPasswordActivity();    // Activity Num: 31
                         break;
-                    case 2: openSetAdminAreaActivity();     // Activity Num: 32
+                    case 2: recoverAllMissingFiles();     // Activity Num: 32
                         break;
                     case 3:                                 // Activity Num: 33
                         break;
@@ -163,6 +169,14 @@ public class SettingActivity extends AppCompatActivity  {
         // Intent homeActivity = new Intent(this, HomePageActivity.class);
         // homeActivity.putExtra("name", userIDView.getText().toString());
         // startActivity(homeActivity);
+    }
+
+    public void recoverAllMissingFiles(){
+        noOfFilesProcessesed = 0;
+        allFileId = FileSQLHelper.getAllFileID();
+        for(int id: allFileId){
+            Log.d("LocAdoc", "File id: " + id);
+        }
     }
 
     @Override

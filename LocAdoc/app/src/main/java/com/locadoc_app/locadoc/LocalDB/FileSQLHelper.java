@@ -9,7 +9,9 @@ import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.Encryption;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -138,12 +140,31 @@ public class FileSQLHelper implements BaseColumns {
 
     }
 
+    //Query to get all file id
+    public static List<Integer> getAllFileID()
+    {
+        Cursor crs = FileSQLHelper.dbHelper.READ.rawQuery("SELECT _id FROM file", null);
+        List<Integer> allId = new ArrayList<>();
+        if (crs != null && crs.moveToFirst()) {
+            do {
+                int id = crs.getInt(crs.getColumnIndex("_id"));
+                allId.add(id);
+            } while (crs.moveToNext());
+            crs.close();
+            return allId;
+        }
+        else {
+            crs.close();
+            return allId;
+        }
+
+    }
+
     //Query to search file table using original area id and returns a list
     public static boolean checkFilesInAreaExist(int AreaID, Password pwd)
     {
         String [] args = {String.valueOf(AreaID)};
         Cursor crs = FileSQLHelper.dbHelper.READ.rawQuery("SELECT * FROM file WHERE area = ?", args);
-        Map<String,Integer> FileMap = new HashMap<String,Integer>();
         if (crs != null && crs.moveToFirst()) {
             crs.close();
             return true;

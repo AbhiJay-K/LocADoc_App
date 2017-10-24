@@ -45,7 +45,7 @@ public class EditAreaFragment extends Fragment {
     EditAreaFragmentListener activity;
 
     public interface EditAreaFragmentListener {
-        void hideEditAreaFragment();
+        void hideAreaFragmentContainer();
         void drawCircle(LatLng latLng, int radius);
         boolean isInArea(Area a);
         void removeLastClickedMarker();
@@ -64,16 +64,6 @@ public class EditAreaFragment extends Fragment {
         btnDeleteArea = (Button) view.findViewById(R.id.DeleteAreaBtn);
         btnEditRadius = (Button) view.findViewById(R.id.EditRadiusBtn);
         title = (TextView) view.findViewById(R.id.EditAreaTitle);
-
-        FloatingActionButton closeFAB = (FloatingActionButton) view.findViewById(R.id.CloseImportFileFAB);
-        closeFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                LatLng latLng = new LatLng(Double.parseDouble(area.getLatitude()), Double.parseDouble(area.getLongitude()));
-                activity.drawCircle(latLng, Integer.parseInt(area.getRadius()));
-                activity.hideEditAreaFragment();
-            }
-        });
 
         radiusText = (EditText) view.findViewById(R.id.RadiusEditText);
         radiusText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -133,7 +123,7 @@ public class EditAreaFragment extends Fragment {
                             Toast.LENGTH_SHORT).show();
                 }
 
-                activity.hideEditAreaFragment();
+                activity.hideAreaFragmentContainer();
             }
         });
 
@@ -153,7 +143,7 @@ public class EditAreaFragment extends Fragment {
                                         Toast.makeText(getActivity(), area.getName() + " has been successfully deleted",
                                                 Toast.LENGTH_SHORT).show();
                                         activity.removeLastClickedMarker();
-                                        activity.hideEditAreaFragment();
+                                        activity.hideAreaFragmentContainer();
                                         break;
                                 }
                             }
@@ -170,7 +160,7 @@ public class EditAreaFragment extends Fragment {
                 } else{
                     Toast.makeText(getActivity(), "You are not within " + area.getName() + "'s radius",
                             Toast.LENGTH_SHORT).show();
-                    activity.hideEditAreaFragment();
+                    activity.hideAreaFragmentContainer();
                 }
             }
         });
@@ -184,5 +174,9 @@ public class EditAreaFragment extends Fragment {
              title.setText(areaName);
              radiusText.setText(area.getRadius());
          }
+    }
+
+    public Area getSelectedArea(){
+        return area;
     }
 }

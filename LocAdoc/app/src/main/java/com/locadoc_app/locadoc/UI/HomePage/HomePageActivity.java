@@ -2,7 +2,10 @@ package com.locadoc_app.locadoc.UI.HomePage;
 
 import android.app.Activity;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -12,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.provider.OpenableColumns;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -92,6 +96,7 @@ public class HomePageActivity extends AppCompatActivity
     private String userName;
     private TextView username;
     private boolean requestFocus;
+    private boolean isEditArea;
     private SimpleCursorAdapter mAdapter;
 
     private GoogleMapFragment gMapFrag;
@@ -109,6 +114,7 @@ public class HomePageActivity extends AppCompatActivity
         setContentView(R.layout.activity_home_page);
 
         S3Helper.init();
+        isEditArea = false;
         AreaList = AreaSQLHelper.getSearchValue();
         final String[] from = new String[] {"AreaName"};
         final int[] to = new int[] {android.R.id.text1};
@@ -172,12 +178,20 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     @Override
-    public void hideImportFileFragment(){
+    public void hideAreaFragmentContainer(){
+        if(isEditArea){
+            Area area = editAreaFragment.getSelectedArea();
+            LatLng latLng = new LatLng(Double.parseDouble(area.getLatitude()), Double.parseDouble(area.getLongitude()));
+            drawCircle(latLng, Integer.parseInt(area.getRadius()));
+            isEditArea = false;
+        }else{
+            gMapFrag.clearCircle();
+        }
+
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0);
         FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
         layout.setLayoutParams(lp);
         gMapFrag.showFAB();
-        gMapFrag.clearCircle();
     }
 
     @Override
@@ -191,15 +205,6 @@ public class HomePageActivity extends AppCompatActivity
         FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
         layout.setLayoutParams(lp);
         gMapFrag.hideFAB();
-    }
-
-    @Override
-    public void hideNewAreaFragment(){
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0);
-        FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
-        layout.setLayoutParams(lp);
-        gMapFrag.showFAB();
-        gMapFrag.clearCircle();
     }
 
     @Override
@@ -218,20 +223,13 @@ public class HomePageActivity extends AppCompatActivity
         FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
         layout.setLayoutParams(lp);
         gMapFrag.hideFAB();
+        isEditArea = true;
     }
 
     @Override
     public void removeLastClickedMarker(){
         gMapFrag.removeLastClickedMarker();
         gMapFrag.clearCircle();
-    }
-
-    @Override
-    public void hideEditAreaFragment(){
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0);
-        FrameLayout layout = (FrameLayout) findViewById(R.id.areaContainer);
-        layout.setLayoutParams(lp);
-        gMapFrag.showFAB();
     }
 
     @Override
@@ -428,7 +426,47 @@ public class HomePageActivity extends AppCompatActivity
                 .build();
         mGoogleApiClient.connect();
     }
+    public boolean isMockSettingsON(Context context) {
+        // returns true if mock location enabled, false if not enabled.
+        if (Settings.Secure.getString(context.getContentResolver(),
+                Settings.Secure.ALLOW_MOCK_LOCATION).equals("0"))
+            return false;
+        else
+            return true;
+    }
+    public boolean areThereMockPermissionApps(Context context) {
+        int count = 0;
 
+        PackageManager pm = context.getPackageManager();
+        List<ApplicationInfo> packages =
+                pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
+        for (ApplicationInfo applicationInfo : packages) {
+            try {
+                PackageInfo packageInfo = pm.getPackageInfo(applicationInfo.packageName,
+                        PackageManager.GET_PERMISSIONS);
+
+                // Get Permissions
+                String[] requestedPermissions = packageInfo.requestedPermissions;
+
+                if (requestedPermissions != null) {
+                    for (int i = 0; i < requestedPermissions.length; i++) {
+                        if (requestedPermissions[i]
+                                .equals("android.permission.ACCESS_MOCK_LOCATION")
+                                && !applicationInfo.packageName.equals(context.getPackageName())) {
+                            count++;
+                        }
+                    }
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.e("Got exception " , e.getMessage());
+            }
+        }
+
+        if (count > 0)
+            return true;
+        return false;
+    }
     @Override
     public void onConnected(Bundle bundle) {
         mLocationRequest = new LocationRequest();
