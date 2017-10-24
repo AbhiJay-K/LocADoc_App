@@ -1,22 +1,41 @@
 package com.locadoc_app.locadoc.UI.PDFViewer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnPageChangeListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.locadoc_app.locadoc.DynamoDB.PasswordDynamoHelper;
+import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
+import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.R;
@@ -30,13 +49,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-public class PDFViewer extends AppCompatActivity implements OnPageChangeListener,OnLoadCompleteListener{
+public class PDFViewer extends AppCompatActivity implements OnPageChangeListener,OnLoadCompleteListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener{
     private static Uri PDFFILE;
     private static final String TAG = PDFViewer.class.getSimpleName();
-    PDFView pdfView;
-    Integer pageNumber = 0;
-    String filename;
-
+    private PDFView pdfView;
+    private Integer pageNumber = 0;
+    private String filename;
+    private GoogleApiClient mGoogleApiClient;
+    private static int REQUEST_CODE_RECOVER_PLAY_SERVICES = 200;
+    private LocationManager locationManager;
+    private Location mLastLocation;
+    private LocationRequest mLocationRequest;
+    private Area ar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,15 +76,149 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
                 closeActivity();
             }
         });
-
+        if(!isLocationEnabled())
+        {
+            Toast.makeText(this, "Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
+                    "use this app (for added security)", Toast.LENGTH_LONG).show();
+        }
         pdfView = (PDFView)findViewById(R.id.pdfView);
 
         Intent extras = getIntent();
         int fileid = extras.getIntExtra("fileid", 0);
         new DecryptTask().execute(fileid);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(checkLocationPermission()){
+                buildGoogleApiClient();
+            }
+        } else{
+            buildGoogleApiClient();
+        }
+    }
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public boolean checkLocationPermission(){
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Asking user if explanation is needed
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
     }
 
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
 
+    }
+
+    protected void stopLocationUpdates() {
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+    @Override
+    public void onConnected(Bundle bundle){
+        try {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            if (mLastLocation != null) {
+
+                Toast.makeText(this, "Latitude:" + mLastLocation.getLatitude() + ", Longitude:" + mLastLocation.getLongitude(), Toast.LENGTH_LONG).show();
+
+            }
+        } catch (SecurityException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(30000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+    private boolean isLocationEnabled() {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);}
+
+    /*private void showAlert() {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Enable Location")
+                .setMessage("Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
+                        "use this app (for added security)")
+                .setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(myIntent);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                    }
+                });
+        dialog.show();
+    }*/
+
+    @Override
+    public void onLocationChanged(Location location) {
+        try {
+            mLastLocation = location;
+            Location l1 = new Location("");
+            l1.setLatitude(Double.parseDouble(ar.getLatitude()));
+            l1.setLongitude(Double.parseDouble(ar.getLongitude()));
+            if(mLastLocation.distanceTo(l1) > Float.parseFloat(ar.getRadius()))
+            {
+                mGoogleApiClient.disconnect();
+                onStop();
+            }
+        }catch(NumberFormatException e)
+        {
+            Toast.makeText(this,e.toString(),Toast.LENGTH_LONG).show();
+        }
+    }
+
+    //============================
     private void openPDF()
     {
         pdfView.fromUri(PDFFILE).defaultPage(pageNumber)
@@ -69,7 +230,6 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
                 .scrollHandle(new DefaultScrollHandle(this))
                 .load();
     }
-
     @Override
     public void onPageChanged(int page, int pageCount) {
         pageNumber = page;
@@ -115,6 +275,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
         protected Void doInBackground(Integer... objects) {
             int fileid = objects[0];
             com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(fileid, Credential.getPassword());
+            ar = AreaSQLHelper.getRecord(file.getAreaId(),Credential.getPassword());
             int passwordid = file.getPasswordId();
 
             boolean differentPass = false;
