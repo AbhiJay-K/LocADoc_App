@@ -47,6 +47,7 @@ public class GoogleMapFragment extends Fragment
         void showNewAreaFragment();
         void showEditAreaFragment(String areaName);
         boolean isInArea(Area a);
+        void hideAreaFragmentContainer();
     }
 
     MapView mMapView;
@@ -55,6 +56,8 @@ public class GoogleMapFragment extends Fragment
     private FloatingActionButton newFilefab;
     private FloatingActionButton fileExplorerfab;
     private FloatingActionButton newAreafab;
+    private FloatingActionButton closeAreaContainerfab;
+
     private Marker lastMarkerClick;
     private static final int DEFAULT_ZOOM = 17;
 
@@ -89,6 +92,16 @@ public class GoogleMapFragment extends Fragment
             }
         });
 
+        closeAreaContainerfab = (FloatingActionButton) rootView.findViewById(R.id.CloseAreaContainerFAB);
+        closeAreaContainerfab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GoogleMapFragmentListener listener = (GoogleMapFragmentListener) getActivity();
+                listener.hideAreaFragmentContainer();
+            }
+        });
+        closeAreaContainerfab.setVisibility(View.GONE);
+
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();
@@ -107,9 +120,11 @@ public class GoogleMapFragment extends Fragment
         fileExplorerfab.setVisibility(View.GONE);
         newFilefab.setVisibility(View.GONE);
         newAreafab.setVisibility(View.GONE);
+        closeAreaContainerfab.setVisibility(View.VISIBLE);
     }
 
     public void showFAB() {
+        closeAreaContainerfab.setVisibility(View.GONE);
         fileExplorerfab.setVisibility(View.VISIBLE);
         newFilefab.setVisibility(View.VISIBLE);
         newAreafab.setVisibility(View.VISIBLE);
