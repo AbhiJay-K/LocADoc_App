@@ -54,12 +54,12 @@ public class SettingActivity extends AppCompatActivity  {
         User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
         String firstName = user.getFirstname();
         String lastName = user.getLastname();
-        String userName = lastName + " " + firstName;
+        String userName = firstName + " " + lastName;
 
         TextView userNameTextView = (TextView) findViewById(R.id.profile_usrName);
         userNameTextView.setText(userName);
 
-        //presenter.profileName(user.getFirstname(), user.getLastname());
+        presenter.profileName(user.getFirstname(), user.getLastname());
 
         Log.d("SEPERATE" , "=======================================================================");
         Log.d("USER INFO", "Info: " + user.getLastname() + " " + user.getFirstname());
@@ -114,13 +114,10 @@ public class SettingActivity extends AppCompatActivity  {
             }
         });
 
-        Menu save = (Menu) findViewById(R.id.setting_save);
-
         TextView tvBack = (TextView) findViewById(R.id.toolbar_setting_back);
         tvBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO
                 exit();
             }
         });

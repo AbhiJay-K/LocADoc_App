@@ -55,6 +55,7 @@ public class LoginPresenter implements LoginPresenterInterface
     private MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation;
     private ForgotPasswordContinuation forgotPasswordContinuation;
     private NewPasswordContinuation newPasswordContinuation;
+    private final int RESETPWDCREDENTIALID = -1;
 
     public LoginPresenter (LoginViewInterface loginAct)
     {
@@ -215,29 +216,31 @@ public class LoginPresenter implements LoginPresenterInterface
             User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
             long numberUser = UserSQLHelper.getNumberofRecords();
 
-            if(numberUser > 0 &&  usr != null) {
-                Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
-                Credential.setPassword(pwd);
-                String instanceId = ApplicationInstance.getRecord();
+            //-------- Common Login
+                if(numberUser > 0 &&  usr != null) {
+                    // ---------------------------------------------------------------------------------------------
+                    Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
+                    Credential.setPassword(pwd);
+                    String instanceId = ApplicationInstance.getRecord();
 
-                if(!instanceId.equals(usr.getInstanceID())){
-                    FileSQLHelper.clearRecord();
-                    AreaSQLHelper.clearRecord();
+                    if(!instanceId.equals(usr.getInstanceID())){
+                        FileSQLHelper.clearRecord();
+                        AreaSQLHelper.clearRecord();
 
-                    List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
-                    for(Area ar : areaList) {
-                        AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
-                    }
+                        List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
+                        for(Area ar : areaList) {
+                            AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
+                        }
 
-                    List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
-                    for(File file : fileList) {
-                        FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
-                    }
+                        List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
+                        for(File file : fileList) {
+                            FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
+                        }
 
-                    usr.setInstanceID(instanceId);
-                    UserDynamoHelper.getInstance().insert(usr);
+                        usr.setInstanceID(instanceId);
+                        UserDynamoHelper.getInstance().insert(usr);
                 }
-            }
+            }   //-------- First Login
             else if(usr == null && numberUser > 0){
                 User newusr = UserSQLHelper.getRecord(Credential.getEmail(),Credential.getPassword());
                 String instance = ApplicationInstance.getRecord();
@@ -255,9 +258,8 @@ public class LoginPresenter implements LoginPresenterInterface
                 }
 
                 PasswordDynamoHelper.getInstance().insert(Credential.getPassword());
-            }
-            else if(usr != null && numberUser <= 0)
-            {
+            }   //-------- Common Login with Different Device
+            else if(usr != null && numberUser <= 0) {
                 Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
                 Credential.setPassword(pwd);
 
@@ -289,4 +291,5 @@ public class LoginPresenter implements LoginPresenterInterface
             loginAct.openMainActivity();
         }
     }
+
 }

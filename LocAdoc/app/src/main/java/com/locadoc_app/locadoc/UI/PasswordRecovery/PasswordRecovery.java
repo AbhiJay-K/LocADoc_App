@@ -27,6 +27,7 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
     private String email;
 
     private Button submit;
+
     //private AlertDialog userDialog;
     private PasswordRecoveryPresenterInterface presenter;
 
@@ -180,7 +181,6 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
     public String getEmail() {
         return this.email;
     }
-
 
     public EditText getPwdView() {
         return password;
