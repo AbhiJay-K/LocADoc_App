@@ -58,6 +58,8 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
     private PDFView pdfView;
     private Integer pageNumber = 0;
     private String filename;
+    private String curArea;
+    private String curFile;
     private GoogleApiClient mGoogleApiClient;
     private static int REQUEST_CODE_RECOVER_PLAY_SERVICES = 200;
     private LocationManager locationManager;
@@ -82,9 +84,21 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
                     "use this app (for added security)", Toast.LENGTH_LONG).show();
         }*/
         pdfView = (PDFView)findViewById(R.id.pdfView);
-
-        Intent extras = getIntent();
-        int fileid = extras.getIntExtra("fileid", 0);
+        int fileid = 0;
+        Bundle extras = getIntent().getExtras();
+        if (extras !=null) {
+            if (extras.containsKey("fileid")) {
+                fileid = extras.getInt("fileid");
+            }
+            if(extras.containsKey("areaname"))
+            {
+               curArea = extras.getString("areaname");
+            }
+            if(extras.containsKey("filename"))
+            {
+                curFile = extras.getString("filename");
+            }
+        }
         new DecryptTask().execute(fileid);
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(checkLocationPermission()){
@@ -132,6 +146,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+        mGoogleApiClient.connect();
     }
     @Override
     protected void onStart() {
@@ -153,9 +168,8 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             if (mLastLocation != null) {
-
                 Toast.makeText(this, "Latitude:" + mLastLocation.getLatitude() + ", Longitude:" + mLastLocation.getLongitude(), Toast.LENGTH_LONG).show();
-
+                createLocationRequest();
             }
         } catch (SecurityException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -166,6 +180,12 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
         mLocationRequest.setInterval(30000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+
     }
     @Override
     public void onConnectionSuspended(int i) {
@@ -233,7 +253,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
     @Override
     public void onPageChanged(int page, int pageCount) {
         pageNumber = page;
-        setTitle("FileName.pdf");
+        setTitle(curArea +"/"+ curFile);
     }
 
     @Override

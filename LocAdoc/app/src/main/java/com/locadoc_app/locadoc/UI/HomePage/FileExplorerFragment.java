@@ -26,6 +26,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
+import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.R;
@@ -40,16 +41,20 @@ public class FileExplorerFragment extends Fragment
     public interface FileExplorerFragmentListener{
         void openGoogleMap();
         Location getLastKnownLoc();
-        void openFile(int fileid);
+        void openFile(int fileid,String arn,String fn);
         void showFileOperationFragment(int fileid);
+        boolean isInArea (Area a);
+        void printOutOfAreaMsg();
     }
-
+    private int areaID;
     private ListView listView;
     private boolean exploreArea;
     Map<String,Integer> allFileInArea;
     private Map<String, Integer> allAreaAround;
     private AlertDialog userDialog;
-
+    private FloatingActionButton fileExplorerfab;
+    private String curAreaName;
+    private String curFileName;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.fragment_file_explorer, container, false);
@@ -63,7 +68,7 @@ public class FileExplorerFragment extends Fragment
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
 
-        FloatingActionButton fileExplorerfab = (FloatingActionButton) rootView.findViewById(R.id.floatingActionButton);
+        fileExplorerfab = (FloatingActionButton) rootView.findViewById(R.id.floatingActionButton);
         fileExplorerfab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,27 +91,53 @@ public class FileExplorerFragment extends Fragment
 
     @Override
     public void onItemClick(AdapterView<?> args, View v, int position, long id) {
+        FileExplorerFragmentListener activity = (FileExplorerFragmentListener) getActivity();
         if(exploreArea) {
             String data = (String) args.getItemAtPosition(position);
-            int areaid = allAreaAround.get(data);
-            allFileInArea = FileSQLHelper.getFilesInArea(areaid, Credential.getPassword());
-            ArrayList<String> fileList = new ArrayList<>(allFileInArea.keySet());
-            MyCustomAdapter adapter = new MyCustomAdapter(getActivity(), R.layout.item_file, fileList);
+            areaID = allAreaAround.get(data);
+            Area a = AreaSQLHelper.getRecord(areaID,Credential.getPassword());
+            curAreaName = a.getName();
+            if(!activity.isInArea(a))
+            {
+                //activity.printOutOfAreaMsg();
+                //fileExplorerfab.performClick();
+                activity.openGoogleMap();
+            }
+            else {
+                allFileInArea = FileSQLHelper.getFilesInArea(areaID, Credential.getPassword());
+                ArrayList<String> fileList = new ArrayList<>(allFileInArea.keySet());
+                MyCustomAdapter adapter = new MyCustomAdapter(getActivity(), R.layout.item_file, fileList);
 
-            listView.setAdapter(adapter);
-            exploreArea = false;
+                listView.setAdapter(adapter);
+                exploreArea = false;
+            }
         } else{
-            String data = (String) args.getItemAtPosition(position);
-            int fileid = allFileInArea.get(data);
-            File fileInfo = FileSQLHelper.getFile(fileid, Credential.getPassword());
-            String key = fileInfo.getCurrentfilename();
-            java.io.File file = new java.io.File(LocAdocApp.getContext().getFilesDir().getAbsolutePath()+"/vault/" + key);
+            Area a = AreaSQLHelper.getRecord(areaID,Credential.getPassword());
+            if(!activity.isInArea(a))
+            {
+                //activity.printOutOfAreaMsg();
+                //fileExplorerfab.performClick();
+                getAllAreaAround();
+                ArrayList<String> areaList = new ArrayList<>(allAreaAround.keySet());
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
+                        android.R.layout.simple_list_item_1, areaList);
+                listView.setAdapter(adapter);
+                exploreArea = true;
+            }
+            else {
+                String data = (String) args.getItemAtPosition(position);
+                int fileid = allFileInArea.get(data);
+                File fileInfo = FileSQLHelper.getFile(fileid, Credential.getPassword());
+                curFileName = fileInfo.getOriginalfilename();
+                String key = fileInfo.getCurrentfilename();
+                java.io.File file = new java.io.File(LocAdocApp.getContext().getFilesDir().getAbsolutePath() + "/vault/" + key);
 
-            if(file.exists()){
-                FileExplorerFragmentListener listener = (FileExplorerFragmentListener) getActivity();
-                listener.openFile(fileid);
-            } else{
-                showDownloadMessage(key, fileInfo.getOriginalfilename(), file);
+                if (file.exists()) {
+                    FileExplorerFragmentListener listener = (FileExplorerFragmentListener) getActivity();
+                    listener.openFile(fileid,curAreaName,curFileName);
+                } else {
+                    showDownloadMessage(key, fileInfo.getOriginalfilename(), file);
+                }
             }
         }
     }
@@ -235,4 +266,5 @@ public class FileExplorerFragment extends Fragment
         }
 
     }
+
 }

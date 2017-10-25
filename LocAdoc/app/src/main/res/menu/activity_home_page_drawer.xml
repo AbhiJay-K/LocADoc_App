@@ -19,6 +19,11 @@
             android:icon="@drawable/ic_help_outline_black_24dp"
             android:title="LocAdoc FAQ" />
         <item
+            android:id="@+id/nav_cloudusage"
+            android:icon="@drawable/ic_cloud_upload_black_24dp"
+            android:title="0 MB of 1 GB used"
+            android:enabled="false"/>
+        <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_exit_to_app_black_24dp"
             android:title="Logout" />

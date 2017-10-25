@@ -406,7 +406,10 @@ public class HomePageActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_faq) {
 
-        } else if (id == R.id.nav_logout) {
+        } else if (id == R.id.nav_cloudusage) {
+
+        }
+        else if (id == R.id.nav_logout) {
             Logout();
         }
 
@@ -716,9 +719,11 @@ public class HomePageActivity extends AppCompatActivity
         S3Helper.uploadFile(dst);
     }
 
-    public void openFile(int fileid){
+    public void openFile(int fileid,String arn,String fn){
         Intent PDFVIEWER = new Intent(this, PDFViewer.class);
         PDFVIEWER.putExtra("fileid", fileid);
+        PDFVIEWER.putExtra("areaname",arn);
+        PDFVIEWER.putExtra("filename",fn);
         startActivity(PDFVIEWER);
     }
 
@@ -730,7 +735,6 @@ public class HomePageActivity extends AppCompatActivity
     @Override
     public boolean isInArea (Area a){
         boolean inArea = false;
-
         Location loc = new Location("");
         loc.setLatitude(Double.parseDouble(a.getLatitude()));
         loc.setLongitude(Double.parseDouble(a.getLongitude()));
@@ -746,5 +750,9 @@ public class HomePageActivity extends AppCompatActivity
     @Override
     public void requestFocus(){
         requestFocus = true;
+    }
+    public void printOutOfAreaMsg()
+    {
+        Toast.makeText(this,"You have currently moved out of the area",Toast.LENGTH_LONG).show();
     }
 }
