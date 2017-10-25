@@ -208,7 +208,7 @@ public class SettingActivity extends AppCompatActivity  {
     public void recoverAllMissingFiles(){
         noOfFilesProcessesed = 0;
         allFileId = FileSQLHelper.getAllFileID();
-        
+
         final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
         builder.setTitle("Downloading All Files...").
                 setMessage("")

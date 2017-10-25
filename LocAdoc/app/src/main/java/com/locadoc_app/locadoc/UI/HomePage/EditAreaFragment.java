@@ -114,6 +114,8 @@ public class EditAreaFragment extends Fragment {
             public void onClick(View view) {
                 if(activity.isInArea(area)) {
                     area.setRadius(radius + "");
+                    LatLng latLng = new LatLng(Double.parseDouble(area.getLatitude()), Double.parseDouble(area.getLongitude()));
+                    activity.drawCircle(latLng, Integer.parseInt(area.getRadius()));
                     AreaSQLHelper.updateRecord(area, Credential.getPassword());
                     AreaDynamoHelper.getInstance().insert(area);
                     Toast.makeText(getActivity(), area.getName() + "'s radius updated",

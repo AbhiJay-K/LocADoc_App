@@ -161,7 +161,7 @@ public class HomePageActivity extends AppCompatActivity
                 userName = extras.getString("name");
             }
         }
-        presenter = new HomePagePresenter(this);
+        //presenter = new HomePagePresenter(this);
     }
 
     @Override
@@ -181,9 +181,6 @@ public class HomePageActivity extends AppCompatActivity
     @Override
     public void hideAreaFragmentContainer(){
         if(isEditArea){
-            Area area = editAreaFragment.getSelectedArea();
-            LatLng latLng = new LatLng(Double.parseDouble(area.getLatitude()), Double.parseDouble(area.getLongitude()));
-            drawCircle(latLng, Integer.parseInt(area.getRadius()));
             isEditArea = false;
         }else{
             gMapFrag.clearCircle();
