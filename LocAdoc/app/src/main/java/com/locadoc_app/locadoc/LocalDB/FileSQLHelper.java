@@ -63,7 +63,7 @@ public class FileSQLHelper implements BaseColumns {
     public static long insertWithoutEncryption(File file,Password pwd)
     {
         ContentValues values = new ContentValues();
-        values.put(FileSQLHelper._ID, file.getAreaId());
+        values.put(FileSQLHelper._ID, file.getFileId());
         values.put(FileSQLHelper.COLUMN_CURRENT_NAME, file.getCurrentfilename());
         values.put(FileSQLHelper.COLUMN_ORIGINAL_NAME, file.getOriginalfilename());
         values.put(FileSQLHelper.COLUMN_MODIFIED, file.getModified());

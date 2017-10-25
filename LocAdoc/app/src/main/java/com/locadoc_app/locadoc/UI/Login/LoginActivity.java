@@ -140,9 +140,9 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     }
     public boolean checkLogin()
     {
-        Log.d("Numer of User ",String.valueOf(UserSQLHelper.getNumberofRecords()));
+        Log.d("Number of User ",String.valueOf(UserSQLHelper.getNumberofRecords()));
         if(UserSQLHelper.getNumberofRecords() > 0){
-            Log.d("Numer of User ",String.valueOf(UserSQLHelper.getNumberofRecords()));
+            Log.d("Number of User ",String.valueOf(UserSQLHelper.getNumberofRecords()));
             String email = UserSQLHelper.getUser();
             userIDView.setText(email);
             userIDView.setFocusable(false);
@@ -190,14 +190,16 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
                     break;
                 case 3:
                     int result = data.getIntExtra("result", -1);
-                    if(result == 0)
-                    {
+
+                    if(result == 0) {
                        showDialogMessage("PasswordSQLHelper Recovery","Recovery success");
                     }
-                    else
-                    {
+                    else{
                         showDialogMessage("PasswordSQLHelper Recovery","Recovery failed");
                     }
+
+
+
                     break;
                 case 6:
                     //New password

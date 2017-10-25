@@ -1,5 +1,7 @@
 package com.locadoc_app.locadoc.UI.Setting;
 
+import android.support.v7.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,13 +15,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
+import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Credential;
+import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
-
+import com.locadoc_app.locadoc.S3.S3Helper;
 import java.util.List;
 
 import static com.locadoc_app.locadoc.R.id.CreateNewAreaBtn;
@@ -32,8 +39,10 @@ public class SettingActivity extends AppCompatActivity  {
     private ListView listView;
     private String userEmail;
     private TextView text_userEmail;
-    List<Integer> allFileId;
-    int noOfFilesProcessesed;
+    private List<Integer> allFileId;
+    private AlertDialog userDialog;
+    private int noOfFilesProcessesed;
+    private String currentFileName;
     String[] settingMenuListArray = {"Phone Number", "Password", "Set Administration Area", "Backup", "Delete Account"};
 
     private SettingActivityPresenter presenter;
@@ -60,12 +69,12 @@ public class SettingActivity extends AppCompatActivity  {
         User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
         String firstName = user.getFirstname();
         String lastName = user.getLastname();
-        String userName = lastName + " " + firstName;
+        String userName = firstName + " " + lastName;
 
         TextView userNameTextView = (TextView) findViewById(R.id.profile_usrName);
         userNameTextView.setText(userName);
 
-        //presenter.profileName(user.getFirstname(), user.getLastname());
+        presenter.profileName(user.getFirstname(), user.getLastname());
 
         Log.d("SEPERATE" , "=======================================================================");
         Log.d("USER INFO", "Info: " + user.getLastname() + " " + user.getFirstname());
@@ -110,7 +119,7 @@ public class SettingActivity extends AppCompatActivity  {
                         break;
                     case 1:	openResetPasswordActivity();    // Activity Num: 31
                         break;
-                    case 2: recoverAllMissingFiles();     // Activity Num: 32
+                    case 2: confirmRecover();     // Activity Num: 32
                         break;
                     case 3:                                 // Activity Num: 33
                         break;
@@ -171,11 +180,103 @@ public class SettingActivity extends AppCompatActivity  {
         // startActivity(homeActivity);
     }
 
+    public void confirmRecover(){
+        final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+        builder.setTitle("Start File Recovery").setMessage("Do you wish to recover all missing files from backup?" +
+                "\n(Wifi Recommended)")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            userDialog.dismiss();
+                            recoverAllMissingFiles();
+                        } catch (Exception e) {}
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            userDialog.dismiss();
+                        } catch (Exception e) {}
+                    }
+                });
+        userDialog = builder.create();
+        userDialog.show();
+    }
+
     public void recoverAllMissingFiles(){
         noOfFilesProcessesed = 0;
         allFileId = FileSQLHelper.getAllFileID();
-        for(int id: allFileId){
-            Log.d("LocAdoc", "File id: " + id);
+        
+        final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+        builder.setTitle("Downloading All Files...").
+                setMessage("")
+                .setNeutralButton("Cancel Download", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            userDialog.dismiss();
+                        } catch (Exception e) {}
+                    }
+                });
+        userDialog = builder.create();
+        userDialog.setCancelable(false);
+        userDialog.show();
+
+        updateDownloadProgress();
+    }
+
+    public void updateDownloadProgress(){
+        boolean downloading = false;
+
+        while(noOfFilesProcessesed < allFileId.size() && !downloading){
+            userDialog.setMessage("Downloading " + (noOfFilesProcessesed + 1) + "/" + allFileId.size() + " files");
+            File fileInfo = FileSQLHelper.getFile(allFileId.get(noOfFilesProcessesed), Credential.getPassword());
+            String key = fileInfo.getCurrentfilename();
+            java.io.File file = new java.io.File(LocAdocApp.getContext().getFilesDir().getAbsolutePath()+"/vault/" + key);
+
+            if(!file.exists()){
+                currentFileName = fileInfo.getOriginalfilename();
+                beginDownload(key, file);
+                downloading = true;
+            }
+
+            noOfFilesProcessesed++;
+        }
+
+        if(noOfFilesProcessesed >= allFileId.size() && !downloading){
+            userDialog.setMessage("All files have been downloaded");
+        }
+    }
+
+    public void beginDownload(String key, java.io.File file){
+        key = Credential.getIdentity() + "/" + key;
+        TransferObserver observer = S3Helper.getUtility().download(S3Helper.BUCKET_NAME, key, file);
+        observer.setTransferListener(new DownloadListener());
+    }
+
+    private class DownloadListener implements TransferListener {
+        // Simply updates the list when notified.
+        @Override
+        public void onError(int id, Exception e) {
+            Log.e("LocAdoc", "onError: " + id, e);
+        }
+
+        @Override
+        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+            String current = S3Helper.getBytesString(bytesCurrent);
+            String total = S3Helper.getBytesString(bytesTotal);
+
+            userDialog.setMessage("Downloading " + noOfFilesProcessesed  + "/" + allFileId.size() + " files" +
+                    "\n" + currentFileName + ": " + current + "/" + total);
+        }
+
+        @Override
+        public void onStateChanged(int id, TransferState state) {
+            if(state == TransferState.COMPLETED){
+                updateDownloadProgress();
+            }
         }
     }
 
