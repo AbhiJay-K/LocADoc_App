@@ -8,6 +8,6 @@ import android.content.Context;
 
 public interface HomePage_View_Interface {
     boolean isMockSettingsON(Context context);
-    boolean areThereMockPermissionApps(Context context);
+    //boolean areThereMockPermissionApps(Context context);
     void Logout();
 }

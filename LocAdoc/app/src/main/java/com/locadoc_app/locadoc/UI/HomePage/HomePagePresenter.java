@@ -57,7 +57,7 @@ public class HomePagePresenter {
     //Check GPS Spoofing
     private boolean checkSpoofing()
     {
-        if(homepage.isMockSettingsON(LocAdocApp.getContext()) || homepage.areThereMockPermissionApps(LocAdocApp.getContext()))
+        if(homepage.isMockSettingsON(LocAdocApp.getContext()))
         {
             Log.d("Logout checkSpoofing","False");
             return false;
@@ -82,6 +82,10 @@ public class HomePagePresenter {
             {
                 Log.d("Logout checkInstanceID","True");
                 sameID = true;
+            }
+            else
+            {
+                sameID = false;
             }
             Log.d("Logout checkInstanceID",InstanceID);
             Log.d("Logout checkInstanceID",DBInstanceID);

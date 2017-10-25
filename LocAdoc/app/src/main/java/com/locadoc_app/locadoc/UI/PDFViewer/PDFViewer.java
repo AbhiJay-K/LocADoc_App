@@ -76,11 +76,11 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
                 closeActivity();
             }
         });
-        if(!isLocationEnabled())
+        /*if(!isLocationEnabled())
         {
             Toast.makeText(this, "Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
                     "use this app (for added security)", Toast.LENGTH_LONG).show();
-        }
+        }*/
         pdfView = (PDFView)findViewById(R.id.pdfView);
 
         Intent extras = getIntent();
@@ -176,7 +176,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
-    private boolean isLocationEnabled() {
+    /*private boolean isLocationEnabled() {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);}
 

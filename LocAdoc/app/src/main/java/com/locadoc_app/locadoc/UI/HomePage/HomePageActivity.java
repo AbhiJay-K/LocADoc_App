@@ -161,7 +161,7 @@ public class HomePageActivity extends AppCompatActivity
                 userName = extras.getString("name");
             }
         }
-        //presenter = new HomePagePresenter(this);
+        presenter = new HomePagePresenter(this);
     }
 
     @Override
@@ -430,17 +430,22 @@ public class HomePageActivity extends AppCompatActivity
                 .build();
         mGoogleApiClient.connect();
     }
+    //Check if the Location is from a moc location provider
     public boolean isMockSettingsON(Context context) {
-        // returns true if mock location enabled, false if not enabled.
-        if (Settings.Secure.getString(context.getContentResolver(),
-                Settings.Secure.ALLOW_MOCK_LOCATION).equals("0"))
-            return false;
-        else {
-            Log.d("Logout MockSettingsON","True");
-            return true;
+        boolean isMock = false;
+        if (android.os.Build.VERSION.SDK_INT >= 18) {
+            isMock = mLastLocation.isFromMockProvider();
+        } else {
+            if (Settings.Secure.getString(context.getContentResolver(),
+                    Settings.Secure.ALLOW_MOCK_LOCATION).equals("0"))
+                return false;
+            else {
+                return true;
+            }
         }
+        return isMock;
     }
-    public boolean areThereMockPermissionApps(Context context) {
+    /*public boolean areThereMockPermissionApps(Context context) {
         int count = 0;
 
         PackageManager pm = context.getPackageManager();
@@ -474,7 +479,7 @@ public class HomePageActivity extends AppCompatActivity
             return true;
         }
         return false;
-    }
+    }*/
     @Override
     public void onConnected(Bundle bundle) {
         mLocationRequest = new LocationRequest();
