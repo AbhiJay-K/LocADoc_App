@@ -13,7 +13,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.facebook.CallbackManager;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocalDB.DBHelper;
 import com.locadoc_app.locadoc.LocalDB.GuestSession;
@@ -41,7 +40,6 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
 
     private ProgressDialog progress;
     private static boolean curUSer = false;
-    CallbackManager callbackManager;
     @BindView(R.id.UserID)
     AutoCompleteTextView userIDView;
     @BindView(R.id.Password)

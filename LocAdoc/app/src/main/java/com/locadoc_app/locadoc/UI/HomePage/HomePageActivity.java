@@ -82,7 +82,7 @@ public class HomePageActivity extends AppCompatActivity
         SearchView.OnQueryTextListener,
         NewAreaFragment.NewAreaFragmentListener,
         EditAreaFragment.EditAreaFragmentListener,
-        FileOperationsFragment.FileOperationDialogListener{
+        FileOperationsFragment.FileOperationDialogListener,HomePage_View_Interface{
 
     private final int PICKFILE = 1;
     private final int SETTING = 10;
@@ -104,7 +104,7 @@ public class HomePageActivity extends AppCompatActivity
     private ImportFileFragment importFileFragment;
     private NewAreaFragment newAreaFragment;
     private EditAreaFragment editAreaFragment;
-
+    private HomePagePresenter presenter;
     // create area
     private Uri filePathUri;
 
@@ -161,6 +161,7 @@ public class HomePageActivity extends AppCompatActivity
                 userName = extras.getString("name");
             }
         }
+        presenter = new HomePagePresenter(this);
     }
 
     @Override
@@ -409,8 +410,7 @@ public class HomePageActivity extends AppCompatActivity
         } else if (id == R.id.nav_faq) {
 
         } else if (id == R.id.nav_logout) {
-            AppHelper.getPool().getCurrentUser().signOut();
-            finish();
+            Logout();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -418,6 +418,13 @@ public class HomePageActivity extends AppCompatActivity
         return true;
     }
 
+    public void Logout()
+    {
+        Log.d("Logout","Logout called");
+        AppHelper.getPool().getCurrentUser().signOut();
+        mGoogleApiClient.disconnect();
+        finish();
+    }
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -431,8 +438,10 @@ public class HomePageActivity extends AppCompatActivity
         if (Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ALLOW_MOCK_LOCATION).equals("0"))
             return false;
-        else
+        else {
+            Log.d("Logout MockSettingsON","True");
             return true;
+        }
     }
     public boolean areThereMockPermissionApps(Context context) {
         int count = 0;
@@ -463,8 +472,10 @@ public class HomePageActivity extends AppCompatActivity
             }
         }
 
-        if (count > 0)
+        if (count > 0) {
+            Log.d("Logout MockApps","True");
             return true;
+        }
         return false;
     }
     @Override

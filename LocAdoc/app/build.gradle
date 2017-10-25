@@ -40,7 +40,6 @@ dependencies {
     compile 'com.amazonaws:aws-android-sdk-s3:2.3.2'
     compile 'com.amazonaws:aws-android-sdk-cognito:2.3.2'
     compile 'com.amazonaws:aws-android-sdk-apigateway-core:2.3.2'
-    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile 'com.google.android.gms:play-services-location:11.2.2'
     compile 'com.google.android.gms:play-services-maps:11.2.2'
     compile 'com.github.barteksc:android-pdf-viewer:2.7.0'

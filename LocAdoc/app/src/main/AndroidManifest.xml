@@ -99,8 +99,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/LocAdoc_GoogleAPIKey"/>
 
-        <activity android:name=".TestDataBase">
-        </activity>
         <activity android:name=".Test"/>
         <activity
             android:name=".UI.PDFViewer.PDFViewer"
