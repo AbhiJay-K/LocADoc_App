@@ -46,6 +46,20 @@ public class UserDynamoHelper {
         new DynamoDBTask().execute(operation, user);
     }
 
+    public void updateTotalSizeUsed(String totalSizeUsed)
+    {
+        OperationType operation = OperationType.UPDATE_TOTAL_SIZE;
+        new DynamoDBTask().execute(operation, totalSizeUsed);
+    }
+
+    // update total size only
+    public void updateTotalSizeFromDB(String totalSizeUsed)
+    {
+        User user = getUserFromDB(Credential.getEmail());
+        user.setTotalsizeused(totalSizeUsed);
+        insertToDB(user);
+    }
+
     // call using thread
     public void insertToDB(User user)
     {
@@ -54,6 +68,7 @@ public class UserDynamoHelper {
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
         user.setFirstname(en.encryptString(user.getFirstname()));
         user.setLastname(en.encryptString(user.getLastname()));
+        user.setTotalsizeused(en.encryptString(user.getTotalsizeused()));
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         try{
             mapper.save(user);
@@ -93,6 +108,7 @@ public class UserDynamoHelper {
             Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
             user.setFirstname(en.decrypttString(user.getFirstname()));
             user.setLastname(en.decrypttString(user.getLastname()));
+            user.setTotalsizeused(en.decrypttString(user.getTotalsizeused()));
         }
 
         return user;
@@ -113,6 +129,9 @@ public class UserDynamoHelper {
             } else if (operation == OperationType.GET_RECORD) {
                 String email = (String) objects[1];
                 getUserFromDB(email);
+            } else if (operation == OperationType.UPDATE_TOTAL_SIZE) {
+                String totalSizeUsed = (String) objects[1];
+                updateTotalSizeFromDB(totalSizeUsed);
             }
 
             return null;

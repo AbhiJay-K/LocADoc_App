@@ -50,7 +50,7 @@ public class GoogleMapFragment extends Fragment
         void hideAreaFragmentContainer();
     }
 
-    MapView mMapView;
+    private MapView mMapView;
     private GoogleMap mMap;
     private Circle circleShown;
     private FloatingActionButton newFilefab;
@@ -224,6 +224,12 @@ public class GoogleMapFragment extends Fragment
                 .fillColor(Color.argb(90,135,206,250)));
     }
 
+    public void performMarkerClick(){
+        if(lastMarkerClick != null){
+            onMarkerClick(lastMarkerClick);
+        }
+    }
+
     public void clearCircle(){
         if (circleShown != null){
             circleShown.remove();
@@ -233,6 +239,7 @@ public class GoogleMapFragment extends Fragment
     public void removeLastClickedMarker(){
         if(lastMarkerClick != null){
             lastMarkerClick.remove();
+            lastMarkerClick = null;
         }
     }
 

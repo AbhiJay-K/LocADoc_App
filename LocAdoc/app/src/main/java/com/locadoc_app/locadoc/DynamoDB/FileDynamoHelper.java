@@ -9,6 +9,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExp
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
+import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;
@@ -60,6 +61,7 @@ public class FileDynamoHelper {
         file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
         file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
         file.setModified(en.encryptString(file.getModified()));
+        file.setFilesize(en.encryptString(file.getFilesize()));
 
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         try{

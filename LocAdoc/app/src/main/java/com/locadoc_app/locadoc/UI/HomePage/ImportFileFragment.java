@@ -47,6 +47,7 @@ public class ImportFileFragment extends Fragment {
         void performFileSearch();
         void drawCircle(int radius);
         void hideAreaFragmentContainer();
+        boolean isInArea(Area area);
     }
 
     //---empty constructor required
@@ -119,8 +120,15 @@ public class ImportFileFragment extends Fragment {
         btnCreateNewArea.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                if(radiusText.getText().toString().isEmpty()){
+                    Toast.makeText(getActivity(), "New radius is empty",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 String areaName = newAreaName.getText().toString();
                 String filename = fileNameText.getText().toString();
+                radius = Integer.parseInt(radiusText.getText().toString());
 
                 if(filename.isEmpty()){
                     Toast.makeText(getActivity(), "No file selected",
@@ -170,19 +178,23 @@ public class ImportFileFragment extends Fragment {
             public void onClick(View view) {
                 Object obj = existingArea.getSelectedItem();
                 String filename = fileNameText.getText().toString();
+                int areaid = allAreaAround.get(obj.toString());
+                Area area = AreaSQLHelper.getRecord(areaid, Credential.getPassword());
 
-                if(filename.isEmpty()){
+                if(!listener.isInArea(area)) {
+                    Toast.makeText(getActivity(), "You are not within " + area.getName() + "'s radius anymore",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                } else if(filename.isEmpty()){
                     Toast.makeText(getActivity(), "No file selected",
                             Toast.LENGTH_SHORT).show();
                     return;
-                }
-                else if (obj == null) {
+                } else if (obj == null) {
                     Toast.makeText(getActivity(), "No area selected",
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                int areaid = allAreaAround.get(obj.toString());
                 String tempName = filename;
                 int result;
                 int count = 2;

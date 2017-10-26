@@ -20,12 +20,15 @@ import android.widget.Toast;
 
 import com.locadoc_app.locadoc.DynamoDB.AreaDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
+import com.locadoc_app.locadoc.DynamoDB.UserDynamoHelper;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
+import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.Model.Password;
+import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.S3.S3Helper;
 
@@ -45,6 +48,7 @@ public class FileOperationsFragment extends DialogFragment {
     private Button btnBack;
     private Spinner allAreaSpinner;
     private File file;
+    private Area fileArea;
 
     public interface FileOperationDialogListener {
         void removeFile(String filename);
@@ -64,6 +68,7 @@ public class FileOperationsFragment extends DialogFragment {
         Bundle extra = getArguments();
         int fileid = extra.getInt("fileid");
         file = FileSQLHelper.getFile(fileid, Credential.getPassword());
+        fileArea = AreaSQLHelper.getRecord(file.getAreaId(), Credential.getPassword());
 
         TextView title = (TextView) view.findViewById(R.id.FileNameView);
         title.setText(file.getOriginalfilename());
@@ -84,6 +89,14 @@ public class FileOperationsFragment extends DialogFragment {
         btnCopyFile.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
+                if(!activity.isInArea(fileArea)){
+                    Toast.makeText(getActivity(), "You are not within " + fileArea.getName() + "'s radius anymore",
+                            Toast.LENGTH_SHORT).show();
+                    dismiss();
+                    return;
+                }
+
                 Object obj = allAreaSpinner.getSelectedItem();
                 if (obj == null) {
                     Toast.makeText(getActivity(), "No area selected",
@@ -101,6 +114,15 @@ public class FileOperationsFragment extends DialogFragment {
                         "/vault/" + file.getCurrentfilename());
                 java.io.File dst = new java.io.File(getActivity().getApplicationContext().getFilesDir().getAbsolutePath() +
                         "/vault/" + newFileName);
+
+                User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+                long totalSizeUsed = Long.parseLong(user.getTotalsizeused());
+                // check size over 1GB
+                if(totalSizeUsed + dst.length() > 1000000000){
+                    Toast.makeText(getActivity(), "You have exceeded 1GB of your data",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 InputStream in = null;
                 OutputStream out = null;
@@ -120,6 +142,13 @@ public class FileOperationsFragment extends DialogFragment {
                     file.setOriginalfilename(originalFileName);
                     file.setCurrentfilename(newFileName);
                     file.setAreaId(area.getAreaId());
+
+                    totalSizeUsed += dst.length();
+                    user.setTotalsizeused("" + totalSizeUsed);
+                    UserSQLHelper.UpdateRecord(user, Credential.getPassword());
+                    UserDynamoHelper.getInstance().updateTotalSizeUsed(totalSizeUsed + "");
+
+                    Log.d("LocAdoc", "Total Size: " + totalSizeUsed);
 
                     Log.d("LocAdoc", "Name: " + file.getOriginalfilename() + ", current: " + file.getCurrentfilename());
                     FileSQLHelper.insert(file, Credential.getPassword());
@@ -146,6 +175,14 @@ public class FileOperationsFragment extends DialogFragment {
         btnMoveFile.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                final FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
+                if(!activity.isInArea(fileArea)){
+                    Toast.makeText(getActivity(), "You are not within " + fileArea.getName() + "'s radius anymore",
+                            Toast.LENGTH_SHORT).show();
+                    dismiss();
+                    return;
+                }
+
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -167,7 +204,6 @@ public class FileOperationsFragment extends DialogFragment {
                                 FileSQLHelper.updateRecord(file, Credential.getPassword());
                                 FileDynamoHelper.getInstance().insert(file);
 
-                                FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
                                 activity.removeFile(file.getOriginalfilename());
                                 Toast.makeText(getActivity(), originalFileName + " has been moved to " + areaname,
                                         Toast.LENGTH_SHORT).show();
@@ -187,6 +223,14 @@ public class FileOperationsFragment extends DialogFragment {
         btnDelete.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                final FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
+                if(!activity.isInArea(fileArea)){
+                    Toast.makeText(getActivity(), "You are not within " + fileArea.getName() + "'s radius anymore",
+                            Toast.LENGTH_SHORT).show();
+                    dismiss();
+                    return;
+                }
+
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -194,6 +238,21 @@ public class FileOperationsFragment extends DialogFragment {
                             case DialogInterface.BUTTON_POSITIVE:
                                 java.io.File src = new java.io.File(getActivity().getApplicationContext().getFilesDir().getAbsolutePath() +
                                         "/vault/" + file.getCurrentfilename());
+
+                                User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+                                long totalSizeUsed = Long.parseLong(user.getTotalsizeused());
+                                totalSizeUsed -= src.length();
+
+                                if(totalSizeUsed < 0){
+                                    totalSizeUsed = 0;
+                                }
+
+                                Log.d("LocAdoc", "Total Size: " + totalSizeUsed);
+
+                                user.setTotalsizeused("" + totalSizeUsed);
+                                UserSQLHelper.UpdateRecord(user, Credential.getPassword());
+                                UserDynamoHelper.getInstance().updateTotalSizeUsed(totalSizeUsed + "");
+
                                 if(src.exists()) {
                                     src.delete();
                                 }
@@ -202,7 +261,6 @@ public class FileOperationsFragment extends DialogFragment {
                                 S3Helper.getHelper().removeFile(file.getCurrentfilename());
                                 FileDynamoHelper.getInstance().delete(file);
 
-                                FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
                                 activity.removeFile(file.getOriginalfilename());
                                 Toast.makeText(getActivity(), file.getOriginalfilename() + " has been deleted",
                                         Toast.LENGTH_SHORT).show();

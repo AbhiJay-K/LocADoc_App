@@ -25,6 +25,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -41,6 +42,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -50,6 +54,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.DynamoDB.AreaDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
+import com.locadoc_app.locadoc.DynamoDB.UserDynamoHelper;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
@@ -105,6 +110,7 @@ public class HomePageActivity extends AppCompatActivity
     private NewAreaFragment newAreaFragment;
     private EditAreaFragment editAreaFragment;
     private HomePagePresenter presenter;
+    private AlertDialog userDialog;
     // create area
     private Uri filePathUri;
 
@@ -182,6 +188,7 @@ public class HomePageActivity extends AppCompatActivity
     public void hideAreaFragmentContainer(){
         if(isEditArea){
             isEditArea = false;
+            gMapFrag.performMarkerClick();
         }else{
             gMapFrag.clearCircle();
         }
@@ -344,6 +351,8 @@ public class HomePageActivity extends AppCompatActivity
     }
     // You must implements your logic to get data using OrmLite
     private void populateAdapter(String query) {
+        //AreaList.clear();
+        //AreaList = AreaSQLHelper.getSearchValue();
         mAdapter.notifyDataSetChanged();
         final MatrixCursor c = new MatrixCursor(new String[]{BaseColumns._ID, "AreaName" });
         for (int i=0; i<AreaList.size(); i++) {
@@ -406,9 +415,9 @@ public class HomePageActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_faq) {
 
-        } else if (id == R.id.nav_cloudusage) {
+        } /*else if (id == R.id.nav_cloudusage) {
 
-        }
+        }*/
         else if (id == R.id.nav_logout) {
             Logout();
         }
@@ -662,7 +671,19 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     @Override
+    public void removeAreaFromList(String areaName){
+        for(int i = 0; i < AreaList.size(); i++){
+            String s = AreaList.get(i);
+            if(areaName.equals(s)){
+                AreaList.remove(i);
+                return;
+            }
+        }
+    }
+
+    @Override
     public int createNewArea(Area area) {
+        AreaList.add(area.getName());
         int newAreaId = AreaSQLHelper.maxID() + 1;
         area.setAreaId(newAreaId);
         AreaSQLHelper.insert(area, Credential.getPassword());
@@ -674,6 +695,24 @@ public class HomePageActivity extends AppCompatActivity
 
     @Override
     public void saveFile(String filename, int areaid){
+        Cursor returnCursor = getContentResolver().query(filePathUri, null, null, null, null);
+        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+        returnCursor.moveToFirst();
+
+        // file size
+        User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+        long totalSizeUsed = 0;
+        if(!user.getTotalsizeused().isEmpty()){
+            totalSizeUsed = Long.parseLong(user.getTotalsizeused());
+        }
+
+        // check size over 1GB
+        if(totalSizeUsed + returnCursor.getLong(sizeIndex) > 1000000000){
+            Toast.makeText(this, "You have exceeded 1GB of your data",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         File dir = new File(getApplicationContext().getFilesDir().getAbsolutePath()+"/vault");
         if(!dir.exists()){
             dir.mkdir();
@@ -683,7 +722,6 @@ public class HomePageActivity extends AppCompatActivity
         String currFileName = Credential.getEmail() + newFileId;
 
         File dst = new File(dir.getAbsolutePath() + "/" + currFileName);
-        Log.d("LocAdoc", dst.getAbsolutePath() + ", pwd: " + Credential.getPassword().getPassword());
         InputStream in = null;
         OutputStream out = null;
 
@@ -696,9 +734,15 @@ public class HomePageActivity extends AppCompatActivity
             com.locadoc_app.locadoc.Model.File file = new com.locadoc_app.locadoc.Model.File();
             file.setFileId(newFileId);
             file.setPasswordId(Credential.getPassword().getPasswordid());
+            file.setFilesize(dst.length() + "");
             file.setOriginalfilename(filename);
             file.setCurrentfilename(currFileName);
             file.setAreaId(areaid);
+
+            totalSizeUsed += dst.length();
+            user.setTotalsizeused("" + totalSizeUsed);
+            UserSQLHelper.UpdateRecord(user, Credential.getPassword());
+            UserDynamoHelper.getInstance().updateTotalSizeUsed(totalSizeUsed + "");
 
             FileSQLHelper.insert(file, Credential.getPassword());
             FileDynamoHelper.getInstance().insert(file);
@@ -715,8 +759,40 @@ public class HomePageActivity extends AppCompatActivity
         }
 
         // Upload to S3
-        Log.d("LocAdoc", "Uploading " + currFileName);
         S3Helper.uploadFile(dst);
+        String key = S3Helper.getIdentity() + "/" + dst.getName();
+        showDownloadMessage();
+        TransferObserver observer = S3Helper.getUtility().upload(S3Helper.BUCKET_NAME, key, dst);
+        observer.setTransferListener(new UploadListener());
+    }
+
+    public void showDownloadMessage() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Uploading to cloud storage")
+                .setMessage("");
+        userDialog = builder.create();
+        userDialog.show();
+    }
+
+    private class UploadListener implements TransferListener {
+        @Override
+        public void onError(int id, Exception e) {
+            Log.e("LocAdoc", "onError: " + id, e);
+        }
+
+        @Override
+        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+            String current = S3Helper.getBytesString(bytesCurrent);
+            String total = S3Helper.getBytesString(bytesTotal);
+            userDialog.setMessage(current + "/" + total);
+        }
+
+        @Override
+        public void onStateChanged(int id, TransferState state) {
+            if(state == TransferState.COMPLETED){
+                userDialog.setMessage("Upload Complete");
+            }
+        }
     }
 
     public void openFile(int fileid,String arn,String fn){

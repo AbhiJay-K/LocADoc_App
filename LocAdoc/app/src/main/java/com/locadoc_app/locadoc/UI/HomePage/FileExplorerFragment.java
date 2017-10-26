@@ -23,6 +23,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
@@ -55,6 +56,9 @@ public class FileExplorerFragment extends Fragment
     private FloatingActionButton fileExplorerfab;
     private String curAreaName;
     private String curFileName;
+    private boolean isDownloading;
+    private TransferObserver observer;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.fragment_file_explorer, container, false);
@@ -136,7 +140,8 @@ public class FileExplorerFragment extends Fragment
                     FileExplorerFragmentListener listener = (FileExplorerFragmentListener) getActivity();
                     listener.openFile(fileid,curAreaName,curFileName);
                 } else {
-                    showDownloadMessage(key, fileInfo.getOriginalfilename(), file);
+                    showDownloadMessage(key, fileInfo.getOriginalfilename(),
+                            S3Helper.getBytesString(Long.parseLong(fileInfo.getFilesize())), file);
                 }
             }
         }
@@ -158,13 +163,15 @@ public class FileExplorerFragment extends Fragment
 
     public void beginDownload(String key, java.io.File file){
         key = Credential.getIdentity() + "/" + key;
-        TransferObserver observer = S3Helper.getUtility().download(S3Helper.BUCKET_NAME, key, file);
+        observer = S3Helper.getUtility().download(S3Helper.BUCKET_NAME, key, file);
         observer.setTransferListener(new DownloadListener());
+        isDownloading = true;
     }
 
-    public void showDownloadMessage(final String key, final String fileName, final java.io.File file) {
+    public void showDownloadMessage(final String key, final String fileName, String fileSize, final java.io.File file) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("File Not Found").setMessage("Do you wish to download the file from backup?")
+        builder.setTitle("File Not Found").setMessage("Do you wish to download the file from backup? (Size: " +
+                fileSize + ")")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -189,17 +196,21 @@ public class FileExplorerFragment extends Fragment
 
     public void showProgressMessage(String fileName){
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Downloading " + fileName).setMessage("").setNeutralButton("Hide", new DialogInterface.OnClickListener() {
+        builder.setTitle("Downloading " + fileName).setMessage("").setNeutralButton("Cancel download", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
+                    if(isDownloading){
+                        S3Helper.getUtility().cancel(observer.getId());
+                        isDownloading = false;
+                    }
+
                     userDialog.dismiss();
-                } catch (Exception e) {
-                    //
-                }
+                } catch (Exception e) {}
             }
         });
         userDialog = builder.create();
+        userDialog.setCancelable(false);
         userDialog.show();
     }
 
@@ -220,6 +231,7 @@ public class FileExplorerFragment extends Fragment
         @Override
         public void onStateChanged(int id, TransferState state) {
             if(state == TransferState.COMPLETED){
+                isDownloading = true;
                 userDialog.setMessage("Download Complete");
             }
         }

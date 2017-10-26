@@ -16,6 +16,7 @@ public class File {
     private String currentfilename;
     private String originalfilename;
     private String modified;
+    private String filesize;
     private int passwordid;
     private int areaid;
 
@@ -62,6 +63,15 @@ public class File {
 
     public void setModified(String modified) {
         this.modified = modified;
+    }
+
+    @DynamoDBAttribute(attributeName = "filesize")
+    public String getFilesize() {
+        return filesize;
+    }
+
+    public void setFilesize(String filesize) {
+        this.filesize = filesize;
     }
 
     @DynamoDBAttribute(attributeName = "passwordid")

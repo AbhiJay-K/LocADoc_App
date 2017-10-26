@@ -26,7 +26,7 @@ public class DynamoDBHelper {
     private static AmazonDynamoDBClient ddb;
     private static DynamoDBMapper mapper;
     public enum OperationType {
-       INSERT, DELETE, GET_RECORD, GET_ALL
+       INSERT, DELETE, GET_RECORD, GET_ALL, UPDATE_TOTAL_SIZE
     }
 
     private DynamoDBHelper(Context context)

@@ -195,9 +195,8 @@ public class ResetPasswordPresenter {
             newPassword.setSalt(salt);
             newPassword.setPassword(Hash.Hash(objects[0], salt));
 
-            // Update user and password in DynamoDB
+            // Update password in DynamoDB
             PasswordDynamoHelper.getInstance().insert(newPassword);
-            UserDynamoHelper.getInstance().insert(user);
 
             //  ------------------------------------------------------------------------
             //              Update in SQLite, Encryption, Credential
@@ -226,6 +225,7 @@ public class ResetPasswordPresenter {
                 file.setCurrentfilename(en.decrypttString(file.getCurrentfilename()));
                 file.setOriginalfilename(en.decrypttString(file.getOriginalfilename()));
                 file.setModified(en.decrypttString(file.getModified()));
+                file.setFilesize(en.decrypttString(file.getFilesize()));
             }
 
             // Get User Data from Local DB
@@ -240,6 +240,9 @@ public class ResetPasswordPresenter {
             userInSQLite.setPasswordid(userInSQLite.getPasswordid() + 1);
             UserSQLHelper.UpdateRecord(userInSQLite, newPassword);
             Log.d("SQLITEHELPER","AFTER UPDATE, NUMBER OF USER Data: " + UserSQLHelper.getNumberofRecords());
+
+            // Update user dynamo
+            UserDynamoHelper.getInstance().insert(user);
 
             User confrimUser = UserSQLHelper.getRecord(Credential.getEmail(), newPassword);
             Log.d("SQLITEHELPER","User Email: " + confrimUser.getUser() + " | User Name: " + confrimUser.getLastname() + " " + confrimUser.getFirstname());
@@ -265,6 +268,7 @@ public class ResetPasswordPresenter {
                 file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
                 file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
                 file.setModified(en.encryptString(file.getModified()));
+                file.setFilesize(en.encryptString(file.getFilesize()));
 
                 // INSERT FILE INTO localDB
                 FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());

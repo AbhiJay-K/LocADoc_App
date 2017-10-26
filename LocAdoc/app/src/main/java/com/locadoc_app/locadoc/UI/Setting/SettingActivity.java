@@ -43,6 +43,8 @@ public class SettingActivity extends AppCompatActivity  {
     private AlertDialog userDialog;
     private int noOfFilesProcessesed;
     private String currentFileName;
+    private TransferObserver observer;
+    private boolean continueDownload;
     String[] settingMenuListArray = {"Phone Number", "Password", "Set Administration Area", "Backup", "Delete Account"};
 
     private SettingActivityPresenter presenter;
@@ -208,6 +210,7 @@ public class SettingActivity extends AppCompatActivity  {
     public void recoverAllMissingFiles(){
         noOfFilesProcessesed = 0;
         allFileId = FileSQLHelper.getAllFileID();
+        continueDownload = true;
 
         final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
         builder.setTitle("Downloading All Files...").
@@ -216,6 +219,8 @@ public class SettingActivity extends AppCompatActivity  {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         try {
+                            continueDownload = false;
+                            S3Helper.getUtility().cancel(observer.getId());
                             userDialog.dismiss();
                         } catch (Exception e) {}
                     }
@@ -251,8 +256,12 @@ public class SettingActivity extends AppCompatActivity  {
     }
 
     public void beginDownload(String key, java.io.File file){
+        if(!continueDownload){
+            return;
+        }
+
         key = Credential.getIdentity() + "/" + key;
-        TransferObserver observer = S3Helper.getUtility().download(S3Helper.BUCKET_NAME, key, file);
+        observer = S3Helper.getUtility().download(S3Helper.BUCKET_NAME, key, file);
         observer.setTransferListener(new DownloadListener());
     }
 

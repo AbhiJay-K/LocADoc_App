@@ -92,7 +92,14 @@ public class NewAreaFragment extends Fragment {
         btnCreateNewArea.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                if(radiusText.getText().toString().isEmpty()){
+                    Toast.makeText(getActivity(), "New radius is empty",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 String areaName = newAreaName.getText().toString();
+                radius = Integer.parseInt(radiusText.getText().toString());
 
                 if(areaName.trim().length() <= 1) {
                     Toast.makeText(getActivity(), "Area name must at least contain 2 characters",
@@ -107,6 +114,8 @@ public class NewAreaFragment extends Fragment {
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+
 
                 String areaDesc = newAreaDesc.getText().toString();
                 //---gets the calling activity

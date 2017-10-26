@@ -17,6 +17,7 @@ public class User {
     private String firstname;
     private String lastname;
     private String instanceid;
+    private String totalsizeused;
     private int passwordid;
     private int adminareaid;
 
@@ -54,6 +55,15 @@ public class User {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+
+    @DynamoDBAttribute(attributeName = "totalsizeused")
+    public String getTotalsizeused() {
+        return totalsizeused;
+    }
+
+    public void setTotalsizeused(String totalsizeused) {
+        this.totalsizeused = totalsizeused;
     }
 
     @DynamoDBAttribute(attributeName = "instanceid")

@@ -49,6 +49,7 @@ public class EditAreaFragment extends Fragment {
         void drawCircle(LatLng latLng, int radius);
         boolean isInArea(Area a);
         void removeLastClickedMarker();
+        void removeAreaFromList(String areaName);
     }
 
     //---empty constructor required
@@ -113,6 +114,13 @@ public class EditAreaFragment extends Fragment {
         {
             public void onClick(View view) {
                 if(activity.isInArea(area)) {
+                    if(radiusText.getText().toString().isEmpty()){
+                        Toast.makeText(getActivity(), "New radius is empty",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    radius = Integer.parseInt(radiusText.getText().toString());
                     area.setRadius(radius + "");
                     LatLng latLng = new LatLng(Double.parseDouble(area.getLatitude()), Double.parseDouble(area.getLongitude()));
                     activity.drawCircle(latLng, Integer.parseInt(area.getRadius()));
@@ -129,7 +137,6 @@ public class EditAreaFragment extends Fragment {
             }
         });
 
-
         btnDeleteArea.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
@@ -140,6 +147,7 @@ public class EditAreaFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which){
                                     case DialogInterface.BUTTON_POSITIVE:
+                                        activity.removeAreaFromList(area.getName());
                                         AreaSQLHelper.deleteRecord(area.getAreaId());
                                         AreaDynamoHelper.getInstance().delete(area);
                                         Toast.makeText(getActivity(), area.getName() + " has been successfully deleted",
