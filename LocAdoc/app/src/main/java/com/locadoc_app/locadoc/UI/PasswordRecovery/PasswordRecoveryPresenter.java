@@ -1,6 +1,7 @@
 package com.locadoc_app.locadoc.UI.PasswordRecovery;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.ForgotPasswordContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.ForgotPasswordHandler;
@@ -85,14 +86,26 @@ public class PasswordRecoveryPresenter implements PasswordRecoveryPresenterInter
     }
 
     public void forgotPwdCredential(String userEmail, String newPassword) {
+        Log.d("FORGOTPWD","======================================================================");
+        Log.d("FORGOTPWD","ForgotPwd Credential is Executed");
+
         Password newPwd = new Password();
         newPwd.setPasswordid(-1);
         String salt = Hash.SecureRandomGen();
+        newPwd.setSalt(salt);
+
         newPwd.setUser(userEmail);
         newPwd.setPassword(Hash.Hash(newPassword, salt));
 
         Credential.setEmail(userEmail);
         Credential.setPassword(newPwd);
+
+        Log.d("FORGOTPWD", "Email: " + Credential.getEmail());
+        Log.d("FORGOTPWD", "PasswordID: " + Credential.getPassword().getPasswordid() + " | Password: " + Credential.getPassword().getPassword());
+
+        Log.d("FORGOTPWD", "NEW SALT:" + salt);
+        Log.d("FORGOTPWD","======================================================================");
+
     }
 
     // Callbacks
@@ -109,6 +122,7 @@ public class PasswordRecoveryPresenter implements PasswordRecoveryPresenterInter
 
         @Override
         public void onFailure(Exception e) {
+            Log.d("FORGOTPWD", e.getMessage());
             activity.exit(-1);
         }
         @Override

@@ -1,5 +1,6 @@
 package com.locadoc_app.locadoc.UI.Login;
 
+import android.app.Application;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -34,6 +35,7 @@ import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.CheckPassword;
 import com.locadoc_app.locadoc.helper.EmailValidation;
+import com.locadoc_app.locadoc.helper.Encryption;
 import com.locadoc_app.locadoc.helper.Hash;
 
 import java.sql.Array;
@@ -162,6 +164,9 @@ public class LoginPresenter implements LoginPresenterInterface
         @Override
         public void onFailure(Exception e) {
             loginAct.closeWaitDialog();
+
+            Log.d("FORGOTPWD", AppHelper.formatException(e));
+
             if (AppHelper.formatException(e).equals("User is not confirmed. ")){
                 loginAct.confirmUser();
             }
@@ -213,35 +218,157 @@ public class LoginPresenter implements LoginPresenterInterface
         @Override
         protected Void doInBackground(String... objects) {
             DynamoDBHelper.init(LocAdocApp.getContext());
+
+            Password newCredentialPwd = new Password();
+            if(Credential.getPassword() != null && Credential.getPassword().getPasswordid() == -1)
+                newCredentialPwd = Credential.getPassword();
+
             User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
             long numberUser = UserSQLHelper.getNumberofRecords();
 
             //-------- Common Login
                 if(numberUser > 0 &&  usr != null) {
+                    Log.d("FORGOTPWD","ACCESS TO COMMON LOGIN");
                     // ---------------------------------------------------------------------------------------------
-                    Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
-                    Credential.setPassword(pwd);
-                    String instanceId = ApplicationInstance.getRecord();
+                    //                          RESET PASSWORD IN COMMON LOGIN
+                    // ---------------------------------------------------------------------------------------------
+                    if(Credential.getPassword() != null && newCredentialPwd.getPasswordid() == -1) {
+                        Log.d("FORGOTPWD","======================================================================");
+                        Log.d("FORGOTPWD","Common Login Case in Forgot PWD");
+                        Log.d("FORGOTPWD","Current Credential Password is old Password");
+                        Log.d("FORGOTPWD","======================================================================");
 
-                    if(!instanceId.equals(usr.getInstanceID())){
+                        Encryption en = Encryption.getInstance(Credential.getPassword().getPassword(), Credential.getPassword().getSalt());
+                        int oldPwdID = Credential.getPassword().getPasswordid();
+
                         FileSQLHelper.clearRecord();
                         AreaSQLHelper.clearRecord();
 
+                        // ---------------------------------------------------------------------------------------------
+                        //                              SQLITE (LOCAL DATABASE) DECRYPTION
+                        // ---------------------------------------------------------------------------------------------
+                        // AREA DECRYPTION
                         List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
                         for(Area ar : areaList) {
-                            AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
+                            ar.setDescription(en.decrypttString(ar.getDescription()));
+                            ar.setLatitude(en.decrypttString(ar.getLatitude()));
+                            ar.setLongitude(en.decrypttString(ar.getLongitude()));
+                            ar.setRadius(en.decrypttString(ar.getRadius()));
+                            ar.setName(en.decrypttString(ar.getName()));
                         }
 
+                        // FILE DECRYPTION
                         List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
                         for(File file : fileList) {
-                            FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
+                            file.setCurrentfilename(en.decrypttString(file.getCurrentfilename()));
+                            file.setOriginalfilename(en.decrypttString(file.getOriginalfilename()));
+                            file.setModified(en.decrypttString(file.getModified()));
                         }
 
-                        usr.setInstanceID(instanceId);
-                        UserDynamoHelper.getInstance().insert(usr);
-                }
+                        // Get User Data from Local DB
+                        User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+
+                        // ---------------------------------------------------------------------------------------------
+                        //                       DYNAMODB AND SQLITE ENCRYPTION AND UPDATE
+                        // ---------------------------------------------------------------------------------------------
+                        // SET New Password into Credential and New Encryption Key AS New Password
+                        Credential.setPassword(newCredentialPwd);
+                        Log.d("FORGOTPWD","Current Credential Password is new Password");
+
+                        en.setKey(Credential.getPassword().getPassword(), Credential.getPassword().getSalt());
+
+                        // UPDATE Password ID Credential based on DYNAMODB Password ID
+                        Credential.getPassword().setPasswordid(oldPwdID + 1);
+
+                        // Update SQLite: user with new password ID encrypted by new Password
+                        // Update DynamoDB: user with new password ID and new Password
+                        userInSQLite.setPasswordid(oldPwdID + 1);
+                        UserSQLHelper.UpdateRecord(userInSQLite, Credential.getPassword());
+
+                        // ===================================================================================== Check
+                        UserDynamoHelper.getInstance().insert(userInSQLite);
+                        PasswordDynamoHelper.getInstance().insert(Credential.getPassword());
+
+                        // ReEncryption AREA and FILE
+                        for(Area ar : areaList) {
+                            // encryption
+                            ar.setDescription(en.encryptString(ar.getDescription()));
+                            ar.setLatitude(en.encryptString(ar.getLatitude()));
+                            ar.setLongitude(en.encryptString(ar.getLongitude()));
+                            ar.setRadius(en.encryptString(ar.getRadius()));
+                            ar.setName(en.encryptString(ar.getName()));
+
+                            // INSERT AREA INTO localDB
+                            AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
+
+                            // INSERT Area INTO DynamoDB
+                            AreaDynamoHelper.getInstance().insert(ar);
+                        }
+
+                        for(File file : fileList) {
+                            // encryption
+                            file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
+                            file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
+                            file.setModified(en.encryptString(file.getModified()));
+
+                            // INSERT FILE INTO localDB
+                            FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
+
+                            // INSERT FILE INTO DynamoDB
+                            FileDynamoHelper.getInstance().insert(file);
+                        }
+
+                        // ---------------------------------------------------------------------------------------------
+                        //                Common Login Process with Different Device After ForgetPassword
+                        // ---------------------------------------------------------------------------------------------
+                        /*
+                        String instanceId = ApplicationInstance.getRecord();
+
+                        if(!instanceId.equals(userInSQLite.getInstanceID())) {
+                            FileSQLHelper.clearRecord();
+                            AreaSQLHelper.clearRecord();
+
+                            List<Area> areas = AreaDynamoHelper.getInstance().getAllArea();
+                            for(Area ar : areas) {
+                                AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
+                            }
+
+                            List<File> files = FileDynamoHelper.getInstance().getAllFile();
+                            for(File file : files) {
+                                FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
+                            }
+
+                            userInSQLite.setInstanceID(instanceId);
+                            UserDynamoHelper.getInstance().insert(userInSQLite);
+                        }
+                        */
+                    }
+                    else {
+                        Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
+                        Credential.setPassword(pwd);
+                        String instanceId = ApplicationInstance.getRecord();
+
+                        if(!instanceId.equals(usr.getInstanceID())){
+                            FileSQLHelper.clearRecord();
+                            AreaSQLHelper.clearRecord();
+
+                            List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
+                            for(Area ar : areaList) {
+                                AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
+                            }
+
+                            List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
+                            for(File file : fileList) {
+                                FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
+                            }
+
+                            usr.setInstanceID(instanceId);
+                            UserDynamoHelper.getInstance().insert(usr);
+                        }
+                    }
             }   //-------- First Login
             else if(usr == null && numberUser > 0){
+                Log.d("FORGOTPWD","ACCESS TO FIRST TIME LOGIN");
                 User newusr = UserSQLHelper.getRecord(Credential.getEmail(),Credential.getPassword());
                 String instance = ApplicationInstance.getRecord();
                 newusr.setInstanceID(instance);
@@ -260,28 +387,140 @@ public class LoginPresenter implements LoginPresenterInterface
                 PasswordDynamoHelper.getInstance().insert(Credential.getPassword());
             }   //-------- Common Login with Different Device
             else if(usr != null && numberUser <= 0) {
-                Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
-                Credential.setPassword(pwd);
+                Log.d("FORGOTPWD","ACCESS TO COMMON LOGIN WITH DIFFERENT DEVICE");
+                // ---------------------------------------------------------------------------------------------
+                //                     RESET PASSWORD IN COMMON LOGIN WITH DIFFERENT DEVICE
+                // ---------------------------------------------------------------------------------------------
+                    if(Credential.getPassword() != null && newCredentialPwd.getPasswordid() == -1) {
+                        Log.d("FORGOTPWD","======================================================================");
+                        Log.d("FORGOTPWD","Common Login with Different Devices Case in Forgot PWD");
+                        Log.d("FORGOTPWD","Current Credential Password is old Password");
+                        Log.d("FORGOTPWD","======================================================================");
 
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
-                String TimeStamp = simpleDateFormat.format(new Date());
-                String random =  UUID.randomUUID().toString();
-                String Instance = Hash.Hash(TimeStamp,random);
-                ApplicationInstance.insert(Instance);
+                        // User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
+                        // long numberUser = UserSQLHelper.getNumberofRecords();
+                        // ---------------------------------------------------------------------------------------------
+                        //                                  UPDATE USER FROM DYNAMODB
+                        // ---------------------------------------------------------------------------------------------
+                        //Password oldPwdDynamoDB = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
+                        Encryption en = Encryption.getInstance(Credential.getPassword().getPassword(), Credential.getPassword().getSalt());
 
-                usr.setInstanceID(Instance);
-                UserDynamoHelper.getInstance().insert(usr);
-                UserSQLHelper.insert(usr, Credential.getPassword());
+                        // Update new InstanceID into User
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+                        String TimeStamp = simpleDateFormat.format(new Date());
+                        String random =  UUID.randomUUID().toString();
+                        String Instance = Hash.Hash(TimeStamp,random);
+                        ApplicationInstance.insert(Instance);
+                        usr.setInstanceID(Instance);
 
-                List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
-                for(Area ar : areaList) {
-                    AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
-                }
-                List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
-                for(File file : fileList) {
-                    FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
-                    Log.d("LocAdoc", "File id: " + file.getFileId() + ", area id: " + file.getAreaId());
-                }
+                        // Check PasswordID Between User Table and Password Table
+                        if(usr.getPasswordid() != Credential.getPassword().getPasswordid() ) {
+                            //Credential.getPassword().setPasswordid(usr.getPasswordid());
+                            newCredentialPwd.setPasswordid(usr.getPasswordid());
+                        }
+
+                        FileSQLHelper.clearRecord();
+                        AreaSQLHelper.clearRecord();
+
+                        // ---------------------------------------------------------------------------------------------
+                        //                              SQLITE (LOCAL DATABASE) DECRYPTION
+                        // ---------------------------------------------------------------------------------------------
+                        // AREA DECRYPTION
+                        List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
+                        for(Area ar : areaList) {
+                            ar.setDescription(en.decrypttString(ar.getDescription()));
+                            ar.setLatitude(en.decrypttString(ar.getLatitude()));
+                            ar.setLongitude(en.decrypttString(ar.getLongitude()));
+                            ar.setRadius(en.decrypttString(ar.getRadius()));
+                            ar.setName(en.decrypttString(ar.getName()));
+                        }
+
+                        // FILE DECRYPTION
+                        List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
+                        for(File file : fileList) {
+                            file.setCurrentfilename(en.decrypttString(file.getCurrentfilename()));
+                            file.setOriginalfilename(en.decrypttString(file.getOriginalfilename()));
+                            file.setModified(en.decrypttString(file.getModified()));
+                        }
+
+                        // ---------------------------------------------------------------------------------------------
+                        //                       DYNAMODB AND SQLITE ENCRYPTION AND UPDATE
+                        // ---------------------------------------------------------------------------------------------
+                        // SET New Encryption Key AS New Password
+                        Credential.setPassword(newCredentialPwd);
+                        Log.d("FORGOTPWD","Current Credential Password is new Password");
+
+                        en.setKey(Credential.getPassword().getPassword(), Credential.getPassword().getSalt());
+
+                        // UPDATE Password ID Credential based on DYNAMODB Password ID
+                        Credential.getPassword().setPasswordid(usr.getPasswordid() + 1);
+
+                        // Update SQLite: user with new password ID encrypted by new Password
+                        // Update DynamoDB: user with new password ID and new Password
+                        usr.setPasswordid(usr.getPasswordid() + 1);
+
+                        // ===================================================================================== Check
+                        UserSQLHelper.insert(usr, Credential.getPassword());
+                        UserDynamoHelper.getInstance().insertToDB(usr);
+
+                        PasswordDynamoHelper.getInstance().insert(Credential.getPassword());
+
+                        // ReEncryption AREA and FILE
+                        for(Area ar : areaList) {
+                            // encryption
+                            ar.setDescription(en.encryptString(ar.getDescription()));
+                            ar.setLatitude(en.encryptString(ar.getLatitude()));
+                            ar.setLongitude(en.encryptString(ar.getLongitude()));
+                            ar.setRadius(en.encryptString(ar.getRadius()));
+                            ar.setName(en.encryptString(ar.getName()));
+
+                            // INSERT AREA INTO localDB
+                            AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
+
+                            // INSERT Area INTO DynamoDB
+                            AreaDynamoHelper.getInstance().insert(ar);
+                        }
+
+                        for(File file : fileList) {
+                            // encryption
+                            file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
+                            file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
+                            file.setModified(en.encryptString(file.getModified()));
+
+                            // INSERT FILE INTO localDB
+                            FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
+
+                            // INSERT FILE INTO DynamoDB
+                            FileDynamoHelper.getInstance().insert(file);
+                        }
+                        // ---------------------------------------------------------------------------------------------
+                        //                Common Login Process with Different Device After ForgetPassword
+                        // ---------------------------------------------------------------------------------------------
+                    }
+                    else {
+                        Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
+                        Credential.setPassword(pwd);
+
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+                        String TimeStamp = simpleDateFormat.format(new Date());
+                        String random =  UUID.randomUUID().toString();
+                        String Instance = Hash.Hash(TimeStamp,random);
+                        ApplicationInstance.insert(Instance);
+
+                        usr.setInstanceID(Instance);
+                        UserDynamoHelper.getInstance().insert(usr);
+                        UserSQLHelper.insert(usr, Credential.getPassword());
+
+                        List<Area> areaList = AreaDynamoHelper.getInstance().getAllArea();
+                        for(Area ar : areaList) {
+                            AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
+                        }
+                        List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
+                        for(File file : fileList) {
+                            FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
+                            Log.d("LocAdoc", "File id: " + file.getFileId() + ", area id: " + file.getAreaId());
+                        }
+                    }
             }
             return null;
         }
