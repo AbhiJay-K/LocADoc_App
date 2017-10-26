@@ -243,10 +243,7 @@ public class ResetPasswordPresenter {
 
             // Update user dynamo
             UserDynamoHelper.getInstance().insert(user);
-
-            User confrimUser = UserSQLHelper.getRecord(Credential.getEmail(), newPassword);
-            Log.d("SQLITEHELPER","User Email: " + confrimUser.getUser() + " | User Name: " + confrimUser.getLastname() + " " + confrimUser.getFirstname());
-
+            
             // ReEncryption AREA and FILE
             for(Area ar : areaList) {
                 // encryption
@@ -260,7 +257,7 @@ public class ResetPasswordPresenter {
                 AreaSQLHelper.insertWithoutEncryption(ar,newPassword);
 
                 // INSERT Area INTO DynamoDB
-                AreaDynamoHelper.getInstance().insert(ar);
+                AreaDynamoHelper.getInstance().insertToDBWithoutEncryption(ar);
             }
 
             for(File file : fileList) {
@@ -274,7 +271,7 @@ public class ResetPasswordPresenter {
                 FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
 
                 // INSERT FILE INTO DynamoDB
-                FileDynamoHelper.getInstance().insert(file);
+                FileDynamoHelper.getInstance().insertToDBWithoutEncryption(file);
             }
 
             Log.d("BEFORE UPDATE CRDL", "OLD PWDID: " + Credential.getPassword().getPasswordid() + "| OLD PWD: " + Credential.getPassword().getPassword() + " | OLD SALT" + Credential.getPassword().getSalt());

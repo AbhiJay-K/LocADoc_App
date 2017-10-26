@@ -17,7 +17,10 @@ public class SettingActivityPresenter {
     }
 
     public void profileName(String firstName,String lastName) {
-        String nameInitial = Character.toString(lastName.charAt(0));
+        String nameInitial = "";
+        if(!lastName.isEmpty()) {
+            nameInitial = Character.toString(lastName.charAt(0));
+        }
         String[] arrayOfFirst =  firstName.split("\\s+");
 
         for(int i=0; i<arrayOfFirst.length; i++)
