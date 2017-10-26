@@ -14,10 +14,19 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.locadoc_app.locadoc.Cognito.AppHelper;
+import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
+import com.locadoc_app.locadoc.LocAdocApp;
+import com.locadoc_app.locadoc.LocalDB.ApplicationInstance;
+import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.DBHelper;
+import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.GuestSession;
 import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
+import com.locadoc_app.locadoc.Model.Credential;
+import com.locadoc_app.locadoc.Model.File;
+import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.S3.S3Helper;
 import com.locadoc_app.locadoc.Test;
 import com.locadoc_app.locadoc.UI.ConfirmSignUp.Activity_SignUp_Confirm;
 import com.locadoc_app.locadoc.UI.HomePage.HomePageActivity;
@@ -25,7 +34,7 @@ import com.locadoc_app.locadoc.UI.NewPassword.NewPasswordActivity;
 import com.locadoc_app.locadoc.UI.PasswordRecovery.PasswordRecovery;
 import com.locadoc_app.locadoc.UI.Signup.SignUp;
 
-import java.io.File;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,6 +55,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     EditText passView;
     @BindView(R.id.SignupButton)
     Button signupButton;
+    Button chngUser;
 
     private ProgressDialog dialog;
 
@@ -55,6 +65,8 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         //AppEventsLogger.activateApp(this);
         loginPres = new LoginPresenter(this);
         setContentView(R.layout.activity_login);
+        chngUser = (Button) findViewById(R.id.Login_Change_User_BTN);
+        chngUser.setVisibility(View.GONE);
         DBHelper.init(getApplicationContext());
         if(GuestSession.getNumberofRecords() <= 0)
         {
@@ -82,6 +94,37 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         Log.d("LocAdoc", "Sign up");
         Intent signUp = new Intent(this, SignUp.class);
         startActivityForResult(signUp, 1);
+    }
+    @OnClick (R.id.Login_Change_User_BTN)
+    void onChangeUserClick(View v)
+    {
+
+        if(FileSQLHelper.getNumberofRecords() > 0)
+        {
+            List<Integer> fileList = FileSQLHelper.getAllFileID();
+            for(int id:fileList)
+            {
+                File file = FileSQLHelper.getFile(id, Credential.getPassword());
+                java.io.File src = new java.io.File(LocAdocApp.getContext().getFilesDir().getAbsolutePath() +
+                        "/vault/" + file.getCurrentfilename());
+                if(src.exists()) {
+                    src.delete();
+                }
+            }
+            FileSQLHelper.clearRecord();
+        }
+        if(AreaSQLHelper.getNumberofRecords() > 0){
+            AreaSQLHelper.clearRecord();
+        }
+        if(ApplicationInstance.getNumberofRecords() > 0)
+        {
+            ApplicationInstance.deleteRecord();
+        }
+        if(UserSQLHelper.getNumberofRecords() > 0)
+        {
+           //TODO: Remove user
+        }
+
     }
 
     @OnClick (R.id.LoginButton)
@@ -144,6 +187,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         if(UserSQLHelper.getNumberofRecords() > 0){
             Log.d("Number of User ",String.valueOf(UserSQLHelper.getNumberofRecords()));
             String email = UserSQLHelper.getUser();
+            chngUser.setVisibility(View.VISIBLE);
             userIDView.setText(email);
             userIDView.setFocusable(false);
             userIDView.setClickable(true);

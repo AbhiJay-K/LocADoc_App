@@ -78,6 +78,15 @@
                 android:text="@string/signup_button"
                 android:textColor="@color/Text1" />
 
+            <Button
+                android:id="@+id/Login_Change_User_BTN"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/warning"
+                android:text="change account"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/ForgotPasswordText"
                 android:layout_width="match_parent"
