@@ -122,7 +122,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         }
         if(UserSQLHelper.getNumberofRecords() > 0)
         {
-           //TODO: Remove user
+           
         }
 
     }
