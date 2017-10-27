@@ -173,7 +173,7 @@ public class HomePagePresenter {
     GenericHandler delHandler = new GenericHandler() {
         @Override
         public void onSuccess() {
-            homepage.Logout();
+            homepage.LogoutLastTime();
         }
 
         @Override

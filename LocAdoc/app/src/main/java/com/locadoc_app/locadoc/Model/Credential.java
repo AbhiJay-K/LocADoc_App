@@ -85,7 +85,6 @@ public class Credential {
                 return p;
             }
         }
-
         return null;
     }
 

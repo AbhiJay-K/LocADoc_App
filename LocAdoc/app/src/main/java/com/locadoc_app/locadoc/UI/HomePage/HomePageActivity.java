@@ -121,12 +121,13 @@ public class HomePageActivity extends AppCompatActivity
     private Uri filePathUri;
     private String deletetext;
     private Menu menu;
-
+    private static final int MENUITEM = Menu.FIRST;
+    private boolean isChangedStat;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
-
+        isChangedStat = false;
         S3Helper.init();
         isEditArea = false;
         AreaList = AreaSQLHelper.getSearchValue();
@@ -156,7 +157,6 @@ public class HomePageActivity extends AppCompatActivity
         } else{
             buildGoogleApiClient();
         }
-
         requestFocus = true;
         gMapFrag = new GoogleMapFragment();
         fileExplorerFragment = new FileExplorerFragment();
@@ -377,6 +377,7 @@ public class HomePageActivity extends AppCompatActivity
         return true;
     }*/
 
+
     // You must implements your logic to get data using OrmLite
     private void populateAdapter(String query) {
         //AreaList.clear();
@@ -423,7 +424,7 @@ public class HomePageActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_import) {
-            // Handle the camera action
+            showImportFileFragment();
         } else if (id == R.id.nav_Settings) {
 
             Log.d("SQLITEHELPER","HomePageActivity To SettingActivty--------------------------------------------------------------");
@@ -459,8 +460,8 @@ public class HomePageActivity extends AppCompatActivity
 
     public void changeFileSizeUsed(String size)
     {
-        MenuItem filesize = menu.findItem(R.id.nav_cloudusage);
-        filesize.setTitle(size);
+
+
     }
 
     public void showDeleteAccountDialog()
@@ -503,7 +504,7 @@ public class HomePageActivity extends AppCompatActivity
         Log.d("Logout","Logout called");
         AppHelper.getPool().getCurrentUser().signOut();
         mGoogleApiClient.disconnect();
-        finish();
+        exit(1);
     }
     public void LogoutLastTime()
     {
@@ -512,7 +513,7 @@ public class HomePageActivity extends AppCompatActivity
         Log.d("Logout","Logout called");
         AppHelper.getPool().getCurrentUser().signOut();
         mGoogleApiClient.disconnect();
-        finish();
+        exit(2);
     }
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -911,5 +912,13 @@ public class HomePageActivity extends AppCompatActivity
     public void printOutOfAreaMsg()
     {
         Toast.makeText(this,"You have currently moved out of the area",Toast.LENGTH_LONG).show();
+    }
+
+    public void exit(int result)
+    {
+        Intent intent = new Intent();
+        intent.putExtra("LogoutResult",result);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }

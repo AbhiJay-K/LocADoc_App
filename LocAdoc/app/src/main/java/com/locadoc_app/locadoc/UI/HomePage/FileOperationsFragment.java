@@ -253,7 +253,7 @@ public class FileOperationsFragment extends DialogFragment {
 
                                 user.setTotalsizeused("" + totalSizeUsed);
                                 UserSQLHelper.UpdateRecord(user, Credential.getPassword());
-                                activity.changeFileSizeUsed(user.getTotalsizeused());
+                                //activity.changeFileSizeUsed(user.getTotalsizeused());
                                 UserDynamoHelper.getInstance().updateTotalSizeUsed(totalSizeUsed + "");
 
                                 if(src.exists()) {

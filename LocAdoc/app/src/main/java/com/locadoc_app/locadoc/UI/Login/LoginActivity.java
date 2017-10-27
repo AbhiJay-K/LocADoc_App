@@ -169,8 +169,9 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     {
         Intent homeActivity = new Intent(this, HomePageActivity.class);
         homeActivity.putExtra("name", userIDView.getText().toString());
-        startActivity(homeActivity);
+        startActivityForResult(homeActivity,4);
     }
+
     public void startProgressDialog()
     {
         progress = new ProgressDialog(this);
@@ -244,9 +245,16 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
                     else{
                         showDialogMessage("PasswordSQLHelper Recovery","Recovery failed");
                     }
+                case 4:
+                    int logoutType = data.getIntExtra("LogoutResult",-1);
+                    if(logoutType == 2)
+                    {
+                        chngUser.setVisibility(View.GONE);
+                        signupButton.setVisibility(View.VISIBLE);
+                        userIDView.setText("");
+                        userIDView.setEnabled(true);
 
-
-
+                    }
                     break;
                 case 6:
                     //New password
