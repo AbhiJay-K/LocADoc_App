@@ -3,6 +3,7 @@ package com.locadoc_app.locadoc.UI.HomePage;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -29,6 +30,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.widget.SearchView;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -64,6 +67,7 @@ import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.S3.S3Helper;
+import com.locadoc_app.locadoc.UI.About.AboutActivity;
 import com.locadoc_app.locadoc.UI.PDFViewer.PDFViewer;
 import com.locadoc_app.locadoc.UI.Setting.SettingActivity;
 import com.locadoc_app.locadoc.helper.Encryption;
@@ -75,6 +79,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import com.locadoc_app.locadoc.UI.About.AboutActivity;
 
 public class HomePageActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -113,6 +118,7 @@ public class HomePageActivity extends AppCompatActivity
     private AlertDialog userDialog;
     // create area
     private Uri filePathUri;
+    private String deletetext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -412,12 +418,14 @@ public class HomePageActivity extends AppCompatActivity
 
 
         } else if (id == R.id.nav_about) {
-
+            Intent AboutActivity = new Intent(this, AboutActivity.class);
+            startActivity(AboutActivity);
         } else if (id == R.id.nav_faq) {
-
-        } /*else if (id == R.id.nav_cloudusage) {
-
-        }*/
+            Intent faqpage = new Intent(Intent.ACTION_VIEW, Uri.parse("https://locadoc.github.io/LocAdoc/FAQ/FAQ.html"));
+            startActivity(faqpage);
+        }else if(id == R.id.nav_DeleteAcc){
+            showDeleteAccountDialog();
+        }
         else if (id == R.id.nav_logout) {
             Logout();
         }
@@ -426,9 +434,43 @@ public class HomePageActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+    public void showDeleteAccountDialog()
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete Account");
+        builder.setMessage("Please eneter 'DELETE' to delete your account (!WARNING all your backup data will also be deleted)");
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
 
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deletetext = input.getText().toString();
+                if(deletetext.equals("DELETE"))
+                {
+                    presenter.deleteAccount();
+                }
+                else{
+                   showDeleteAccountDialog();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
     public void Logout()
     {
+        presenter.stopTimer();
         Log.d("Logout","Logout called");
         AppHelper.getPool().getCurrentUser().signOut();
         mGoogleApiClient.disconnect();

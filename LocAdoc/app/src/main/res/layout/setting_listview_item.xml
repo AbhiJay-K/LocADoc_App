@@ -9,18 +9,21 @@
             android:id="@+id/setting_item_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:layout_weight="2"
             android:text="Title"
-            android:textColor="#000000"
-            android:textSize="24dp"/>
+            android:textAllCaps="false"
+            android:textColor="@color/grey_500"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/setting_item_subtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginTop="5dp"
             android:text="subTitle"
             android:textColor="#666666"
-            android:textSize="16dp"/>
+            android:textSize="12sp" />
 </LinearLayout>

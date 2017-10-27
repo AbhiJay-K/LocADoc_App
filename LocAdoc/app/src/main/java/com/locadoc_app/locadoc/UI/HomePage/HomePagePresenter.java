@@ -119,7 +119,6 @@ public class HomePagePresenter {
     };
     public void deleteAccount()
     {
-        timerHandler.removeCallbacks(timerRunnable);
         new DeleteAccount().execute();
     }
 
@@ -132,7 +131,7 @@ public class HomePagePresenter {
             // 2. Delete all file information
             for(int id:fileList)
             {
-                File file = FileSQLHelper.getFile(id,Credential.getPassword());
+                File file = FileSQLHelper.getFile(id, Credential.getPassword());
                 S3Helper.getHelper().removeFile(file.getCurrentfilename());
                 java.io.File src = new java.io.File(LocAdocApp.getContext().getFilesDir().getAbsolutePath() +
                         "/vault/" + file.getCurrentfilename());
@@ -170,6 +169,7 @@ public class HomePagePresenter {
         protected void onPostExecute(Void v){
         }
     };
+
     GenericHandler delHandler = new GenericHandler() {
         @Override
         public void onSuccess() {

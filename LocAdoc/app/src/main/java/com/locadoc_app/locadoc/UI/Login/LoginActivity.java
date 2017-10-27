@@ -122,9 +122,13 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         }
         if(UserSQLHelper.getNumberofRecords() > 0)
         {
-           
+            UserSQLHelper.clearRecord();
         }
-
+        userIDView.setEnabled(true);
+        signupButton.setVisibility(View.VISIBLE);
+        chngUser.setVisibility(View.GONE);
+        Credential.setPassword(null);
+        Credential.setEmail(null);
     }
 
     @OnClick (R.id.LoginButton)

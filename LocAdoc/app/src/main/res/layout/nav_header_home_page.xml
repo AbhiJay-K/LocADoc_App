@@ -14,7 +14,7 @@
 
     <ImageView
         android:id="@+id/LocAdoc_Logo_menu"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_weight="1"
@@ -23,13 +23,14 @@
         app:srcCompat="@drawable/locadoc_logo_white" />
 
     <TextView
-            android:id="@+id/USerEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/nav_header_vertical_spacing"
-            android:text="@string/user_name_menu"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:id="@+id/USerEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:text="@string/user_name_menu"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
 
 </LinearLayout>

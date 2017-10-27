@@ -119,4 +119,9 @@ public class UserSQLHelper implements BaseColumns{
         int deleted = UserSQLHelper.dbHelper.WRITE.delete(UserSQLHelper.TABLE_NAME,UserSQLHelper.COLUMN_EMAIL +"=?",arg);
         return deleted;
     }
+    public static void clearRecord()
+    {
+        dbHelper.WRITE.execSQL("delete from "+ TABLE_NAME);
+        //dbHelper.WRITE.execSQL("delete from sqlite_sequence where name='" + TABLE_NAME + "'");
+    }
 }

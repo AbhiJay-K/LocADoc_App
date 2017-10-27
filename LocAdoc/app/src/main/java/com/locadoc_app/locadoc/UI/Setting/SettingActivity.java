@@ -45,7 +45,7 @@ public class SettingActivity extends AppCompatActivity  {
     private String currentFileName;
     private TransferObserver observer;
     private boolean continueDownload;
-    String[] settingMenuListArray = {"Phone Number", "Password", "Set Administration Area", "Backup", "Delete Account"};
+    String[] settingMenuListArray = {"Phone Number", "Password", "Download backup"};
 
     private SettingActivityPresenter presenter;
 
@@ -87,11 +87,9 @@ public class SettingActivity extends AppCompatActivity  {
         listView = (ListView) findViewById(R.id.setting_menuList);
         listView.setAdapter(adapter);
 
-        adapter.addItem(settingMenuListArray[0], "subItem for phone Number");
+        adapter.addItem(settingMenuListArray[0], "Change phone number");
         adapter.addItem(settingMenuListArray[1], "********");
-        adapter.addItem(settingMenuListArray[2], "subItem for admin area");
-        adapter.addItem(settingMenuListArray[3], "");
-        adapter.addItem(settingMenuListArray[4], "");
+        adapter.addItem(settingMenuListArray[2], "Recover files from cloud");
 
         Bundle extras = getIntent().getExtras();
 
@@ -121,11 +119,7 @@ public class SettingActivity extends AppCompatActivity  {
                         break;
                     case 1:	openResetPasswordActivity();    // Activity Num: 31
                         break;
-                    case 2: confirmRecover();     // Activity Num: 32
-                        break;
-                    case 3:                                 // Activity Num: 33
-                        break;
-                    case 4:                                 // Activity Num: 34
+                    case 2: confirmRecover();               // Activity Num: 32
                         break;
                 }
             }
@@ -137,7 +131,6 @@ public class SettingActivity extends AppCompatActivity  {
         tvBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO
                 exit();
             }
         });
