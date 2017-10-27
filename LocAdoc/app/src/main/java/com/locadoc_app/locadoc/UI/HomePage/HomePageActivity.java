@@ -2,6 +2,7 @@ package com.locadoc_app.locadoc.UI.HomePage;
 
 import android.app.Activity;
 import android.app.SearchManager;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -434,6 +435,11 @@ public class HomePageActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+    public void changeFileSizeUsed(String size)
+    {
+        MenuItem filesize = (MenuItem) findViewById(R.id.nav_cloudusage);
+        filesize.setTitle(size);
+    }
     public void showDeleteAccountDialog()
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -470,6 +476,15 @@ public class HomePageActivity extends AppCompatActivity
     }
     public void Logout()
     {
+        presenter.stopTimer();
+        Log.d("Logout","Logout called");
+        AppHelper.getPool().getCurrentUser().signOut();
+        mGoogleApiClient.disconnect();
+        finish();
+    }
+    public void LogoutLastTime()
+    {
+
         presenter.stopTimer();
         Log.d("Logout","Logout called");
         AppHelper.getPool().getCurrentUser().signOut();

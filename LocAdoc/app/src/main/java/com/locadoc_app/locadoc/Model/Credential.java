@@ -68,4 +68,11 @@ public class Credential {
             identityId = credentials.getIdentityId();
         }
     }
+    public static void clearAll()
+    {
+        PASSWORD = null;
+        email = "";
+        credentials = null;
+        identityId = "";
+    }
 }

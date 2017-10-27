@@ -127,8 +127,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         userIDView.setEnabled(true);
         signupButton.setVisibility(View.VISIBLE);
         chngUser.setVisibility(View.GONE);
-        Credential.setPassword(null);
-        Credential.setEmail(null);
+        Credential.clearAll();
     }
 
     @OnClick (R.id.LoginButton)

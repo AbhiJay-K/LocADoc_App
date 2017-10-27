@@ -149,20 +149,20 @@ public class HomePagePresenter {
             }
             AreaSQLHelper.clearRecord();
 
+            //Delete all user record from cloud and local
+            User user = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
+            UserDynamoHelper.getInstance().deleteFromDB(user);
+            UserSQLHelper.deleteRecord(Credential.getEmail());
+
             // 4. Delete all password record from cloud DB
             List<Password> passwordList = PasswordDynamoHelper.getInstance().getAllPassword();
             for(Password pwd: passwordList)
             {
                 PasswordDynamoHelper.getInstance().deleteFromDB(pwd);
             }
-
-            //Delete all user record from cloud and local
-            User user = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
-            UserDynamoHelper.getInstance().deleteFromDB(user);
-            UserSQLHelper.deleteRecord(Credential.getEmail());
-
             //Remove user from Cognito
             AppHelper.getPool().getCurrentUser().deleteUserInBackground(delHandler);
+            Credential.clearAll();
             return null;
         }
         @Override
