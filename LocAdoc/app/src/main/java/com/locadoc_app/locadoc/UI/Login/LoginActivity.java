@@ -124,10 +124,12 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         {
             UserSQLHelper.clearRecord();
         }
+        Credential.clearAll();
+        userIDView.setText("");
         userIDView.setEnabled(true);
+        passView.setText("");
         signupButton.setVisibility(View.VISIBLE);
         chngUser.setVisibility(View.GONE);
-        Credential.clearAll();
     }
 
     @OnClick (R.id.LoginButton)

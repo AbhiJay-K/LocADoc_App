@@ -28,6 +28,9 @@ import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.S3.S3Helper;
+
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 import static com.locadoc_app.locadoc.R.id.CreateNewAreaBtn;
@@ -46,7 +49,7 @@ public class SettingActivity extends AppCompatActivity  {
     private String currentFileName;
     private TransferObserver observer;
     private boolean continueDownload;
-    String[] settingMenuListArray = {"Phone Number", "Password", "Download backup"};
+    String[] settingMenuListArray = {"Phone Number", "Password", "Download backup","Storage used"};
 
     private SettingActivityPresenter presenter;
 
@@ -62,7 +65,6 @@ public class SettingActivity extends AppCompatActivity  {
         // toolbar.setNavigationIcon(R.drawable.ic_setting_back_24dp);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(null);
-
         init();
     }
 
@@ -84,14 +86,17 @@ public class SettingActivity extends AppCompatActivity  {
         Log.d("SEPERATE" , "=======================================================================");
 
         SettingListViewAdapter adapter = new SettingListViewAdapter();
-
+        String size = "0KB";
+        if(!user.getTotalsizeused().isEmpty()) {
+            size = S3Helper.getBytesString(Long.parseLong(user.getTotalsizeused()));
+        }
+        size = size + " of 1GB used";
         listView = (ListView) findViewById(R.id.setting_menuList);
         listView.setAdapter(adapter);
-
         adapter.addItem(settingMenuListArray[0], "Change phone number");
         adapter.addItem(settingMenuListArray[1], "********");
         adapter.addItem(settingMenuListArray[2], "Recover files from cloud");
-
+        adapter.addItem(settingMenuListArray[3], size);
         Bundle extras = getIntent().getExtras();
 
         if (extras !=null) {
@@ -122,6 +127,8 @@ public class SettingActivity extends AppCompatActivity  {
                         break;
                     case 2: confirmRecover();               // Activity Num: 32
                         break;
+                    case 3:                // Activity Num: 32
+                            break;
                 }
             }
         });

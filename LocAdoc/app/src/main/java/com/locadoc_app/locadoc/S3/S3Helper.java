@@ -57,7 +57,10 @@ public class S3Helper {
             s3Helper = new S3Helper();
         }
     }
-
+    public static void setS3HelperToNull()
+    {
+        s3Helper = null;
+    }
     public static String getIdentity()
     {
         return Credential.getIdentity();

@@ -3,8 +3,10 @@ package com.locadoc_app.locadoc.Model;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
+import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper;
 import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.S3.S3Helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,5 +106,7 @@ public class Credential {
         email = "";
         credentials = null;
         identityId = "";
+        DynamoDBHelper.setDynamoDBHelperTOnull();
+        S3Helper.setS3HelperToNull();
     }
 }

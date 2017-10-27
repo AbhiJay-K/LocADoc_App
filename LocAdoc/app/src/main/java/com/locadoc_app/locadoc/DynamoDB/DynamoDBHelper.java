@@ -53,7 +53,10 @@ public class DynamoDBHelper {
             dynamoDBHelper = new DynamoDBHelper(context);
         }
     }
-
+    public static void setDynamoDBHelperTOnull()
+    {
+        dynamoDBHelper = null;
+    }
     public static String getIdentity()
     {
         return Credential.getIdentity();
