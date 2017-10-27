@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,7 +50,7 @@ public class SettingActivity extends AppCompatActivity  {
     private String currentFileName;
     private TransferObserver observer;
     private boolean continueDownload;
-    String[] settingMenuListArray = {"Phone Number", "Password", "Download backup","Storage used"};
+    String[] settingMenuListArray = {"User Name", "Password", "Download backup","Storage used"};
 
     private SettingActivityPresenter presenter;
 
@@ -93,7 +94,7 @@ public class SettingActivity extends AppCompatActivity  {
         size = size + " of 1GB used";
         listView = (ListView) findViewById(R.id.setting_menuList);
         listView.setAdapter(adapter);
-        adapter.addItem(settingMenuListArray[0], "Change phone number");
+        adapter.addItem(settingMenuListArray[0], "Change Name");
         adapter.addItem(settingMenuListArray[1], "********");
         adapter.addItem(settingMenuListArray[2], "Recover files from cloud");
         adapter.addItem(settingMenuListArray[3], size);
@@ -121,7 +122,7 @@ public class SettingActivity extends AppCompatActivity  {
                 Toast.makeText(SettingActivity.this, titleStr, Toast.LENGTH_SHORT).show();
 
                 switch(position) {
-                    case 0: openPhoneNumberActivity();      // Activity Num: 30
+                    case 0: changeUserName();      // Activity Num: 30
                         break;
                     case 1:	openResetPasswordActivity();    // Activity Num: 31
                         break;
@@ -165,22 +166,34 @@ public class SettingActivity extends AppCompatActivity  {
 
     }
 
-    public void openPhoneNumberActivity() {
-        // Intent homeActivity = new Intent(this, HomePageActivity.class);
-        // homeActivity.putExtra("name", userIDView.getText().toString());
-        // startActivity(homeActivity);
+    public void changeUserName() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        builder.setView(inflater.inflate(R.layout.dialog_update_username, null))
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            userDialog.dismiss();
+                        } catch (Exception e) {}
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            userDialog.dismiss();
+                        } catch (Exception e) {}
+                    }
+                });
+
+        builder.show();
     }
 
     public void openResetPasswordActivity() {
         Intent resetPassword = new Intent(this, ResetPassword.class);
         resetPassword.putExtra("Email", text_userEmail.getText().toString());
         startActivityForResult(resetPassword, 30);
-    }
-
-    public void openSetAdminAreaActivity() {
-        // Intent homeActivity = new Intent(this, HomePageActivity.class);
-        // homeActivity.putExtra("name", userIDView.getText().toString());
-        // startActivity(homeActivity);
     }
 
     public void confirmRecover(){
