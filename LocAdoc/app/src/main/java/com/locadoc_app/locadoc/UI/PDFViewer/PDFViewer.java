@@ -300,7 +300,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
 
             boolean differentPass = false;
             if(passwordid != Credential.getPassword().getPasswordid()){
-                Password password = PasswordDynamoHelper.getInstance().getPasswordFromDB(passwordid);
+                Password password = Credential.getAnOldPass(passwordid);
                 Encryption.getInstance(password.getPassword(), password.getSalt())
                         .setKey(password.getPassword(), password.getSalt());
                 differentPass = true;

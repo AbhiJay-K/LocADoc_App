@@ -120,6 +120,7 @@ public class HomePageActivity extends AppCompatActivity
     // create area
     private Uri filePathUri;
     private String deletetext;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -283,6 +284,7 @@ public class HomePageActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.home_page, menu);
         username = (TextView) findViewById(R.id.USerEmail);
@@ -356,6 +358,25 @@ public class HomePageActivity extends AppCompatActivity
 
         return true;
     }
+
+    /*@Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+
+        User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+        String size = "0KB";
+
+        if(!user.getTotalsizeused().isEmpty()) {
+            size = S3Helper.getBytesString(Long.parseLong(user.getTotalsizeused()));
+        }
+
+        this.menu = menu;
+
+        size = size + " of 1GB used";
+        changeFileSizeUsed(size);
+
+        return true;
+    }*/
+
     // You must implements your logic to get data using OrmLite
     private void populateAdapter(String query) {
         //AreaList.clear();
@@ -435,11 +456,13 @@ public class HomePageActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
     public void changeFileSizeUsed(String size)
     {
-        MenuItem filesize = (MenuItem) findViewById(R.id.nav_cloudusage);
+        MenuItem filesize = menu.findItem(R.id.nav_cloudusage);
         filesize.setTitle(size);
     }
+
     public void showDeleteAccountDialog()
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -799,6 +822,7 @@ public class HomePageActivity extends AppCompatActivity
             totalSizeUsed += dst.length();
             user.setTotalsizeused("" + totalSizeUsed);
             UserSQLHelper.UpdateRecord(user, Credential.getPassword());
+            //changeFileSizeUsed(user.getTotalsizeused());
             UserDynamoHelper.getInstance().updateTotalSizeUsed(totalSizeUsed + "");
 
             FileSQLHelper.insert(file, Credential.getPassword());

@@ -53,6 +53,7 @@ public class FileOperationsFragment extends DialogFragment {
     public interface FileOperationDialogListener {
         void removeFile(String filename);
         boolean isInArea(Area area);
+        void changeFileSizeUsed(String size);
     }
 
     //---empty constructor required
@@ -145,6 +146,7 @@ public class FileOperationsFragment extends DialogFragment {
 
                     totalSizeUsed += dst.length();
                     user.setTotalsizeused("" + totalSizeUsed);
+                    //activity.changeFileSizeUsed(user.getTotalsizeused());
                     UserSQLHelper.UpdateRecord(user, Credential.getPassword());
                     UserDynamoHelper.getInstance().updateTotalSizeUsed(totalSizeUsed + "");
 
@@ -251,6 +253,7 @@ public class FileOperationsFragment extends DialogFragment {
 
                                 user.setTotalsizeused("" + totalSizeUsed);
                                 UserSQLHelper.UpdateRecord(user, Credential.getPassword());
+                                activity.changeFileSizeUsed(user.getTotalsizeused());
                                 UserDynamoHelper.getInstance().updateTotalSizeUsed(totalSizeUsed + "");
 
                                 if(src.exists()) {

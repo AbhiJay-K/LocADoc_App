@@ -243,7 +243,7 @@ public class ResetPasswordPresenter {
 
             // Update user dynamo
             UserDynamoHelper.getInstance().insert(user);
-            
+
             // ReEncryption AREA and FILE
             for(Area ar : areaList) {
                 // encryption

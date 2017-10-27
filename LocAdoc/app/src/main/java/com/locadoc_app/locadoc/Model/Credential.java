@@ -6,7 +6,9 @@ import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.R;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,6 +20,7 @@ public class Credential {
     private static String email;
     private static CognitoCachingCredentialsProvider credentials;
     private static String identityId = "";
+    private static List<Password> oldPasswords;
 
     private final static String identityPoolId = LocAdocApp.getContext().getString(R.string.aws_identitypool);
     private static final String userPoolId = LocAdocApp.getContext().getString(R.string.aws_userpool);
@@ -60,6 +63,34 @@ public class Credential {
     public static String getIdentity()
     {
         return identityId;
+    }
+
+    public static void setOldPasswords(List<Password> allPassword){
+        oldPasswords = new ArrayList<>();
+
+        for(Password p: allPassword){
+            if(p.getPasswordid() != PASSWORD.getPasswordid()){
+                oldPasswords.add(p);
+            }
+        }
+    }
+
+    public static List<Password> getAllOldPasswords(){
+        return oldPasswords;
+    }
+
+    public static Password getAnOldPass (int passId){
+        for(Password p: oldPasswords){
+            if(p.getPasswordid() == passId){
+                return p;
+            }
+        }
+
+        return null;
+    }
+
+    public static void addAnOldPass (Password password){
+        oldPasswords.add(password);
     }
 
     public static synchronized void setIdentity()
