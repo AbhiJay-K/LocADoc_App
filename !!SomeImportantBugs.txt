@@ -1,0 +1,4 @@
+1. File takes long to open after change password.
+2. GPS checks. 
+3. change user relogin crash.
+4. delete account dialog cancel crash.
