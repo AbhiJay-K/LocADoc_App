@@ -49,6 +49,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import javax.crypto.SecretKey;
+
 public class PDFViewer extends AppCompatActivity implements OnPageChangeListener,OnLoadCompleteListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -297,12 +299,14 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
             com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(fileid, Credential.getPassword());
             ar = AreaSQLHelper.getRecord(file.getAreaId(),Credential.getPassword());
             int passwordid = file.getPasswordId();
+            Encryption en = Encryption.getInstance("", "");
+            SecretKey currKey = null;
 
             boolean differentPass = false;
             if(passwordid != Credential.getPassword().getPasswordid()){
+                currKey = en.getCurrentKey();
                 Password password = Credential.getAnOldPass(passwordid);
-                Encryption.getInstance(password.getPassword(), password.getSalt())
-                        .setKey(password.getPassword(), password.getSalt());
+                en.setKey(password.getPassword(), password.getSalt());
                 differentPass = true;
             }
 
@@ -313,10 +317,9 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
             PDFFILE = Uri.fromFile(dst);
 
             if(differentPass){
-                Password password = Credential.getPassword();
-                Encryption.getInstance(password.getPassword(), password.getSalt())
-                        .setKey(password.getPassword(), password.getSalt());
+                en.setCurrKey(currKey);
             }
+
 
             return null;
         }

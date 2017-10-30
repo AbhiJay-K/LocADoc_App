@@ -22,14 +22,20 @@ public class Encryption {
 	public Cipher AES;
 	public SecureRandom randomSecureRandom;
 	public static Encryption encryption;
+	public SecretKeyFactory factory;
 	
 	private Encryption(String pass, String salt)
 	{
 		try{
 			AES = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			randomSecureRandom = SecureRandom.getInstance("SHA1PRNG");
+			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		} catch(Exception e){}
 		setKey(pass,salt);
+	}
+
+	public SecretKey getCurrentKey(){
+		return key;
 	}
 	
 	public static Encryption getInstance(String pass, String salt)
@@ -40,19 +46,23 @@ public class Encryption {
 
         return encryption;
 	}
-	
+
 	public void setKey(String password, String salt)
 	{
 		try
 		{
-			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-			KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 128);
-			SecretKey tmp = factory.generateSecret(spec);
-			key = new SecretKeySpec(tmp.getEncoded(), "AES");
+			KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 15000, 128);
+			byte[] hash = factory.generateSecret(spec).getEncoded();
+			key = new SecretKeySpec(hash, "AES");
 		} catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public void setCurrKey(SecretKey key)
+	{
+		this.key = key;
 	}
 	
 	public IvParameterSpec generateIV ()
