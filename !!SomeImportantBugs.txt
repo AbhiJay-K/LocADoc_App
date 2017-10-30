@@ -2,3 +2,4 @@
 2. GPS checks. 
 3. change user relogin crash.
 4. delete account dialog cancel crash.
+5. Add dialog to request if the user wish to delete original file on upload.

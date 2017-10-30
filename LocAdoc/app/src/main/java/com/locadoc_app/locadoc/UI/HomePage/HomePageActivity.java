@@ -33,6 +33,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -466,15 +467,23 @@ public class HomePageActivity extends AppCompatActivity
 
     public void showDeleteAccountDialog()
     {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete Account");
-        builder.setMessage("Please eneter 'DELETE' to delete your account (!WARNING all your backup data will also be deleted)");
-        // Set up the input
-        final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        builder.setView(input);
+        builder.setMessage("Please eneter 'DELETE' to delete your account !(WARNING all your backup data will also be deleted)");
+        LinearLayout layout = new LinearLayout(this);
+        LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setLayoutParams(parms);
 
+        layout.setGravity(Gravity.CLIP_VERTICAL);
+        layout.setMinimumWidth(10);
+        layout.setPadding(40,40,40,40);
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        layout.addView(input, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        builder.setView(layout);
         // Set up the buttons
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -498,6 +507,7 @@ public class HomePageActivity extends AppCompatActivity
 
         builder.show();
     }
+
     public void Logout()
     {
         presenter.stopTimer();
@@ -884,7 +894,12 @@ public class HomePageActivity extends AppCompatActivity
         PDFVIEWER.putExtra("filename",fn);
         startActivity(PDFVIEWER);
     }
-
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        Logout();
+    }
     @Override
     public Location getLastKnownLoc(){
         return mLastLocation;

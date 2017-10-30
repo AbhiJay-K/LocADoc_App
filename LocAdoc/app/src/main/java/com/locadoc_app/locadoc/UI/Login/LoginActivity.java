@@ -268,6 +268,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
                         userIDView.setEnabled(false);
                         userIDView.setFocusableInTouchMode(false);
                         userIDView.setFocusable(false);
+                        passView.setText("");
                         signupButton.setVisibility(View.GONE);
                         chngUser.setVisibility(View.VISIBLE);
 
