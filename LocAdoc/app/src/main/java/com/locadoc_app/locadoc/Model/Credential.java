@@ -1,5 +1,7 @@
 package com.locadoc_app.locadoc.Model;
 
+import android.util.Log;
+
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
@@ -56,6 +58,7 @@ public class Credential {
                 LocAdocApp.getContext(),
                 identityPoolId,
                 Regions.AP_SOUTHEAST_1);
+        credentials.clear();
         Map<String, String> logins = new HashMap<String, String>();
         logins.put("cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId,
                 AppHelper.getCurrSession().getIdToken().getJWTToken());
@@ -98,6 +101,7 @@ public class Credential {
     {
         if(identityId.isEmpty()){
             identityId = credentials.getIdentityId();
+            Log.d("ID",identityId);
         }
     }
     public static void clearAll()
