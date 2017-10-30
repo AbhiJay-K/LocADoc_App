@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
@@ -50,7 +51,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     private ProgressDialog progress;
     private static boolean curUSer = false;
     @BindView(R.id.UserID)
-    AutoCompleteTextView userIDView;
+    EditText userIDView;
     @BindView(R.id.Password)
     EditText passView;
     @BindView(R.id.SignupButton)
@@ -128,8 +129,12 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         userIDView.setText("");
         userIDView.setEnabled(true);
         passView.setText("");
+        userIDView.setFocusableInTouchMode(true);
+        userIDView.setFocusable(true);
         signupButton.setVisibility(View.VISIBLE);
         chngUser.setVisibility(View.GONE);
+        chngUser.setFocusableInTouchMode(false);
+        chngUser.setFocusable(false);
     }
 
     @OnClick (R.id.LoginButton)
@@ -255,6 +260,16 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
                         signupButton.setVisibility(View.VISIBLE);
                         userIDView.setText("");
                         userIDView.setEnabled(true);
+                        userIDView.setFocusableInTouchMode(true);
+                        userIDView.setFocusable(true);
+                    }
+                    else if(logoutType == 1)
+                    {
+                        userIDView.setEnabled(false);
+                        userIDView.setFocusableInTouchMode(false);
+                        userIDView.setFocusable(false);
+                        signupButton.setVisibility(View.GONE);
+                        chngUser.setVisibility(View.VISIBLE);
 
                     }
                     break;
@@ -283,7 +298,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         startActivityForResult(newPasswordActivity, 6);
     }
 
-    public AutoCompleteTextView getUserIDView()
+    public EditText getUserIDView()
     {
         return userIDView;
     }

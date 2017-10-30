@@ -279,6 +279,7 @@ public class ResetPasswordPresenter {
             Log.d("CREDENTIALCHECK","BEFORE CHANGE PASSWORD Email: " + Credential.getEmail() + "\t Password: " + Credential.getPassword().getPassword());
 
             // Update in Credential in App
+            Credential.addAnOldPass(Credential.getPassword());
             Credential.setPassword(newPassword);
 
             Log.d("AFTER UPDATE CRDL", "NEW PWDID: " + Credential.getPassword().getPasswordid() + "| NEW PWD: " + Credential.getPassword().getPassword() + " | NEW SALT" + Credential.getPassword().getSalt());
