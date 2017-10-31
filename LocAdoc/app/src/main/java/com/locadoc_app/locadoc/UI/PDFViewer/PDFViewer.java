@@ -68,11 +68,14 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private Area ar;
+    private boolean logout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pdfviewer);
 
+        logout = true;
         FloatingActionButton fileExplorerfab = (FloatingActionButton) findViewById(R.id.pdfBackFloatingActionButton);
         fileExplorerfab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -262,7 +265,6 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
     public void loadComplete(int nbPages) {
         PdfDocument.Meta meta = pdfView.getDocumentMeta();
         printBookmarksTree(pdfView.getTableOfContents(), "-");
-
     }
 
     public void printBookmarksTree(List<PdfDocument.Bookmark> tree, String sep) {
@@ -277,6 +279,19 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
     }
 
     public void closeActivity(){
+        logout = false;
+        exit();
+    }
+
+    public void exit(){
+        try {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        } catch (Exception e){}
+
+        mGoogleApiClient.disconnect();
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
+        intent.putExtra("logout", logout);
         finish();
     }
 
@@ -288,7 +303,14 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
         if(dst.exists()) {
             dst.delete();
         }
-        finish();
+
+        exit();
+    }
+
+    @Override
+    public void onBackPressed(){
+        logout = false;
+        exit();
     }
 
     private class DecryptTask extends

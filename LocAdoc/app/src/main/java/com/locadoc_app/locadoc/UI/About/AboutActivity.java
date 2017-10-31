@@ -15,13 +15,21 @@ import android.widget.TextView;
 import com.locadoc_app.locadoc.R;
 
 public class AboutActivity extends AppCompatActivity {
+    private boolean logout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
+        logout = true;
         TextView description = (TextView) findViewById(R.id.About_Description);
-        description.setText(Html.fromHtml(getString(R.string.About_description)));
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            description.setText(Html.fromHtml(getString(R.string.About_description), Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            description.setText(Html.fromHtml(getString(R.string.About_description)));
+        }
+
         TextView version = (TextView) findViewById(R.id.About_Version);
         version.setText(getString(R.string.About_version));
         TextView website =(TextView) findViewById(R.id.Website);
@@ -35,5 +43,24 @@ public class AboutActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void exit(){
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
+        intent.putExtra("logout", logout);
+        finish();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        exit();
+    }
+
+    @Override
+    public void onBackPressed(){
+        logout = false;
+        exit();
     }
 }

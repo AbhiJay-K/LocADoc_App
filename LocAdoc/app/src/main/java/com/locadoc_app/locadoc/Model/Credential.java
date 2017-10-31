@@ -108,6 +108,7 @@ public class Credential {
     {
         PASSWORD = null;
         email = "";
+        credentials.clear();
         credentials = null;
         identityId = "";
         DynamoDBHelper.setDynamoDBHelperTOnull();

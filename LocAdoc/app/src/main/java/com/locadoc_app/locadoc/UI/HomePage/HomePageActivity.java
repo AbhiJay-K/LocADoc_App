@@ -15,6 +15,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.BaseColumns;
 import android.provider.OpenableColumns;
 import android.provider.Settings;
@@ -97,6 +98,8 @@ public class HomePageActivity extends AppCompatActivity
         FileOperationsFragment.FileOperationDialogListener,HomePage_View_Interface{
 
     private final int PICKFILE = 1;
+    private final int OPENFILE = 2;
+    private final int ABOUT = 3;
     private final int SETTING = 10;
     private List<String> AreaList;
     private RecyclerView mRecyclerView;
@@ -124,6 +127,9 @@ public class HomePageActivity extends AppCompatActivity
     private Menu menu;
     private static final int MENUITEM = Menu.FIRST;
     private boolean isChangedStat;
+    private boolean logout;
+    private long startTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,6 +137,7 @@ public class HomePageActivity extends AppCompatActivity
         isChangedStat = false;
         S3Helper.init();
         isEditArea = false;
+        logout = true;
         AreaList = AreaSQLHelper.getSearchValue();
         final String[] from = new String[] {"AreaName"};
         final int[] to = new int[] {android.R.id.text1};
@@ -435,6 +442,7 @@ public class HomePageActivity extends AppCompatActivity
             Log.d("SQLITEHELPER","HomePageActivity To SettingActivty--------------------------------------------------------------");
 
             // Test code to access Setting Activity
+            logout = false;
             Intent settingActivity = new Intent(this, SettingActivity.class);
             settingActivity.putExtra("name", userName);
             startActivityForResult(settingActivity, SETTING);
@@ -442,8 +450,9 @@ public class HomePageActivity extends AppCompatActivity
 
 
         } else if (id == R.id.nav_about) {
+            logout = false;
             Intent AboutActivity = new Intent(this, AboutActivity.class);
-            startActivity(AboutActivity);
+            startActivityForResult(AboutActivity, ABOUT);
         } else if (id == R.id.nav_faq) {
             Intent faqpage = new Intent(Intent.ACTION_VIEW, Uri.parse("https://locadoc.github.io/LocAdoc/FAQ/FAQ.html"));
             startActivity(faqpage);
@@ -513,6 +522,7 @@ public class HomePageActivity extends AppCompatActivity
         presenter.stopTimer();
         Log.d("Logout","Logout called");
         AppHelper.getPool().getCurrentUser().signOut();
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         mGoogleApiClient.disconnect();
         exit(1);
     }
@@ -693,6 +703,8 @@ public class HomePageActivity extends AppCompatActivity
 
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
         // browser.
+        logout = false;
+        startTime = SystemClock.elapsedRealtime();
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/pdf");
@@ -721,9 +733,19 @@ public class HomePageActivity extends AppCompatActivity
             switch(requestCode) {
                 case PICKFILE:
                     if (resultData != null) {
+                        long timeElapsed = SystemClock.elapsedRealtime();
                         filePathUri = resultData.getData();
                         String fileName = getFileName(filePathUri);
                         importFileFragment.setFileName(fileName);
+
+                        if(timeElapsed < startTime){
+                            Logout();
+                        }else{
+                            timeElapsed = (timeElapsed - startTime) / 1000;
+                            if(timeElapsed > 60){
+                                Logout();
+                            }
+                        }
                     }
                     break;
                 case SETTING:
@@ -732,9 +754,27 @@ public class HomePageActivity extends AppCompatActivity
                     Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
                     Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
                     Log.d("SQLITEHELPER","SettingActivity to HomePageActivity--------------------------------------------------------------");
-
                     break;
-
+                case OPENFILE:
+                case ABOUT:
+                    if (resultData != null) {
+                        boolean logOut = resultData.getBooleanExtra("logout", true);
+                        if(logOut){
+                            Logout();
+                        }
+                    } else {
+                        Logout();
+                    }
+            }
+        } else if(requestCode == PICKFILE){
+            long timeElapsed = SystemClock.elapsedRealtime();
+            if(timeElapsed < startTime){
+                Logout();
+            }else{
+                timeElapsed = (timeElapsed - startTime) / 1000;
+                if(timeElapsed > 60){
+                    Logout();
+                }
             }
         }
     }
@@ -812,7 +852,7 @@ public class HomePageActivity extends AppCompatActivity
         int newFileId = FileSQLHelper.maxID() + 1;
         String currFileName = Credential.getEmail() + newFileId;
 
-        File dst = new File(dir.getAbsolutePath() + "/" + currFileName);
+        final File dst = new File(dir.getAbsolutePath() + "/" + currFileName);
         InputStream in = null;
         OutputStream out = null;
 
@@ -850,12 +890,32 @@ public class HomePageActivity extends AppCompatActivity
             }
         }
 
-        // Upload to S3
-        S3Helper.uploadFile(dst);
-        String key = S3Helper.getIdentity() + "/" + dst.getName();
-        showDownloadMessage();
-        TransferObserver observer = S3Helper.getUtility().upload(S3Helper.BUCKET_NAME, key, dst);
-        observer.setTransferListener(new UploadListener());
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        try{
+                            OutputStream out = getContentResolver().openOutputStream(filePathUri);
+                            out.flush();
+                        } catch(Exception e){}
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        // Upload to S3
+                        S3Helper.uploadFile(dst);
+                        String key = S3Helper.getIdentity() + "/" + dst.getName();
+                        showDownloadMessage();
+                        TransferObserver observer = S3Helper.getUtility().upload(S3Helper.BUCKET_NAME, key, dst);
+                        observer.setTransferListener(new UploadListener());
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Do you want to empty the original file from the device?\n" +
+                "(WARNING: LocAdoc does not provide file export)")
+                .setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
     }
 
     public void showDownloadMessage() {
@@ -888,17 +948,22 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     public void openFile(int fileid,String arn,String fn){
+        logout = false;
         Intent PDFVIEWER = new Intent(this, PDFViewer.class);
         PDFVIEWER.putExtra("fileid", fileid);
         PDFVIEWER.putExtra("areaname",arn);
         PDFVIEWER.putExtra("filename",fn);
-        startActivity(PDFVIEWER);
+        startActivityForResult(PDFVIEWER, OPENFILE);
     }
     @Override
     public void onStop()
     {
         super.onStop();
-        Logout();
+        if(logout) {
+            Logout();
+        } else{
+            logout = true;
+        }
     }
     @Override
     public Location getLastKnownLoc(){
