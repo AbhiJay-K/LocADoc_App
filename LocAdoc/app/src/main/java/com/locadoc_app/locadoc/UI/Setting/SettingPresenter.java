@@ -32,11 +32,11 @@ import java.util.List;
  * Created by user on 10/17/2017.
  */
 
-public class SettingActivityPresenter {
+public class SettingPresenter implements SettingPresenterInterface {
 
     private SettingActivity activity;
 
-    public SettingActivityPresenter(SettingActivity activity) {
+    public SettingPresenter(SettingActivity activity) {
         this.activity = activity;
     }
 
@@ -83,7 +83,7 @@ public class SettingActivityPresenter {
         return 3;
     }
 
-    public void changeToNewName(String firstName, String lastName, View builderView) {
+    public void changeToNewName(String firstName, String lastName) {
         new changeNameSyn().execute(firstName, lastName);
     }
 

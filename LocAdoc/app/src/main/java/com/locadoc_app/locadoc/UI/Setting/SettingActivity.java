@@ -10,7 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,7 +24,6 @@ import android.widget.Toast;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
@@ -35,16 +33,11 @@ import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.S3.S3Helper;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
-import static com.locadoc_app.locadoc.R.id.CreateNewAreaBtn;
-import static com.locadoc_app.locadoc.R.id.UserName;
-import static com.locadoc_app.locadoc.R.id.all;
 import static com.locadoc_app.locadoc.R.id.profile_usrEmail;
 
-public class SettingActivity extends AppCompatActivity  {
+public class SettingActivity extends AppCompatActivity implements SettingActivityViewInterface {
 
     // Setting Activity
     private ListView listView;
@@ -64,7 +57,7 @@ public class SettingActivity extends AppCompatActivity  {
     private TransferObserver observer;
     private boolean continueDownload;
 
-    private SettingActivityPresenter presenter;
+    private SettingPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +65,7 @@ public class SettingActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_settings);
 
         // Presenter Setting
-        presenter = new SettingActivityPresenter(this);
+        presenter = new SettingPresenter(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.setting_toolbar);
         // toolbar.setNavigationIcon(R.drawable.ic_setting_back_24dp);
@@ -256,7 +249,7 @@ public class SettingActivity extends AppCompatActivity  {
                                     break;
                             case 3: Log.d("CHANGENAME", "UPDATE IN NAME");
                                     showProgressDialog("Change Name","Updating Name into Server...");
-                                    presenter.changeToNewName(dialog_FirstName.getText().toString(), dialog_LastName.getText().toString(), builderView);
+                                    presenter.changeToNewName(dialog_FirstName.getText().toString(), dialog_LastName.getText().toString());
                                     changeNameDialog.dismiss();
                                     break;
                         }
@@ -422,11 +415,6 @@ public class SettingActivity extends AppCompatActivity  {
         }
     }
 
-    public void setProfileInitial(String inital) {
-        TextView profileText = (TextView) findViewById(R.id.profile_text);
-        profileText.setText(inital);
-    }
-
     public void exit(){
             Intent intent = new Intent();
             setResult(RESULT_OK, intent);
@@ -437,6 +425,11 @@ public class SettingActivity extends AppCompatActivity  {
     // ------------------------------------------------------------------------------
     //                              Accessor and Mutator
     // ------------------------------------------------------------------------------
+    public void setProfileInitial(String inital) {
+        TextView profileText = (TextView) findViewById(R.id.profile_text);
+        profileText.setText(inital);
+    }
+
     public void setUserNameTextView(String str, User user) {
         TextView userNameTextView = (TextView) findViewById(R.id.profile_usrName);
         userNameTextView.setText(str);

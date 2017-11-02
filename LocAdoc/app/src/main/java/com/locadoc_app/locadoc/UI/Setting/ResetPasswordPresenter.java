@@ -34,7 +34,7 @@ import static java.sql.DriverManager.println;
  * Created by Dainomix on 10/4/2017.
  */
 
-public class ResetPasswordPresenter {
+public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
 
     private ResetPassword activity;
     private boolean resultStatus;
