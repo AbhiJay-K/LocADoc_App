@@ -1,17 +1,22 @@
 package com.locadoc_app.locadoc.UI.Setting;
 
+import android.app.ProgressDialog;
 import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -41,16 +46,23 @@ import static com.locadoc_app.locadoc.R.id.profile_usrEmail;
 
 public class SettingActivity extends AppCompatActivity  {
 
+    // Setting Activity
     private ListView listView;
     private String userEmail;
     private TextView text_userEmail;
-    private List<Integer> allFileId;
     private AlertDialog userDialog;
+    String[] settingMenuListArray = {"User Name", "Password", "Download backup","Storage used"};
+
+    // Change User Name Dialog
+    private EditText dialog_FirstName, dialog_LastName;
+    private ProgressDialog pDialog;
+
+    // File Recovery with S3
+    private List<Integer> allFileId;
     private int noOfFilesProcessesed;
     private String currentFileName;
     private TransferObserver observer;
     private boolean continueDownload;
-    String[] settingMenuListArray = {"User Name", "Password", "Download backup","Storage used"};
 
     private SettingActivityPresenter presenter;
 
@@ -72,16 +84,11 @@ public class SettingActivity extends AppCompatActivity  {
     public void init() {
         Log.d("CREDENTIALCHECK","Setting Activity Email: " + Credential.getEmail() + "\t Password: " + Credential.getPassword().getPassword());
 
-        User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
-        String firstName = user.getFirstname();
-        String lastName = user.getLastname();
-        String userName = firstName + " " + lastName;
-
-        TextView userNameTextView = (TextView) findViewById(R.id.profile_usrName);
-        userNameTextView.setText(userName);
-
-        presenter.profileName(user.getFirstname(), user.getLastname());
-
+        User user = presenter.getUser();
+        String userName = user.getFirstname().concat(" ").concat(user.getLastname());
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        setUserNameTextView(userName, user);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         Log.d("SEPERATE" , "=======================================================================");
         Log.d("USER INFO", "Info: " + user.getLastname() + " " + user.getFirstname());
         Log.d("SEPERATE" , "=======================================================================");
@@ -91,15 +98,17 @@ public class SettingActivity extends AppCompatActivity  {
         if(!user.getTotalsizeused().isEmpty()) {
             size = S3Helper.getBytesString(Long.parseLong(user.getTotalsizeused()));
         }
-        size = size + " of 1GB used";
+        size = size.concat(" of 1GB used");
+
         listView = (ListView) findViewById(R.id.setting_menuList);
         listView.setAdapter(adapter);
+
         adapter.addItem(settingMenuListArray[0], "Change Name");
         adapter.addItem(settingMenuListArray[1], "********");
         adapter.addItem(settingMenuListArray[2], "Recover files from cloud");
         adapter.addItem(settingMenuListArray[3], size);
-        Bundle extras = getIntent().getExtras();
 
+        Bundle extras = getIntent().getExtras();
         if (extras !=null) {
             if (extras.containsKey("name")) {
                 userEmail = extras.getString("name");
@@ -166,28 +175,108 @@ public class SettingActivity extends AppCompatActivity  {
 
     }
 
+    // ------------------------------------------------------------------------------
+    //             Dialog Update User First Name and Last NAme
+    // ------------------------------------------------------------------------------
     public void changeUserName() {
+        // INTERNAL DIALOG
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        builder.setView(inflater.inflate(R.layout.dialog_update_username, null))
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        LayoutInflater inflater = this.getLayoutInflater(); // builder.setView(inflater.inflate(R.layout.dialog_update_username, null))
+        final View builderView = inflater.inflate(R.layout.dialog_update_username, null);
+        builder.setPositiveButton("OK", null);
+        builder.setNegativeButton("cancel",null);
+        builder.setView(builderView);
+
+        // SET CURRENT NAME INTO EDIT TEXT
+        User usr = presenter.getUser();
+        dialog_FirstName = (EditText) builderView.findViewById(R.id.updateUserName_FirstName);
+        dialog_FirstName.setText(usr.getFirstname());
+        dialog_LastName = (EditText) builderView.findViewById(R.id.updateUserName_LastName);
+        dialog_LastName.setText(usr.getLastname());
+
+        // TEXT WATCHER: Do not Allow new line as input
+        dialog_FirstName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                for(int i = s.length(); i > 0; i--) {
+                    if(s.subSequence(i-1, i).toString().equals("\n"))
+                        s = s.replace(i-1, i, "");
+                }
+            }
+        });
+
+        dialog_LastName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                for(int i = s.length(); i > 0; i--) {
+                    if(s.subSequence(i-1, i).toString().equals("\n"))
+                        s = s.replace(i-1, i, "");
+                }
+            }
+        });
+
+        // DIALOG SHOW
+        final AlertDialog changeNameDialog = builder.create();
+        changeNameDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialog) {
+                // POSITIVE SUBMIT
+                Button positive = changeNameDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                positive.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            userDialog.dismiss();
-                        } catch (Exception e) {}
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            userDialog.dismiss();
-                        } catch (Exception e) {}
+                    public void onClick(View view) {
+                        // TODO Do something
+                        Log.d("CHANGENAME", "First Name: " + dialog_FirstName.getText().toString());
+                        Log.d("CHANGENAME", "Last Name: " + dialog_LastName.getText().toString());
+
+                        switch(presenter.validName(dialog_FirstName.getText().toString(), dialog_LastName.getText().toString(), builderView)) {
+                            case 0: Log.d("CHANGENAME", "FIRST NAME IS EMPTY!");
+                                    break;
+                            case 1: Log.d("CHANGENAME", "LAST NAME IS EMPTY!");
+                                    break;
+                            case 2: Log.d("CHANGENAME", "SAME NAME");
+                                    changeNameDialog.dismiss();
+                                    break;
+                            case 3: Log.d("CHANGENAME", "UPDATE IN NAME");
+                                    showProgressDialog("Change Name","Updating Name into Server...");
+                                    presenter.changeToNewName(dialog_FirstName.getText().toString(), dialog_LastName.getText().toString(), builderView);
+                                    changeNameDialog.dismiss();
+                                    break;
+                        }
+
                     }
                 });
 
-        builder.show();
+                // NEGATIVE SUBMIT
+                Button negative = changeNameDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                negative.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        changeNameDialog.dismiss();
+                    }
+                });
+            }
+
+        });
+
+        changeNameDialog.show();
     }
 
     public void openResetPasswordActivity() {
@@ -344,47 +433,61 @@ public class SettingActivity extends AppCompatActivity  {
             finish();
     }
 
-    /********** View List Method **********/
 
+    // ------------------------------------------------------------------------------
+    //                              Accessor and Mutator
+    // ------------------------------------------------------------------------------
+    public void setUserNameTextView(String str, User user) {
+        TextView userNameTextView = (TextView) findViewById(R.id.profile_usrName);
+        userNameTextView.setText(str);
 
+        presenter.profileName(user.getFirstname(), user.getLastname());
 
-    /*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.home_page, menu);
-        username = (TextView) findViewById(R.id.USerEmail);
-        username.setText(userName);
-
-        MenuItem searchMenuItem = menu.findItem(R.id.toolbar);
-        if (searchMenuItem == null) {
-            return true;
-        }
-
-        searchView = (SearchView) searchMenuItem.getActionView();
-        MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                // Set styles for expanded state here
-                if (getSupportActionBar() != null) {
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                // Set styles for collapsed state here
-                if (getSupportActionBar() != null) {
-
-                }
-                return true;
-            }
-        });
-
-        return true;
     }
-    */
 
+    public void setLabelFirstName(String str, View v) {
+        TextView label = (TextView) v.findViewById(R.id.updateUserName_Message);
+        label.setText(str);
+        dialog_FirstName.setBackground(getDrawable(R.drawable.text_border_error));
+        dialog_LastName.setBackground(getDrawable(R.drawable.text_border_selector));
+    }
 
+    public void setLabelLastName(String str, View v) {
+        TextView label = (TextView) v.findViewById(R.id.updateUserName_Message);
+        label.setText(str);
+        dialog_FirstName.setBackground(getDrawable(R.drawable.text_border_selector));
+        dialog_LastName.setBackground(getDrawable(R.drawable.text_border_error));
+    }
 
+    public void setLabelFirstLastName(String str, View v) {
+        TextView label = (TextView) v.findViewById(R.id.updateUserName_Message);
+        label.setText(str);
+        dialog_FirstName.setBackground(getDrawable(R.drawable.text_border_error));
+        dialog_LastName.setBackground(getDrawable(R.drawable.text_border_error));
+    }
+
+    public void setLabelNameOK(String str, View v) {
+        TextView label = (TextView) v.findViewById(R.id.updateUserName_Message);
+        label.setText(str);
+        dialog_FirstName.setBackground(getDrawable(R.drawable.text_border_selector));
+        dialog_LastName.setBackground(getDrawable(R.drawable.text_border_selector));
+    }
+
+    public void showProgressDialog(String title, String msg) {
+        Log.d("CHANGENAME","Progress Dialog is executed");
+
+        pDialog = new ProgressDialog(SettingActivity.this);
+        pDialog.setTitle(title);
+        pDialog.setMessage(msg);
+        pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pDialog.setCancelable(false);
+        pDialog.show();
+    }
+
+    public void dismissProgresDialog() {
+        if(pDialog.isShowing()){
+            Log.d("CHANGENAME","Progress Dialog is quit");
+            pDialog.dismiss();
+        }
+    }
 }

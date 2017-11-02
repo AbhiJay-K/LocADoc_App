@@ -16,16 +16,21 @@
 
             android:layout_gravity="center_vertical|center_horizontal|center"
             android:background="@color/LocadocC"
+            android:fontFamily="sans-serif-smallcaps"
+
             android:text="user name update"
 
             android:textAlignment="center"
-
             android:textColor="@color/white"
-            android:textSize="36sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-smallcaps"/>
+            android:textSize="38sp"
+            android:textStyle="bold"/>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/updateUserName_FirstNameLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <EditText
             android:id="@+id/updateUserName_FirstName"
@@ -35,9 +40,15 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
             android:padding="20dp"
+            android:maxLines="1"
             android:hint="First Name"/>
 
-        <EditText
+    <TextView
+        android:id="@+id/updateUserName_LastNameLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
             android:id="@+id/updateUserName_LastName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -45,6 +56,17 @@
             android:layout_marginRight="20dp"
             android:layout_marginBottom="10dp"
             android:padding="20dp"
+            android:maxLines="1"
             android:hint="Last Name"/>
+
+    <TextView
+        android:id="@+id/updateUserName_Message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:textColor="#cc0000"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"/>
 
 </LinearLayout>
