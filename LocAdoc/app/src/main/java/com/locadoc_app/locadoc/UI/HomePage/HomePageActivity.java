@@ -522,7 +522,13 @@ public class HomePageActivity extends AppCompatActivity
         presenter.stopTimer();
         Log.d("Logout","Logout called");
         AppHelper.getPool().getCurrentUser().signOut();
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        // --------------------------------------------------------------------------------- TMP METHOD TO AVOID CRASH
+        try {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }catch(Exception e) {
+            Log.d("Logout", e.getMessage());
+        }
+        // --------------------------------------------------------------------------------- TMP METHOD TO AVOID CRASH
         mGoogleApiClient.disconnect();
         exit(1);
     }
