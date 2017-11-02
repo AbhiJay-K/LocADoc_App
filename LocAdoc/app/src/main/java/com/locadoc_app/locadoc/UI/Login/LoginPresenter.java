@@ -223,6 +223,7 @@ public class LoginPresenter implements LoginPresenterInterface
             if(Credential.getPassword() != null && Credential.getPassword().getPasswordid() == -1)
                 newCredentialPwd = Credential.getPassword();
 
+            // CREDENTIAL Password is changed to Old Password in getUerFromDB in UerDynamoHelper
             User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
             long numberUser = UserSQLHelper.getNumberofRecords();
 
@@ -232,6 +233,7 @@ public class LoginPresenter implements LoginPresenterInterface
                     // ---------------------------------------------------------------------------------------------
                     //                          RESET PASSWORD IN COMMON LOGIN
                     // ---------------------------------------------------------------------------------------------
+                    // Current Credential Password: old Password Info
                     if(Credential.getPassword() != null && newCredentialPwd.getPasswordid() == -1) {
                         Log.d("FORGOTPWD","======================================================================");
                         Log.d("FORGOTPWD","Common Login Case in Forgot PWD");
@@ -271,6 +273,10 @@ public class LoginPresenter implements LoginPresenterInterface
                         // ---------------------------------------------------------------------------------------------
                         //                       DYNAMODB AND SQLITE ENCRYPTION AND UPDATE
                         // ---------------------------------------------------------------------------------------------
+
+                        // SET old Password into Credential
+                        Credential.addAnOldPass(Credential.getPassword());
+
                         // SET New Password into Credential and New Encryption Key AS New Password
                         Credential.setPassword(newCredentialPwd);
                         Log.d("FORGOTPWD","Current Credential Password is new Password");
