@@ -66,7 +66,6 @@ public class HomePagePresenter {
         startTime = System.currentTimeMillis();
         sameID = false;
         timerHandler.postDelayed(timerRunnable, 0);
-
     }
 
     private void doCheck()

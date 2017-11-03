@@ -259,11 +259,11 @@ public class HomePageActivity extends AppCompatActivity
         boolean status=false;
         try{
             ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo netInfo = cm.getNetworkInfo(0);
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
             if (netInfo != null && netInfo.getState()==NetworkInfo.State.CONNECTED) {
                 status= true;
             }else {
-                netInfo = cm.getNetworkInfo(1);
+                netInfo = cm.getActiveNetworkInfo();
                 if(netInfo!=null && netInfo.getState()==NetworkInfo.State.CONNECTED)
                     status= true;
             }
@@ -272,12 +272,8 @@ public class HomePageActivity extends AppCompatActivity
             return false;
         }
         return status;
-
-        /*ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();*/
     }
+    
     //will be called if there is no network connection
     public void remindUserDialog(){
         AlertDialog.Builder builder = new  AlertDialog.Builder(HomePageActivity.this);
@@ -462,7 +458,6 @@ public class HomePageActivity extends AppCompatActivity
     @Override
     public boolean onQueryTextChange(String newText) {
         //friendListAdapter.getFilter().filter(newText);
-
         return true;
     }
     @SuppressWarnings("StatementWithEmptyBody")
