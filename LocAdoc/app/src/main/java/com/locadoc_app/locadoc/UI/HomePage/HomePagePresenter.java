@@ -23,6 +23,7 @@ import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.S3.S3Helper;
+import com.locadoc_app.locadoc.helper.Connectivity;
 
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class HomePagePresenter {
             if(count == 30)
             {
                 Log.d("Logout checkInstanceID","30 sec");
-                if(!homepage.isNetworkAvailable())
+                if(!Connectivity.isNetworkAvailable())
                 {
                     homepage.remindUserDialog();
                     count = 0;

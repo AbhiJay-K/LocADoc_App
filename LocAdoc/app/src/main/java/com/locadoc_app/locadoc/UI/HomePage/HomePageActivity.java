@@ -273,7 +273,7 @@ public class HomePageActivity extends AppCompatActivity
         }
         return status;
     }
-    
+
     //will be called if there is no network connection
     public void remindUserDialog(){
         AlertDialog.Builder builder = new  AlertDialog.Builder(HomePageActivity.this);

@@ -34,6 +34,7 @@ import com.locadoc_app.locadoc.UI.HomePage.HomePageActivity;
 import com.locadoc_app.locadoc.UI.NewPassword.NewPasswordActivity;
 import com.locadoc_app.locadoc.UI.PasswordRecovery.PasswordRecovery;
 import com.locadoc_app.locadoc.UI.Signup.SignUp;
+import com.locadoc_app.locadoc.helper.Connectivity;
 
 import java.util.List;
 
@@ -92,9 +93,14 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     @OnClick (R.id.SignupButton)
     void onSignupClick(View v)
     {
-        Log.d("LocAdoc", "Sign up");
-        Intent signUp = new Intent(this, SignUp.class);
-        startActivityForResult(signUp, 1);
+        if(Connectivity.isNetworkAvailable()) {
+            Log.d("LocAdoc", "Sign up");
+            Intent signUp = new Intent(this, SignUp.class);
+            startActivityForResult(signUp, 1);
+        }else{
+            remindUserDialog();
+        }
+
     }
     @OnClick (R.id.Login_Change_User_BTN)
     void onChangeUserClick(View v)
@@ -140,15 +146,38 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     @OnClick (R.id.LoginButton)
     void onLoginClick(View v)
     {
-        loginPres.onLoginClick(userIDView.getText().toString(),
-                                passView.getText().toString());
+        if(Connectivity.isNetworkAvailable()) {
+            loginPres.onLoginClick(userIDView.getText().toString(),
+                    passView.getText().toString());
+        }
+        else{
+            remindUserDialog();
+        }
     }
-
+    //will be called if there is no network connection
+    public void remindUserDialog(){
+        AlertDialog.Builder builder = new  AlertDialog.Builder(LoginActivity.this);
+        builder.setTitle("There is no network connection");
+        builder.setMessage("Make sure you are connected to a Wi-Fi or" +
+                "mobile network and try again");
+        builder.setCancelable(false);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                return;
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
     @OnClick (R.id.ForgotPasswordText)
     void onForgotPasswordClick(View v)
     {
-        userIDView.setError(null);
-        loginPres.onForgotPasswordClick(userIDView.getText().toString());
+        if(Connectivity.isNetworkAvailable()) {
+            userIDView.setError(null);
+            loginPres.onForgotPasswordClick(userIDView.getText().toString());
+        }else{
+            remindUserDialog();
+        }
     }
 
     @OnFocusChange (R.id.UserID)
