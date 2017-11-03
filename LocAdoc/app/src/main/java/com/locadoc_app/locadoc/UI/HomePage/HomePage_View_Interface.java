@@ -11,6 +11,5 @@ public interface HomePage_View_Interface {
     //boolean areThereMockPermissionApps(Context context);
     void LogoutLastTime();
     void Logout();
-    boolean isNetworkAvailable();
     void remindUserDialog();
 }

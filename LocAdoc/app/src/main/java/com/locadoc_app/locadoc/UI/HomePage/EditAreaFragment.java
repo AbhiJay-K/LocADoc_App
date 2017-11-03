@@ -28,6 +28,7 @@ import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.helper.Connectivity;
 
 import org.w3c.dom.Text;
 
@@ -113,6 +114,12 @@ public class EditAreaFragment extends Fragment {
         btnEditRadius.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                if(!Connectivity.isNetworkAvailable()){
+                    Toast.makeText(getActivity(), "Can not connect to internet. Please check your connection!",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(activity.isInArea(area)) {
                     if(radiusText.getText().toString().isEmpty()){
                         Toast.makeText(getActivity(), "New radius is empty",
@@ -140,6 +147,12 @@ public class EditAreaFragment extends Fragment {
         btnDeleteArea.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                if(!Connectivity.isNetworkAvailable()){
+                    Toast.makeText(getActivity(), "Can not connect to internet. Please check your connection!",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(activity.isInArea(area)){
                     if(!FileSQLHelper.checkFilesInAreaExist(area.getAreaId(), Credential.getPassword())) {
                         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {

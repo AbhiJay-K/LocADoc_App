@@ -22,6 +22,7 @@ import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.helper.Connectivity;
 
 import java.util.Map;
 
@@ -120,6 +121,12 @@ public class ImportFileFragment extends Fragment {
         btnCreateNewArea.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                if(!Connectivity.isNetworkAvailable()){
+                    Toast.makeText(getActivity(), "Can not connect to internet. Please check your connection!",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(radiusText.getText().toString().isEmpty()){
                     Toast.makeText(getActivity(), "New radius is empty",
                             Toast.LENGTH_SHORT).show();
@@ -176,6 +183,12 @@ public class ImportFileFragment extends Fragment {
         btnSelectExistingArea.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                if(!Connectivity.isNetworkAvailable()){
+                    Toast.makeText(getActivity(), "Can not connect to internet. Please check your connection!",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Object obj = existingArea.getSelectedItem();
                 String filename = fileNameText.getText().toString();
                 int areaid = allAreaAround.get(obj.toString());

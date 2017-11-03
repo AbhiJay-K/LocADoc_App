@@ -255,25 +255,6 @@ public class HomePageActivity extends AppCompatActivity
         gMapFrag.clearCircle();
     }
 
-    public boolean isNetworkAvailable() {
-        boolean status=false;
-        try{
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo netInfo = cm.getActiveNetworkInfo();
-            if (netInfo != null && netInfo.getState()==NetworkInfo.State.CONNECTED) {
-                status= true;
-            }else {
-                netInfo = cm.getActiveNetworkInfo();
-                if(netInfo!=null && netInfo.getState()==NetworkInfo.State.CONNECTED)
-                    status= true;
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            return false;
-        }
-        return status;
-    }
-
     //will be called if there is no network connection
     public void remindUserDialog(){
         AlertDialog.Builder builder = new  AlertDialog.Builder(HomePageActivity.this);

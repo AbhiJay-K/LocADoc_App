@@ -31,6 +31,7 @@ import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.S3.S3Helper;
+import com.locadoc_app.locadoc.helper.Connectivity;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -90,6 +91,12 @@ public class FileOperationsFragment extends DialogFragment {
         btnCopyFile.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                if(!Connectivity.isNetworkAvailable()){
+                    Toast.makeText(getActivity(), "Can not connect to internet. Please check your connection!",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
                 if(!activity.isInArea(fileArea)){
                     Toast.makeText(getActivity(), "You are not within " + fileArea.getName() + "'s radius anymore",
@@ -177,6 +184,12 @@ public class FileOperationsFragment extends DialogFragment {
         btnMoveFile.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                if(!Connectivity.isNetworkAvailable()){
+                    Toast.makeText(getActivity(), "Can not connect to internet. Please check your connection!",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 final FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
                 if(!activity.isInArea(fileArea)){
                     Toast.makeText(getActivity(), "You are not within " + fileArea.getName() + "'s radius anymore",
@@ -225,6 +238,12 @@ public class FileOperationsFragment extends DialogFragment {
         btnDelete.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
+                if(!Connectivity.isNetworkAvailable()){
+                    Toast.makeText(getActivity(), "Can not connect to internet. Please check your connection!",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 final FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
                 if(!activity.isInArea(fileArea)){
                     Toast.makeText(getActivity(), "You are not within " + fileArea.getName() + "'s radius anymore",
