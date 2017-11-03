@@ -28,6 +28,7 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
     private ResetPasswordPresenter presenter;
     private AlertDialog aDialog;
     private ProgressDialog pDialog;
+    private boolean logout;
 
     private boolean confPwdStatus;
 
@@ -35,6 +36,7 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
+        logout = true;
         setTitle("Reset Password");
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         presenter = new ResetPasswordPresenter(this);
@@ -255,6 +257,7 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
             public void onClick(DialogInterface dialog, int which) {
                 try {
                     aDialog.dismiss();
+                    logout = false;
                     exit(result);
                 } catch (Exception e) {
                     //
@@ -266,12 +269,22 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
     }
 
     public void exit(boolean result) {
-        if(result) {
-            Intent intent = new Intent();
-            intent.putExtra("result",result);
-            setResult(RESULT_OK, intent);
-            finish();
-        }
+        Intent intent = new Intent();
+        intent.putExtra("result",result);
+        intent.putExtra("logout", logout);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
+    @Override
+    public void onStop(){
+        super.onStop();
+        exit(false);
+    }
+
+    @Override
+    public void onBackPressed(){
+        logout = false;
+        exit(false);
+    }
 }

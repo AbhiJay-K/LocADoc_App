@@ -755,12 +755,6 @@ public class HomePageActivity extends AppCompatActivity
                     }
                     break;
                 case SETTING:
-                    Log.d("SQLITEHELPER","SettingActivity to HomePageActivity--------------------------------------------------------------");
-                    User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
-                    Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
-                    Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
-                    Log.d("SQLITEHELPER","SettingActivity to HomePageActivity--------------------------------------------------------------");
-                    break;
                 case OPENFILE:
                 case ABOUT:
                     if (resultData != null) {

@@ -274,9 +274,6 @@ public class LoginPresenter implements LoginPresenterInterface
                         //                       DYNAMODB AND SQLITE ENCRYPTION AND UPDATE
                         // ---------------------------------------------------------------------------------------------
 
-                        // SET old Password into Credential
-                        Credential.addAnOldPass(Credential.getPassword());
-
                         // SET New Password into Credential and New Encryption Key AS New Password
                         Credential.setPassword(newCredentialPwd);
                         Log.d("FORGOTPWD","Current Credential Password is new Password");
@@ -290,6 +287,7 @@ public class LoginPresenter implements LoginPresenterInterface
                         // Update DynamoDB: user with new password ID and new Password
                         userInSQLite.setPasswordid(oldPwdID + 1);
                         UserSQLHelper.UpdateRecord(userInSQLite, Credential.getPassword());
+                        userInSQLite.setInstanceID(ApplicationInstance.getRecord());
 
                         // ===================================================================================== Check
                         UserDynamoHelper.getInstance().insert(userInSQLite);
@@ -453,7 +451,6 @@ public class LoginPresenter implements LoginPresenterInterface
                         //                       DYNAMODB AND SQLITE ENCRYPTION AND UPDATE
                         // ---------------------------------------------------------------------------------------------
                         // SET New Encryption Key AS New Password
-                        Credential.addAnOldPass(Credential.getPassword());
                         Credential.setPassword(newCredentialPwd);
                         Log.d("FORGOTPWD","Current Credential Password is new Password");
 

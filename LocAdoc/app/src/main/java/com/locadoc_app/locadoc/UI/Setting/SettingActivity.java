@@ -56,6 +56,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     private String currentFileName;
     private TransferObserver observer;
     private boolean continueDownload;
+    private boolean logout;
 
     private SettingPresenter presenter;
 
@@ -63,6 +64,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        logout = true;
 
         // Presenter Setting
         presenter = new SettingPresenter(this);
@@ -142,6 +144,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
         tvBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                logout = false;
                 exit();
             }
         });
@@ -389,6 +392,11 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
        // Make sure the request was successful
        if (resultCode == RESULT_OK) {        // Check which request we're responding to
+           boolean logout = data.getBooleanExtra("logout", true);
+           if(logout){
+               exit();
+           }
+
            switch(requestCode) {
                case 30:
                    break;
@@ -414,13 +422,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
            }
         }
     }
-
-    public void exit(){
-            Intent intent = new Intent();
-            setResult(RESULT_OK, intent);
-            finish();
-    }
-
 
     // ------------------------------------------------------------------------------
     //                              Accessor and Mutator
@@ -482,5 +483,24 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
             Log.d("CHANGENAME","Progress Dialog is quit");
             pDialog.dismiss();
         }
+    }
+
+    public void exit(){
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
+        intent.putExtra("logout", logout);
+        finish();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        exit();
+    }
+
+    @Override
+    public void onBackPressed(){
+        logout = false;
+        exit();
     }
 }
