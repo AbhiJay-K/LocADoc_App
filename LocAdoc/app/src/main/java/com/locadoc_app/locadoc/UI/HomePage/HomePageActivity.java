@@ -12,6 +12,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -253,6 +255,44 @@ public class HomePageActivity extends AppCompatActivity
         gMapFrag.clearCircle();
     }
 
+    public boolean isNetworkAvailable() {
+        boolean status=false;
+        try{
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getNetworkInfo(0);
+            if (netInfo != null && netInfo.getState()==NetworkInfo.State.CONNECTED) {
+                status= true;
+            }else {
+                netInfo = cm.getNetworkInfo(1);
+                if(netInfo!=null && netInfo.getState()==NetworkInfo.State.CONNECTED)
+                    status= true;
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+        return status;
+
+        /*ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();*/
+    }
+    //will be called if there is no network connection
+    public void remindUserDialog(){
+        AlertDialog.Builder builder = new  AlertDialog.Builder(HomePageActivity.this);
+        builder.setTitle("There is no network connection");
+        builder.setMessage("Make sure you are connected to a Wi-Fi or" +
+                "mobile network and try again");
+        builder.setCancelable(false);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                return;
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
     @Override
     public void openFileExplorer(){
         getSupportFragmentManager().beginTransaction()
@@ -470,8 +510,7 @@ public class HomePageActivity extends AppCompatActivity
 
     public void changeFileSizeUsed(String size)
     {
-
-
+        //For Listener
     }
 
     public void showDeleteAccountDialog()

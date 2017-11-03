@@ -1,5 +1,7 @@
 package com.locadoc_app.locadoc.UI.HomePage;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
@@ -43,7 +45,15 @@ public class HomePagePresenter {
             if(count == 30)
             {
                 Log.d("Logout checkInstanceID","30 sec");
-                new DBSynchronise().execute();
+                if(!homepage.isNetworkAvailable())
+                {
+                    homepage.remindUserDialog();
+                    count = 0;
+                }
+                else
+                {
+                    new DBSynchronise().execute();
+                }
             }
             timerHandler.postDelayed(this, delay);
         }
@@ -58,15 +68,14 @@ public class HomePagePresenter {
         timerHandler.postDelayed(timerRunnable, 0);
 
     }
+
     private void doCheck()
     {
-        if(sameID && checkSpoofing())
-        {
-            count = 0;
-        }
-        else{
-            stopTimer();
-            homepage.Logout();
+        if (sameID && checkSpoofing()) {
+                count = 0;
+        } else {
+                stopTimer();
+                homepage.Logout();
         }
     }
     public void stopTimer()
