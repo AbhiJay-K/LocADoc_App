@@ -229,8 +229,9 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
             String email = UserSQLHelper.getUser();
             chngUser.setVisibility(View.VISIBLE);
             userIDView.setText(email);
+            userIDView.setEnabled(false);
+            userIDView.setFocusableInTouchMode(false);
             userIDView.setFocusable(false);
-            userIDView.setClickable(true);
             signupButton.setVisibility(View.GONE);
             curUSer = true;
             return true;

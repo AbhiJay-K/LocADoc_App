@@ -10,7 +10,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:drawable/screen_background_light_transparent">
+        android:background="@color/LocadocC">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,22 +22,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:text=""
+                android:textColor="@color/Text1"
                 android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/EditAreaLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:text="@string/edit_area_label"
+                android:textColor="@color/Text1"
                 android:textSize="20sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
@@ -47,25 +49,28 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/radius_label"
+                    android:textColor="@color/Text1"
                     android:textSize="20sp" />
 
                 <EditText
                     android:id="@+id/RadiusEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="5dp"
                     android:layout_weight="0.9"
-                    android:background="@drawable/text_border_default"
+                    android:background="@color/Text1"
                     android:hint="@string/radius_hint"
-                    android:inputType="numberSigned" />
+                    android:inputType="numberSigned"
+                    android:textColor="@android:color/black" />
 
                 <TextView
                     android:id="@+id/MeterLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
                     android:layout_weight="2.8"
                     android:text="@string/meter_label"
+                    android:textColor="@color/Text1"
                     android:textSize="20sp" />
             </LinearLayout>
 
@@ -73,17 +78,20 @@
                 android:id="@+id/RadiusSeekBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
                 android:max="995"
-                android:progress="5" />
+                android:progress="5"
+                android:theme="@style/SeekBarColor" />
 
             <Button
                 android:id="@+id/EditRadiusBtn"
-                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:text="@string/edit_radius_btn" />
+                android:backgroundTint="@color/grey_100"
+                android:text="@string/edit_radius_btn"
+                android:textColor="@color/grey_500" />
 
             <Button
                 android:id="@+id/DeleteAreaBtn"

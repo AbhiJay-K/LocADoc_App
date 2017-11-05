@@ -2,6 +2,7 @@ package com.locadoc_app.locadoc.UI.HomePage;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -59,7 +60,6 @@ public class ImportFileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState){
         View view = inflater.inflate(R.layout.fragment_import_file, container, false);
-
         radius = 5;
         listener = (ImportFileFragmentListener) getActivity();
         fileNameText = (TextView) view.findViewById(R.id.NewFileName);
@@ -251,7 +251,7 @@ public class ImportFileFragment extends Fragment {
         getAllAreaAround(loc);
         String[] strArr = allAreaAround.keySet().toArray(new String[allAreaAround.size()]);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_dropdown_item_1line, strArr);
+                R.layout.spinnerlayout, strArr);
         existingArea.setAdapter(adapter);
     }
 
