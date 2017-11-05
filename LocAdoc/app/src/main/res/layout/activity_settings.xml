@@ -56,7 +56,7 @@
                     android:text="LocAdoc Settings"
                     android:textColor="#FFFFFF"
                     android:textSize="18dp"
-                    />
+                    android:textStyle="bold"/>
             </LinearLayout>
 
 
@@ -73,7 +73,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:weightSum="1">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -120,12 +121,13 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="271dp"
+                android:layout_weight="0.87">
 
                 <Space
+                    android:id="@+id/space3"
                     android:layout_width="match_parent"
-                    android:layout_height="20dp"
-                    android:id="@+id/space3"/>
+                    android:layout_height="20dp"/>
 
                 <ListView
                     android:id="@+id/setting_menuList"
@@ -133,10 +135,45 @@
                     android:layout_height="match_parent"
                     android:paddingStart="30dp"
                     android:paddingEnd="30dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_below="@+id/space3"/>
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"/>
 
             </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_alignParentBottom="true">
+
+                <TextView
+                    android:id="@+id/setting_title_storage_usage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingEnd="30dp"
+                    android:paddingStart="30dp"
+                    android:text="Storage used"
+                    android:textAlignment="center"
+                    android:textColor="@color/grey_500"
+                    android:textSize="16dp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/setting_storage_usage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingEnd="30dp"
+                    android:paddingStart="30dp"
+                    android:textAlignment="center"
+                    android:textColor="#666666"
+                    android:textSize="12dp"/>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 

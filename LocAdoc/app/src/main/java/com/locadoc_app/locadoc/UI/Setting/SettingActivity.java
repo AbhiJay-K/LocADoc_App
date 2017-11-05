@@ -35,7 +35,9 @@ import com.locadoc_app.locadoc.S3.S3Helper;
 
 import java.util.List;
 
+import static com.locadoc_app.locadoc.Model.Credential.getEmail;
 import static com.locadoc_app.locadoc.R.id.profile_usrEmail;
+import static com.locadoc_app.locadoc.R.id.profile_usrName;
 
 public class SettingActivity extends AppCompatActivity implements SettingActivityViewInterface {
 
@@ -44,7 +46,8 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     private String userEmail;
     private TextView text_userEmail;
     private AlertDialog userDialog;
-    String[] settingMenuListArray = {"User Name", "Password", "Download backup","Storage used"};
+    // String[] settingMenuListArray = {"User Name", "Password", "Download backup","Storage used"};
+    private String[] settingMenuListArray = {"User Name", "Password", "Download backup"};
 
     // Change User Name Dialog
     private EditText dialog_FirstName, dialog_LastName;
@@ -70,30 +73,44 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
         presenter = new SettingPresenter(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.setting_toolbar);
-        // toolbar.setNavigationIcon(R.drawable.ic_setting_back_24dp);
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(null);
         init();
     }
 
     public void init() {
-        Log.d("CREDENTIALCHECK","Setting Activity Email: " + Credential.getEmail() + "\t Password: " + Credential.getPassword().getPassword());
+        Log.d("CREDENTIALCHECK","Setting Activity Email: " + getEmail() + "\t Password: " + Credential.getPassword().getPassword());
 
+        // User Name
         User user = presenter.getUser();
         String userName = user.getFirstname().concat(" ").concat(user.getLastname());
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         setUserNameTextView(userName, user);
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        Log.d("SEPERATE" , "=======================================================================");
-        Log.d("USER INFO", "Info: " + user.getLastname() + " " + user.getFirstname());
-        Log.d("SEPERATE" , "=======================================================================");
 
-        SettingListViewAdapter adapter = new SettingListViewAdapter();
+        // User Email ID
+        text_userEmail = (TextView) findViewById(profile_usrEmail);
+        text_userEmail.setText(presenter.getEmail());
+
+        // Storage Usage
+        TextView text_Usage = (TextView) findViewById(R.id.setting_storage_usage);
+
         String size = "0KB";
         if(!user.getTotalsizeused().isEmpty()) {
             size = S3Helper.getBytesString(Long.parseLong(user.getTotalsizeused()));
         }
         size = size.concat(" of 1GB used");
+
+        text_Usage.setText(size);
+
+        SettingListViewAdapter adapter = new SettingListViewAdapter();
+
+        /*
+        String size = "0KB";
+        if(!user.getTotalsizeused().isEmpty()) {
+            size = S3Helper.getBytesString(Long.parseLong(user.getTotalsizeused()));
+        }
+        size = size.concat(" of 1GB used");
+        */
 
         listView = (ListView) findViewById(R.id.setting_menuList);
         listView.setAdapter(adapter);
@@ -101,17 +118,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
         adapter.addItem(settingMenuListArray[0], "Change Name");
         adapter.addItem(settingMenuListArray[1], "********");
         adapter.addItem(settingMenuListArray[2], "Recover files from cloud");
-        adapter.addItem(settingMenuListArray[3], size);
-
-        Bundle extras = getIntent().getExtras();
-        if (extras !=null) {
-            if (extras.containsKey("name")) {
-                userEmail = extras.getString("name");
-            }
-        }
-
-        text_userEmail = (TextView) findViewById(profile_usrEmail);
-        text_userEmail.setText(userEmail);
+        //adapter.addItem(settingMenuListArray[3], size);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -138,7 +145,13 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
             }
         });
 
-        Menu save = (Menu) findViewById(R.id.setting_save);
+        TextView tvUserName = (TextView) findViewById(R.id.profile_usrName);
+        tvUserName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeUserName();
+            }
+        });
 
         TextView tvBack = (TextView) findViewById(R.id.toolbar_setting_back);
         tvBack.setOnClickListener(new View.OnClickListener() {
@@ -148,26 +161,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
                 exit();
             }
         });
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.setting_action_page, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch(item.getItemId()) {
-            case R.id.setting_save:
-                Toast.makeText(SettingActivity.this, "Save option is selected to save modification in Setting", Toast.LENGTH_SHORT).show();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
 
     }
 
@@ -408,7 +401,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
                        Toast.makeText(SettingActivity.this, "Success to Change Password", Toast.LENGTH_SHORT).show();
                    }
                    Log.d("SQLITEHELPER","ResetPassword to SettingActivity--------------------------------------------------------------");
-                   User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+                   User userInSQLite = UserSQLHelper.getRecord(getEmail(), Credential.getPassword());
                    Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
                    Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
                    Log.d("SQLITEHELPER","ResetPassword to SettingActivity--------------------------------------------------------------");
@@ -432,11 +425,10 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     }
 
     public void setUserNameTextView(String str, User user) {
-        TextView userNameTextView = (TextView) findViewById(R.id.profile_usrName);
+        TextView userNameTextView = (TextView) findViewById(profile_usrName);
         userNameTextView.setText(str);
 
         presenter.profileName(user.getFirstname(), user.getLastname());
-
     }
 
     public void setLabelFirstName(String str, View v) {

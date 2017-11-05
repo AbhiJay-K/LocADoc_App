@@ -15,6 +15,7 @@ public interface SettingPresenterInterface {
     void changeToNewName(String firstName, String lastName);
 
     User getUser();
+    String getEmail();
 
 
 }

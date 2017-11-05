@@ -460,7 +460,6 @@ public class HomePageActivity extends AppCompatActivity
             // Test code to access Setting Activity
             logout = false;
             Intent settingActivity = new Intent(this, SettingActivity.class);
-            settingActivity.putExtra("name", userName);
             startActivityForResult(settingActivity, SETTING);
             //startActivity(settingActivity);
 

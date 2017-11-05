@@ -120,6 +120,10 @@ public class SettingPresenter implements SettingPresenterInterface {
         return UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
     }
 
+    public String getEmail() {
+        return Credential.getEmail();
+    }
+
 
 
 }
