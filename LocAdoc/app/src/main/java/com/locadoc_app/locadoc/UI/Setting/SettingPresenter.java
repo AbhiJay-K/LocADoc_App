@@ -105,7 +105,7 @@ public class SettingPresenter implements SettingPresenterInterface {
             //                          Update in SQLite
             //  ------------------------------------------------------------------------
             // user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
-            User user = getUser();
+            User user = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
             user.setFirstname(objects[0]);
             user.setLastname(objects[1]);
             UserSQLHelper.UpdateRecord(user, Credential.getPassword());
