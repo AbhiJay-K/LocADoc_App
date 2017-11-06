@@ -140,6 +140,7 @@ public class FileExplorerFragment extends Fragment
                     FileExplorerFragmentListener listener = (FileExplorerFragmentListener) getActivity();
                     listener.openFile(fileid,curAreaName,curFileName);
                 } else {
+                    Log.d("LocAdoc", "curr: " + fileInfo.getOriginalfilename());
                     showDownloadMessage(key, fileInfo.getOriginalfilename(),
                             S3Helper.getBytesString(Long.parseLong(fileInfo.getFilesize())), file);
                 }
@@ -196,7 +197,9 @@ public class FileExplorerFragment extends Fragment
 
     public void showProgressMessage(String fileName){
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Downloading " + fileName).setMessage("").setNeutralButton("Cancel download", new DialogInterface.OnClickListener() {
+        builder.setTitle("Downloading " + fileName)
+                .setMessage("")
+                .setNeutralButton("Cancel download", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
@@ -232,7 +235,15 @@ public class FileExplorerFragment extends Fragment
         public void onStateChanged(int id, TransferState state) {
             if(state == TransferState.COMPLETED){
                 isDownloading = true;
-                userDialog.setMessage("Download Complete");
+                userDialog.dismiss();
+                userDialog = null;
+
+                final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                builder.setTitle("Download Finished")
+                        .setMessage(curFileName + " has been downloaded");
+                userDialog = builder.create();
+                userDialog.setCancelable(true);
+                userDialog.show();
             }
         }
     }

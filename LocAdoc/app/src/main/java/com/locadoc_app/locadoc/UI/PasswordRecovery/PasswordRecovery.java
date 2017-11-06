@@ -35,7 +35,7 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passwordrecovery);
-        setTitle("Forgot your PasswordSQLHelper?");
+        setTitle("Forgot your Password?");
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         presenter = new PasswordRecoveryPresenter(this);
         init();

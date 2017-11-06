@@ -9,6 +9,7 @@ import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper;
 import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.S3.S3Helper;
+import com.locadoc_app.locadoc.helper.Encryption;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -108,10 +109,19 @@ public class Credential {
     {
         PASSWORD = null;
         email = "";
+
+        if(credentials == null){
+            credentials = new CognitoCachingCredentialsProvider(
+                    LocAdocApp.getContext(),
+                    identityPoolId,
+                    Regions.AP_SOUTHEAST_1);
+        }
+
         credentials.clear();
         credentials = null;
         identityId = "";
         DynamoDBHelper.setDynamoDBHelperTOnull();
         S3Helper.setS3HelperToNull();
+        Encryption.clear();
     }
 }

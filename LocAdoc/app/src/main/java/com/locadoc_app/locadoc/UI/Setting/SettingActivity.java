@@ -305,8 +305,8 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
         continueDownload = true;
 
         final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
-        builder.setTitle("Downloading All Files...").
-                setMessage("")
+        builder.setTitle("Downloading All Files...")
+                .setMessage("")
                 .setNeutralButton("Cancel Download", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -343,7 +343,15 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
         }
 
         if(noOfFilesProcessesed >= allFileId.size() && !downloading){
-            userDialog.setMessage("All files have been downloaded");
+            userDialog.dismiss();
+            userDialog = null;
+
+            final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+            builder.setTitle("Download Finished")
+                    .setMessage("ALl files have been downloaded");
+            userDialog = builder.create();
+            userDialog.setCancelable(true);
+            userDialog.show();
         }
     }
 

@@ -49,13 +49,13 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
 
         // Check Password Empty
         if(curPwd.isEmpty()) {
-            activity.setLabelCurPwd("PasswordSQLHelper: cannot be empty!");
+            activity.setLabelCurPwd("Password cannot be empty!");
             return 2;
         }
 
         // Check Password Format
         if(!CheckPassword.PWDCheck(curPwd)) {
-            activity.setLabelCurPwd("PasswordSQLHelper: have to be 8-12 characters. Contains A-Z, a-z, 0-9");
+            activity.setLabelCurPwd("Password have to be 8-12 characters. Contains A-Z, a-z, 0-9");
             return 1;
         }
         else {
@@ -72,7 +72,7 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
 
         // check Password Empty
         if(newPwd.isEmpty()) {
-            activity.setLabelNewPwd("PasswordSQLHelper: cannot be empty!");
+            activity.setLabelNewPwd("Password cannot be empty!");
             return 2;
         }
 
@@ -80,7 +80,7 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
         if(CheckPassword.PWDCheck(newPwd))
             activity.setLabelNewPwdOK("");
         else
-            activity.setLabelNewPwd("PasswordSQLHelper: have to be 8-12 characters. Contains A-Z, a-z, 0-9");
+            activity.setLabelNewPwd("Password have to be 8-12 characters. Contains A-Z, a-z, 0-9");
 
         return 0;
     }
@@ -95,7 +95,7 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
         if(confirmNewPwd.equals(newPwd))
             activity.setLabelConfirmNewPwdOK("");
         else
-            activity.setLabelConfirmNewPwd("PasswordSQLHelper: Confirm Password is not same with New Password");
+            activity.setLabelConfirmNewPwd("Confirm Password is not same with New Password");
 
         return 0;
     }
@@ -145,11 +145,11 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
             Log.d("EXCEPTION MESSAGE", exception.toString());
             Log.d("SEPERATE", "FAIL--------------------------------------------------------------------------------");
 
-            activity.setLabelCurPwd("PasswordSQLHelper: incorrect Current Password");
+            activity.setLabelCurPwd("Incorrect Current Password");
 
             resultStatus = false;
 
-            activity.showDialogMessage("FAIL","FAIL TO CHANGE PASSWORD\n" + AppHelper.formatException(exception), resultStatus);
+            activity.showDialogMessage("Fail","Fail to change password\n" + AppHelper.formatException(exception), resultStatus);
         }
     };
 
@@ -159,7 +159,7 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
         @Override
         protected void onPostExecute(Void result){
             activity.dismissProgresDialog();
-            activity.showDialogMessage("SUCCESS","SUCCESS TO CHANGE PASSWORD", resultStatus);
+            activity.showDialogMessage("Success","Change password success", resultStatus);
             //super.onPostExecute(result);
         }
 

@@ -108,14 +108,13 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
 
         if(FileSQLHelper.getNumberofRecords() > 0)
         {
-            List<Integer> fileList = FileSQLHelper.getAllFileID();
-            for(int id:fileList)
+            java.io.File dir = new java.io.File(getApplicationContext().getFilesDir().getAbsolutePath()+"/vault");
+            if (dir.exists())
             {
-                File file = FileSQLHelper.getFile(id, Credential.getPassword());
-                java.io.File src = new java.io.File(LocAdocApp.getContext().getFilesDir().getAbsolutePath() +
-                        "/vault/" + file.getCurrentfilename());
-                if(src.exists()) {
-                    src.delete();
+                String[] allFiles = dir.list();
+                for (int i = 0; i < allFiles.length; i++)
+                {
+                    new java.io.File(dir, allFiles[i]).delete();
                 }
             }
             FileSQLHelper.clearRecord();
@@ -131,6 +130,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         {
             UserSQLHelper.clearRecord();
         }
+
         Credential.clearAll();
         userIDView.setText("");
         userIDView.setEnabled(true);

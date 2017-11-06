@@ -36,7 +36,7 @@ public class PasswordRecoveryPresenter implements PasswordRecoveryPresenterInter
         String password = activity.getPwdView().getText().toString();
         if(password.isEmpty())
         {
-            activity.setLabelPassword("PasswordSQLHelper cannot be empty!");
+            activity.setLabelPassword("Password cannot be empty!");
             return 2;
         }
         if(CheckPassword.PWDCheck(password))
@@ -44,7 +44,7 @@ public class PasswordRecoveryPresenter implements PasswordRecoveryPresenterInter
             activity.setLabelPasswordOK("");
             return 1;
         }
-        activity.setLabelPassword("PasswordSQLHelper is 8-12 charecters. Contains A-Z, a-z, 0-9");
+        activity.setLabelPassword("Password is 8-12 charecters. Contains A-Z, a-z, 0-9");
         return 0;
     }
 
@@ -62,7 +62,7 @@ public class PasswordRecoveryPresenter implements PasswordRecoveryPresenterInter
             activity.setLabelConfirmPasswordOK("");
             return 1;
         }
-        activity.setLabelConfirmPassword("PasswordSQLHelper does not match");
+        activity.setLabelConfirmPassword("Password does not match");
         return 0;
     }
 

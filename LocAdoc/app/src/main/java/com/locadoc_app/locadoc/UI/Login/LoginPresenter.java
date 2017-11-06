@@ -265,6 +265,7 @@ public class LoginPresenter implements LoginPresenterInterface
                             file.setCurrentfilename(en.decrypttString(file.getCurrentfilename()));
                             file.setOriginalfilename(en.decrypttString(file.getOriginalfilename()));
                             file.setModified(en.decrypttString(file.getModified()));
+                            file.setFilesize(en.decrypttString(file.getFilesize()));
                         }
 
                         // Get User Data from Local DB
@@ -306,7 +307,7 @@ public class LoginPresenter implements LoginPresenterInterface
                             AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
 
                             // INSERT Area INTO DynamoDB
-                            AreaDynamoHelper.getInstance().insert(ar);
+                            AreaDynamoHelper.getInstance().insertToDBWithoutEncryption(ar);
                         }
 
                         for(File file : fileList) {
@@ -314,12 +315,13 @@ public class LoginPresenter implements LoginPresenterInterface
                             file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
                             file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
                             file.setModified(en.encryptString(file.getModified()));
+                            file.setFilesize(en.encryptString(file.getFilesize()));
 
                             // INSERT FILE INTO localDB
                             FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
 
                             // INSERT FILE INTO DynamoDB
-                            FileDynamoHelper.getInstance().insert(file);
+                            FileDynamoHelper.getInstance().insertToDBWithoutEncryption(file);
                         }
 
                         // ---------------------------------------------------------------------------------------------
@@ -395,7 +397,8 @@ public class LoginPresenter implements LoginPresenterInterface
                 // ---------------------------------------------------------------------------------------------
                 //                     RESET PASSWORD IN COMMON LOGIN WITH DIFFERENT DEVICE
                 // ---------------------------------------------------------------------------------------------
-                    if(Credential.getPassword() != null && newCredentialPwd.getPasswordid() == -1) {
+
+                if(Credential.getPassword() != null && newCredentialPwd.getPasswordid() == -1) {
                         Log.d("FORGOTPWD","======================================================================");
                         Log.d("FORGOTPWD","Common Login with Different Devices Case in Forgot PWD");
                         Log.d("FORGOTPWD","Current Credential Password is old Password");
@@ -416,12 +419,6 @@ public class LoginPresenter implements LoginPresenterInterface
                         String Instance = Hash.Hash(TimeStamp,random);
                         ApplicationInstance.insert(Instance);
                         usr.setInstanceID(Instance);
-
-                        // Check PasswordID Between User Table and Password Table
-                        if(usr.getPasswordid() != Credential.getPassword().getPasswordid() ) {
-                            //Credential.getPassword().setPasswordid(usr.getPasswordid());
-                            newCredentialPwd.setPasswordid(usr.getPasswordid());
-                        }
 
                         FileSQLHelper.clearRecord();
                         AreaSQLHelper.clearRecord();
@@ -445,6 +442,7 @@ public class LoginPresenter implements LoginPresenterInterface
                             file.setCurrentfilename(en.decrypttString(file.getCurrentfilename()));
                             file.setOriginalfilename(en.decrypttString(file.getOriginalfilename()));
                             file.setModified(en.decrypttString(file.getModified()));
+                            file.setFilesize(en.decrypttString(file.getFilesize()));
                         }
 
                         // ---------------------------------------------------------------------------------------------
@@ -482,7 +480,7 @@ public class LoginPresenter implements LoginPresenterInterface
                             AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
 
                             // INSERT Area INTO DynamoDB
-                            AreaDynamoHelper.getInstance().insert(ar);
+                            AreaDynamoHelper.getInstance().insertToDBWithoutEncryption(ar);
                         }
 
                         for(File file : fileList) {
@@ -490,12 +488,13 @@ public class LoginPresenter implements LoginPresenterInterface
                             file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
                             file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
                             file.setModified(en.encryptString(file.getModified()));
+                            file.setFilesize(en.encryptString(file.getFilesize()));
 
                             // INSERT FILE INTO localDB
                             FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
 
                             // INSERT FILE INTO DynamoDB
-                            FileDynamoHelper.getInstance().insert(file);
+                            FileDynamoHelper.getInstance().insertToDBWithoutEncryption(file);
                         }
                         // ---------------------------------------------------------------------------------------------
                         //                Common Login Process with Different Device After ForgetPassword
