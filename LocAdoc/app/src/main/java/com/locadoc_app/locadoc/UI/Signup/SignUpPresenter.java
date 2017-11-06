@@ -173,7 +173,7 @@ public class SignUpPresenter  implements SignUPPresenterInterface{
             AppHelper.getPool().signUpInBackground(email, password, userAttributes, null, signUpHandler);
         }
         else{
-            activity.showDialogMessage("Error", "Checking error", false);
+            activity.showDialogMessage("Error", "Invalid input", false);
         }
     }
 
