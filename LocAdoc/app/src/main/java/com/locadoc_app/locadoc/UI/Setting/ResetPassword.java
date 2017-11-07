@@ -265,6 +265,7 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
             }
         });
         aDialog = builder.create();
+        aDialog.setCancelable(false);
         aDialog.show();
     }
 

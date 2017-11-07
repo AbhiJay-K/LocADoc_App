@@ -495,7 +495,11 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     @Override
     public void onStop(){
         super.onStop();
-        exit();
+        if(logout) {
+            exit();
+        } else{
+            logout = true;
+        }
     }
 
     @Override
