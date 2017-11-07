@@ -1,7 +1,6 @@
 package com.locadoc_app.locadoc.UI.PDFViewer;
 
-import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -39,6 +38,7 @@ import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.UI.Setting.ResetPassword;
 import com.locadoc_app.locadoc.helper.Encryption;
 import com.shockwave.pdfium.PdfDocument;
 
@@ -69,6 +69,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
     private LocationRequest mLocationRequest;
     private Area ar;
     private boolean logout;
+    private ProgressDialog pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +113,8 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
         } else{
             buildGoogleApiClient();
         }
+
+        showProgressDialog("Open File", "Opening " + curFile + "...");
     }
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public boolean checkLocationPermission(){
@@ -167,6 +170,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
             mGoogleApiClient.disconnect();
         }
     }
+
     @Override
     public void onConnected(Bundle bundle){
         try {
@@ -201,29 +205,22 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
-    /*private boolean isLocationEnabled() {
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);}
 
-    /*private void showAlert() {
-        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Enable Location")
-                .setMessage("Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
-                        "use this app (for added security)")
-                .setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(myIntent);
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    }
-                });
-        dialog.show();
-    }*/
+    public void showProgressDialog(String title, String msg) {
+        pDialog = new ProgressDialog(this);
+        pDialog.setTitle(title);
+        pDialog.setMessage(msg);
+        pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pDialog.setCancelable(false);
+        pDialog.show();
+    }
+
+    public void dismissProgresDialog() {
+        try{
+            pDialog.dismiss();
+        } catch (Exception e){}
+        pDialog = null;
+    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -235,6 +232,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
             if(mLastLocation.distanceTo(l1) > Float.parseFloat(ar.getRadius()))
             {
                 mGoogleApiClient.disconnect();
+                logout = false;
                 onStop();
             }
         }catch(NumberFormatException e)
@@ -348,6 +346,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
 
         @Override
         protected void onPostExecute(Void objects) {
+            dismissProgresDialog();
             openPDF();
         }
     }

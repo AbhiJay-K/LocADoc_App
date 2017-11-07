@@ -114,16 +114,16 @@ public class PasswordRecoveryPresenter implements PasswordRecoveryPresenterInter
         public void onSuccess() {
             String userEmail = activity.getEmail();
             String newPassword = activity.getPwdView().getText().toString();
-
             forgotPwdCredential(userEmail, newPassword);
+            activity.exit(0, " ");
 
-            activity.exit(0);
         }
 
         @Override
         public void onFailure(Exception e) {
             Log.d("FORGOTPWD", e.getMessage());
-            activity.exit(-1);
+            activity.exit(-1, AppHelper.formatException(e));
+
         }
         @Override
         public void getResetCode(ForgotPasswordContinuation forgotPassContinuation) {

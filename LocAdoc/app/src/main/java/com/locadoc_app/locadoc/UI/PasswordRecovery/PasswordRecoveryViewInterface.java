@@ -16,6 +16,6 @@ public interface PasswordRecoveryViewInterface {
     String getEmail();
     EditText getPwdView();
     EditText getRPwdView();
-    void exit(int result);
+    void exit(int result, String errorMessage);
 
 }

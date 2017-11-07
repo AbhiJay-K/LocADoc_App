@@ -277,10 +277,13 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
                     int result = data.getIntExtra("result", -1);
 
                     if(result == 0) {
-                       showDialogMessage("PasswordSQLHelper Recovery","Recovery success");
+                        String newPass = data.getStringExtra("new_password");
+                        passView.setText(newPass);
+                        loginPres.onLoginClick(userIDView.getText().toString(), newPass);
                     }
                     else{
-                        showDialogMessage("PasswordSQLHelper Recovery","Recovery failed");
+                        String errMsg = data.getStringExtra("errorMessage");
+                        showDialogMessage("Password Recovery","Recovery failed\n".concat(errMsg));
                     }
                 case 4:
                     int logoutType = data.getIntExtra("LogoutResult",-1);
