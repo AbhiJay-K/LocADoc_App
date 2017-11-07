@@ -282,7 +282,8 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
                         loginPres.onLoginClick(userIDView.getText().toString(), newPass);
                     }
                     else{
-                        showDialogMessage("Password Recovery","Recovery failed");
+                        String errMsg = data.getStringExtra("errorMessage");
+                        showDialogMessage("Password Recovery","Recovery failed\n".concat(errMsg));
                     }
                 case 4:
                     int logoutType = data.getIntExtra("LogoutResult",-1);
