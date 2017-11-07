@@ -140,6 +140,7 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
     public void exit(int result) {
         Intent intent = new Intent();
         intent.putExtra("result",result);
+        intent.putExtra("new_password", password.getText().toString());
         setResult(RESULT_OK, intent);
         finish();
     }
