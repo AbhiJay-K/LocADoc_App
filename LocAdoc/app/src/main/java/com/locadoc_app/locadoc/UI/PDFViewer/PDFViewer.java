@@ -232,6 +232,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
             if(mLastLocation.distanceTo(l1) > Float.parseFloat(ar.getRadius()))
             {
                 mGoogleApiClient.disconnect();
+                logout = false;
                 onStop();
             }
         }catch(NumberFormatException e)
