@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -101,10 +102,14 @@ public class GoogleMapFragment extends Fragment
             }
         });
         closeAreaContainerfab.setVisibility(View.GONE);
-
-        mMapView = (MapView) rootView.findViewById(R.id.mapView);
-        mMapView.onCreate(savedInstanceState);
-        mMapView.onResume();
+        try {
+            mMapView = (MapView) rootView.findViewById(R.id.mapView);
+            mMapView.onCreate(savedInstanceState);
+            mMapView.onResume();
+        }catch(Exception er)
+        {
+            Toast.makeText(getActivity().getApplicationContext(),"An error occurred while loading map",Toast.LENGTH_LONG).show();
+        }
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());

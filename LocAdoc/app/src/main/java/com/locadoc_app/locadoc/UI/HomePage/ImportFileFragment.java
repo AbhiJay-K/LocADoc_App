@@ -37,7 +37,7 @@ public class ImportFileFragment extends Fragment {
     private SeekBar radiusSeekBar;
     private EditText radiusText;
     private Spinner existingArea;
-
+    private boolean noArea;
     private int radius;
     private Map<String, Integer> allAreaAround;
     ImportFileFragmentListener listener;
@@ -68,7 +68,7 @@ public class ImportFileFragment extends Fragment {
         btnCreateNewArea = (Button) view.findViewById(R.id.CreateNewAreaBtn);
         btnSelectExistingArea = (Button) view.findViewById(R.id.ExistingAreaBtn);
         btnSelectFile = (Button) view.findViewById(R.id.SelectFileButton);
-
+        noArea = false;
         radiusText = (EditText) view.findViewById(R.id.RadiusEditText);
         radiusText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -188,7 +188,6 @@ public class ImportFileFragment extends Fragment {
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
-
                 Object obj = existingArea.getSelectedItem();
                 String filename = fileNameText.getText().toString();
                 int areaid = allAreaAround.get(obj.toString());
@@ -249,6 +248,13 @@ public class ImportFileFragment extends Fragment {
         }
 
         getAllAreaAround(loc);
+        if(allAreaAround.size() == 0)
+        {
+            existingArea.setEnabled(false);
+            btnSelectExistingArea.setEnabled(false);
+            Toast.makeText(getActivity(), "Hmm.. there no area available currently",
+                    Toast.LENGTH_SHORT).show();
+        }
         String[] strArr = allAreaAround.keySet().toArray(new String[allAreaAround.size()]);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
                 R.layout.spinnerlayout, strArr);
