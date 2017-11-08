@@ -569,7 +569,9 @@ public class HomePageActivity extends AppCompatActivity
     public boolean isMockSettingsON(Context context) {
         boolean isMock = false;
         if (android.os.Build.VERSION.SDK_INT >= 18) {
-            isMock = mLastLocation.isFromMockProvider();
+            if(mLastLocation != null){
+                isMock = mLastLocation.isFromMockProvider();
+            }
         } else {
             if (Settings.Secure.getString(context.getContentResolver(),
                     Settings.Secure.ALLOW_MOCK_LOCATION).equals("0"))
@@ -580,6 +582,7 @@ public class HomePageActivity extends AppCompatActivity
         }
         return isMock;
     }
+
     /*public boolean areThereMockPermissionApps(Context context) {
         int count = 0;
 
