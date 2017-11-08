@@ -41,6 +41,8 @@ public class SettingPresenter implements SettingPresenterInterface {
     }
 
     public void profileName(String firstName,String lastName) {
+        User s = UserSQLHelper.getRecord(Credential.getEmail(),Credential.getPassword());
+        Log.d("SettingsE",s.getFirstname());
         String nameInitial = "";
         if(!lastName.isEmpty()) {
             nameInitial = Character.toString(lastName.charAt(0));
@@ -117,7 +119,10 @@ public class SettingPresenter implements SettingPresenterInterface {
     }
 
     public User getUser() {
-        return UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+        User s =UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+        Log.d("SettingsE",s.getFirstname());
+        return s;
+
     }
 
     public String getEmail() {

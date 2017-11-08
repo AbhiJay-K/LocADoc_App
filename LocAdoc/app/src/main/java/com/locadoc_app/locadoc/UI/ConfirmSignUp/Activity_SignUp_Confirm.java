@@ -46,8 +46,8 @@ public class Activity_SignUp_Confirm extends AppCompatActivity implements SignUp
                 username = (TextView) findViewById(R.id.editTextConfirmUserId);
                 username.setText(userName);
                 password = extras.getString("pwd");
-                fName = extras.getString("fName");
-                lName = extras.getString("lName");
+                fName = extras.getString("fname");
+                lName = extras.getString("lname");
                 confCode = (EditText) findViewById(R.id.editTextConfirmCode);
                 confCode.requestFocus();
 
