@@ -79,7 +79,9 @@ public class S3Helper {
     }
 
     public static void cancelCurrUpload(){
-        transferUtility.cancel(observerId);
+        if(transferUtility != null){
+            transferUtility.cancel(observerId);
+        }
     }
 
     public static void init()

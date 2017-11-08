@@ -192,7 +192,7 @@ public class FileSQLHelper implements BaseColumns {
         values.put(FileSQLHelper.COLUMN_PWD, String.valueOf(file.getPasswordId()));
         values.put(FileSQLHelper.COLUMN_AREA, String.valueOf(file.getAreaId()));
         String [] arg = {String.valueOf(file.getFileId())};
-        long newRowId = FileSQLHelper.getDbHelper().WRITE.update(FileSQLHelper.TABLE_NAME,values,"_id=?",arg);
+        long newRowId = FileSQLHelper.getDbHelper().WRITE.update(FileSQLHelper.TABLE_NAME,values,"_id = ?",arg);
 
         return newRowId;
     }
