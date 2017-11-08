@@ -65,6 +65,7 @@ public class FileExplorerFragment extends Fragment
         View rootView = inflater.inflate(R.layout.fragment_file_explorer, container, false);
         exploreArea = true;
 
+        listener = (FileExplorerFragmentListener) getActivity();
         getAllAreaAround();
         ArrayList<String> areaList = new ArrayList<>(allAreaAround.keySet());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
@@ -72,7 +73,6 @@ public class FileExplorerFragment extends Fragment
         listView = (ListView) rootView.findViewById(R.id.ListView);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
-        listener = (FileExplorerFragmentListener) getActivity();
 
         fileExplorerfab = (FloatingActionButton) rootView.findViewById(R.id.floatingActionButton);
         fileExplorerfab.setOnClickListener(new View.OnClickListener() {
