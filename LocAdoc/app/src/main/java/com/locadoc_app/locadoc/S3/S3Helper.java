@@ -13,7 +13,9 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
 import com.locadoc_app.locadoc.LocAdocApp;
+import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.Model.Credential;
 
 import java.io.File;
@@ -26,6 +28,9 @@ public class S3Helper {
     private static S3Helper s3Helper;
     private static AmazonS3Client sS3Client;
     private static TransferUtility transferUtility;
+    private static boolean isUploading;
+    private static int currFileId;
+    private static int observerId;
 
     public final static String BUCKET_NAME = "locadoc-user";
 
@@ -51,6 +56,32 @@ public class S3Helper {
         return transferUtility;
     }
 
+    public static void setIsUploading (boolean isUploading2){
+        isUploading = isUploading2;
+    }
+
+    public static boolean getIsUploading()
+    {
+        return isUploading;
+    }
+
+    public static void setCurrFileId (int currFileId2){
+        currFileId = currFileId2;
+    }
+
+    public static int getCurrFileId()
+    {
+        return currFileId;
+    }
+
+    public static void setObserverId (int observerId2){
+        observerId = observerId2;
+    }
+
+    public static void cancelCurrUpload(){
+        transferUtility.cancel(observerId);
+    }
+
     public static void init()
     {
         if(s3Helper == null){
@@ -59,6 +90,7 @@ public class S3Helper {
     }
     public static void setS3HelperToNull()
     {
+        cancelCurrUpload();
         s3Helper = null;
     }
     public static String getIdentity()
@@ -79,13 +111,13 @@ public class S3Helper {
         Log.d("LocAdoc", "UPLOAD: " + key);
         TransferObserver observer = transferUtility.upload(BUCKET_NAME, key, file);
         observer.setTransferListener(new UploadListener());
+        observerId = observer.getId();
     }
 
     public static void downloadFile (String key){
         File file = new File(LocAdocApp.getContext().getFilesDir().getAbsolutePath()+"/vault/" + key);
         key = getIdentity() + "/" + key;
-        TransferObserver observer = transferUtility.download(BUCKET_NAME, key, file);
-        observer.setTransferListener(new DownloadListener());
+        transferUtility.download(BUCKET_NAME, key, file);
 
     }
 
@@ -110,6 +142,13 @@ public class S3Helper {
         }
     }
 
+    public static void updateFileBackedUp(){
+        com.locadoc_app.locadoc.Model.File file = FileSQLHelper.getFile(currFileId, Credential.getPassword());
+        file.setBackedup("true");
+        FileSQLHelper.updateRecord(file, Credential.getPassword());
+        FileDynamoHelper.getInstance().insert(file);
+    }
+
     private class FetchIdentityId extends
             AsyncTask<Void, Void, Void> {
         @Override
@@ -132,38 +171,17 @@ public class S3Helper {
 
         // Simply updates the UI list when notified.
         @Override
-        public void onError(int id, Exception e) {
-            Log.e("LocAdoc", "Error during upload: " + id, e);
-        }
+        public void onError(int id, Exception e) {}
 
         @Override
-        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-            Log.d("LocAdoc", String.format("onProgressChanged: %d, total: %d, current: %d",
-                    id, bytesTotal, bytesCurrent));
-        }
+        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
 
         @Override
         public void onStateChanged(int id, TransferState newState) {
-            Log.d("LocAdoc", "onStateChanged: " + id + ", " + newState);
-        }
-    }
-
-    private static class DownloadListener implements TransferListener {
-        // Simply updates the list when notified.
-        @Override
-        public void onError(int id, Exception e) {
-            Log.e("LocAdoc", "onError: " + id, e);
-        }
-
-        @Override
-        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-            Log.d("LocAdoc", String.format("onProgressChanged: %d, total: %d, current: %d",
-                    id, bytesTotal, bytesCurrent));
-        }
-
-        @Override
-        public void onStateChanged(int id, TransferState state) {
-            Log.d("LocAdoc", "onStateChanged: " + id + ", " + state);
+            if(newState == TransferState.COMPLETED){
+                updateFileBackedUp();
+                isUploading = false;
+            }
         }
     }
 }

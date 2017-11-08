@@ -15,7 +15,7 @@ public class File {
     private int fileid;
     private String currentfilename;
     private String originalfilename;
-    private String modified;
+    private String backedup;
     private String filesize;
     private int passwordid;
     private int areaid;
@@ -56,13 +56,13 @@ public class File {
         this.originalfilename = originalfilename;
     }
 
-    @DynamoDBAttribute(attributeName = "modified")
-    public String getModified() {
-        return modified;
+    @DynamoDBAttribute(attributeName = "backedup")
+    public String getBackedup() {
+        return backedup;
     }
 
-    public void setModified(String modified) {
-        this.modified = modified;
+    public void setBackedup(String backedup) {
+        this.backedup = backedup;
     }
 
     @DynamoDBAttribute(attributeName = "filesize")

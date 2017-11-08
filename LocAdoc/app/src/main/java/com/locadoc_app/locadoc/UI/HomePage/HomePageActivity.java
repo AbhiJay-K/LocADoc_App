@@ -536,6 +536,7 @@ public class HomePageActivity extends AppCompatActivity
     public void Logout()
     {
         presenter.stopTimer();
+        Credential.clearAll();
         Log.d("Logout","Logout called");
         AppHelper.getPool().getCurrentUser().signOut();
         // --------------------------------------------------------------------------------- TMP METHOD TO AVOID CRASH
@@ -620,7 +621,6 @@ public class HomePageActivity extends AppCompatActivity
     }*/
     @Override
     public void onConnected(Bundle bundle) {
-        Log.d("GPS", "CONNECTED");
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000);
         mLocationRequest.setFastestInterval(1000);
@@ -644,7 +644,6 @@ public class HomePageActivity extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
-        Log.d("GPS", "LAST LOC RECEIVED");
         if(requestFocus){
             gMapFrag.focusCamera(location);
             requestFocus = false;
@@ -870,7 +869,7 @@ public class HomePageActivity extends AppCompatActivity
             dir.mkdir();
         }
 
-        int newFileId = FileSQLHelper.maxID() + 1;
+        final int newFileId = FileSQLHelper.maxID() + 1;
         String currFileName = Credential.getEmail() + newFileId;
 
         final File dst = new File(dir.getAbsolutePath() + "/" + currFileName);
@@ -890,6 +889,7 @@ public class HomePageActivity extends AppCompatActivity
             file.setOriginalfilename(filename);
             file.setCurrentfilename(currFileName);
             file.setAreaId(areaid);
+            file.setBackedup("false");
 
             totalSizeUsed += dst.length();
             user.setTotalsizeused("" + totalSizeUsed);
@@ -923,11 +923,13 @@ public class HomePageActivity extends AppCompatActivity
 
                     case DialogInterface.BUTTON_NEGATIVE:
                         // Upload to S3
-                        S3Helper.uploadFile(dst);
                         String key = S3Helper.getIdentity() + "/" + dst.getName();
                         showDownloadMessage();
+                        S3Helper.setIsUploading(true);
+                        S3Helper.setCurrFileId(newFileId);
                         TransferObserver observer = S3Helper.getUtility().upload(S3Helper.BUCKET_NAME, key, dst);
                         observer.setTransferListener(new UploadListener());
+                        S3Helper.setObserverId(observer.getId());
                 }
             }
         };
@@ -957,13 +959,20 @@ public class HomePageActivity extends AppCompatActivity
         public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
             String current = S3Helper.getBytesString(bytesCurrent);
             String total = S3Helper.getBytesString(bytesTotal);
-            userDialog.setMessage(current + "/" + total);
+            if(userDialog.isShowing()) {
+                userDialog.setMessage(current + "/" + total);
+            }
         }
 
         @Override
         public void onStateChanged(int id, TransferState state) {
             if(state == TransferState.COMPLETED){
-                userDialog.setMessage("Upload Complete");
+                if(userDialog.isShowing()) {
+                    userDialog.setMessage("Upload Complete");
+                }
+
+                S3Helper.updateFileBackedUp();
+                S3Helper.setIsUploading(false);
             }
         }
     }

@@ -111,6 +111,12 @@ public class FileOperationsFragment extends DialogFragment {
                     return;
                 }
 
+                if(S3Helper.getIsUploading()){
+                    Toast.makeText(getActivity(), "Another file is being uploaded, please try again later",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Object obj = allAreaSpinner.getSelectedItem();
                 if (obj == null) {
                     Toast.makeText(getActivity(), "No area selected",
@@ -156,6 +162,7 @@ public class FileOperationsFragment extends DialogFragment {
                     file.setOriginalfilename(originalFileName);
                     file.setCurrentfilename(newFileName);
                     file.setAreaId(area.getAreaId());
+                    file.setBackedup("false");
 
                     totalSizeUsed += dst.length();
                     user.setTotalsizeused("" + totalSizeUsed);
@@ -180,6 +187,8 @@ public class FileOperationsFragment extends DialogFragment {
                     }
                 }
 
+                S3Helper.setIsUploading(true);
+                S3Helper.setCurrFileId(newFileId);
                 S3Helper.uploadFile(dst);
                 Toast.makeText(getActivity(), originalFileName + " has been copied to " + areaname,
                         Toast.LENGTH_SHORT).show();

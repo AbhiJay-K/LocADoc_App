@@ -177,8 +177,8 @@ public class HomePagePresenter {
                 PasswordDynamoHelper.getInstance().deleteFromDB(pwd);
             }
             //Remove user from Cognito
-            AppHelper.getPool().getCurrentUser().deleteUserInBackground(delHandler);
             Credential.clearAll();
+            AppHelper.getPool().getCurrentUser().deleteUserInBackground(delHandler);
             return null;
         }
         @Override

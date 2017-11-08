@@ -141,18 +141,56 @@ public class FileExplorerFragment extends Fragment
             }
             else {
                 String data = (String) args.getItemAtPosition(position);
-                int fileid = allFileInArea.get(data);
-                File fileInfo = FileSQLHelper.getFile(fileid, Credential.getPassword());
+                final int fileid = allFileInArea.get(data);
+                final File fileInfo = FileSQLHelper.getFile(fileid, Credential.getPassword());
                 curFileName = fileInfo.getOriginalfilename();
                 String key = fileInfo.getCurrentfilename();
                 java.io.File file = new java.io.File(LocAdocApp.getContext().getFilesDir().getAbsolutePath() + "/vault/" + key);
 
                 if (file.exists()) {
-                    listener.openFile(fileid,curAreaName,curFileName);
+                    if(fileInfo.getBackedup().equals("false")){
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                        builder.setTitle("File Is Not Backed Up Yet")
+                                .setMessage("Do you wish to upload the file to backup?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if(S3Helper.getIsUploading()){
+                                            Toast.makeText(getActivity(), "Another file is being uploaded, please try again later",
+                                                    Toast.LENGTH_SHORT).show();
+                                        } else{
+                                            java.io.File dst = new java.io.File(getActivity().getApplicationContext().getFilesDir().getAbsolutePath() +
+                                                    "/vault/" + fileInfo.getCurrentfilename());
+                                            S3Helper.setIsUploading(true);
+                                            S3Helper.setCurrFileId(fileid);
+                                            S3Helper.uploadFile(dst);
+                                        }
+
+                                        listener.openFile(fileid,curAreaName,curFileName);
+                                    }
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        listener.openFile(fileid,curAreaName,curFileName);
+                                    }
+                                });
+
+                        userDialog = builder.create();
+                        userDialog.show();
+                    } else{
+                        listener.openFile(fileid,curAreaName,curFileName);
+                    }
                 } else {
-                    Log.d("LocAdoc", "curr: " + fileInfo.getOriginalfilename());
-                    showDownloadMessage(key, fileInfo.getOriginalfilename(),
-                            S3Helper.getBytesString(Long.parseLong(fileInfo.getFilesize())), file);
+                    if (fileInfo.getBackedup().equals("false")){
+                        Toast.makeText(getActivity(), "File is not found in back up, please upload the file from the original " +
+                                " device where the file is imported first",
+                                Toast.LENGTH_SHORT).show();
+                    } else{
+                        showDownloadMessage(key, fileInfo.getOriginalfilename(),
+                                S3Helper.getBytesString(Long.parseLong(fileInfo.getFilesize())), file);
+                    }
                 }
             }
         }

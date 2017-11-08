@@ -22,7 +22,7 @@ public class FileSQLHelper implements BaseColumns {
     public static final String TABLE_NAME = "file";
     public static final String COLUMN_CURRENT_NAME = "currentfilename";
     public static final String COLUMN_ORIGINAL_NAME = "originalfilename";
-    public static final String COLUMN_MODIFIED = "modified";
+    public static final String COLUMN_BACKEDUP = "backedup";
     public static final String COLUMN_FILE_SIZE = "filesize";
     public static final String COLUMN_PWD = "password";
     public static final String COLUMN_AREA = "area";
@@ -33,7 +33,7 @@ public class FileSQLHelper implements BaseColumns {
             _ID + " INTEGER PRIMARY KEY, "+
             COLUMN_CURRENT_NAME + " TEXT, " +
             COLUMN_ORIGINAL_NAME + " TEXT, " +
-            COLUMN_MODIFIED + " TEXT, " +
+            COLUMN_BACKEDUP + " TEXT, " +
             COLUMN_FILE_SIZE + " TEXT, " +
             COLUMN_PWD + " INTEGER, " +
             COLUMN_AREA + " INTEGER, "+
@@ -55,7 +55,7 @@ public class FileSQLHelper implements BaseColumns {
         values.put(FileSQLHelper._ID, file.getFileId());
         values.put(FileSQLHelper.COLUMN_CURRENT_NAME, en.encryptString(file.getCurrentfilename()));
         values.put(FileSQLHelper.COLUMN_ORIGINAL_NAME, en.encryptString(file.getOriginalfilename()));
-        values.put(FileSQLHelper.COLUMN_MODIFIED, en.encryptString(file.getModified()));
+        values.put(FileSQLHelper.COLUMN_BACKEDUP, en.encryptString(file.getBackedup()));
         values.put(FileSQLHelper.COLUMN_FILE_SIZE, en.encryptString(file.getFilesize()));
         values.put(FileSQLHelper.COLUMN_PWD, file.getPasswordId());
         values.put(FileSQLHelper.COLUMN_AREA, file.getAreaId());
@@ -69,7 +69,7 @@ public class FileSQLHelper implements BaseColumns {
         values.put(FileSQLHelper._ID, file.getFileId());
         values.put(FileSQLHelper.COLUMN_CURRENT_NAME, file.getCurrentfilename());
         values.put(FileSQLHelper.COLUMN_ORIGINAL_NAME, file.getOriginalfilename());
-        values.put(FileSQLHelper.COLUMN_MODIFIED, file.getModified());
+        values.put(FileSQLHelper.COLUMN_BACKEDUP, file.getBackedup());
         values.put(FileSQLHelper.COLUMN_FILE_SIZE, file.getFilesize());
         values.put(FileSQLHelper.COLUMN_PWD, file.getPasswordId());
         values.put(FileSQLHelper.COLUMN_AREA, file.getAreaId());
@@ -100,7 +100,7 @@ public class FileSQLHelper implements BaseColumns {
             int id = crs.getInt(crs.getColumnIndex("_id"));
             String crFileN = crs.getString(crs.getColumnIndex(COLUMN_CURRENT_NAME));
             String orgFileN = crs.getString(crs.getColumnIndex(COLUMN_ORIGINAL_NAME));
-            String Modified = crs.getString(crs.getColumnIndex(COLUMN_MODIFIED));
+            String backedup = crs.getString(crs.getColumnIndex(COLUMN_BACKEDUP));
             String fileSize = crs.getString(crs.getColumnIndex(COLUMN_FILE_SIZE));
             int PwdId = crs.getInt(crs.getColumnIndex(COLUMN_PWD));
             int AreaID = crs.getInt(crs.getColumnIndex(COLUMN_AREA));
@@ -109,7 +109,7 @@ public class FileSQLHelper implements BaseColumns {
             file.setFileId(id);
             file.setCurrentfilename(en.decrypttString(crFileN));
             file.setOriginalfilename(en.decrypttString(orgFileN));
-            file.setModified(en.decrypttString(Modified));
+            file.setBackedup(en.decrypttString(backedup));
             file.setFilesize(en.decrypttString(fileSize));
             file.setPasswordId(PwdId);
             file.setAreaId(AreaID);
@@ -188,6 +188,7 @@ public class FileSQLHelper implements BaseColumns {
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
         values.put(FileSQLHelper.COLUMN_CURRENT_NAME, en.encryptString(file.getCurrentfilename()));
         values.put(FileSQLHelper.COLUMN_ORIGINAL_NAME, en.encryptString(file.getOriginalfilename()));
+        values.put(FileSQLHelper.COLUMN_BACKEDUP, String.valueOf(file.getBackedup()));
         values.put(FileSQLHelper.COLUMN_PWD, String.valueOf(file.getPasswordId()));
         values.put(FileSQLHelper.COLUMN_AREA, String.valueOf(file.getAreaId()));
         String [] arg = {String.valueOf(file.getFileId())};

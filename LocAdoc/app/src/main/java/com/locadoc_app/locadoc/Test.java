@@ -70,7 +70,7 @@ public class Test extends AppCompatActivity {
         file.setAreaId(6);
         file.setCurrentfilename("999");
         file.setFileId(3);
-        file.setModified("fniej");
+        //file.setModified("fniej");
         file.setOriginalfilename("eijfief");
         file.setPasswordId(9);
         //FileDynamoHelper.getInstance().insert(file);

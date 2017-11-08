@@ -105,9 +105,11 @@ public class Credential {
             Log.d("ID",identityId);
         }
     }
+
     public static void clearAll()
     {
         PASSWORD = null;
+        oldPasswords = null;
         email = "";
 
         if(credentials == null){

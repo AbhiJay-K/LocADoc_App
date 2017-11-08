@@ -264,7 +264,7 @@ public class LoginPresenter implements LoginPresenterInterface
                         for(File file : fileList) {
                             file.setCurrentfilename(en.decrypttString(file.getCurrentfilename()));
                             file.setOriginalfilename(en.decrypttString(file.getOriginalfilename()));
-                            file.setModified(en.decrypttString(file.getModified()));
+                            file.setBackedup(en.decrypttString(file.getBackedup()));
                             file.setFilesize(en.decrypttString(file.getFilesize()));
                         }
 
@@ -314,7 +314,7 @@ public class LoginPresenter implements LoginPresenterInterface
                             // encryption
                             file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
                             file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
-                            file.setModified(en.encryptString(file.getModified()));
+                            file.setBackedup(en.encryptString(file.getBackedup()));
                             file.setFilesize(en.encryptString(file.getFilesize()));
 
                             // INSERT FILE INTO localDB
@@ -441,7 +441,7 @@ public class LoginPresenter implements LoginPresenterInterface
                         for(File file : fileList) {
                             file.setCurrentfilename(en.decrypttString(file.getCurrentfilename()));
                             file.setOriginalfilename(en.decrypttString(file.getOriginalfilename()));
-                            file.setModified(en.decrypttString(file.getModified()));
+                            file.setBackedup(en.decrypttString(file.getBackedup()));
                             file.setFilesize(en.decrypttString(file.getFilesize()));
                         }
 
@@ -487,7 +487,7 @@ public class LoginPresenter implements LoginPresenterInterface
                             // encryption
                             file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
                             file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
-                            file.setModified(en.encryptString(file.getModified()));
+                            file.setBackedup(en.encryptString(file.getBackedup()));
                             file.setFilesize(en.encryptString(file.getFilesize()));
 
                             // INSERT FILE INTO localDB

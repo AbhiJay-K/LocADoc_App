@@ -60,7 +60,7 @@ public class FileDynamoHelper {
         Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
         file.setCurrentfilename(en.encryptString(file.getCurrentfilename()));
         file.setOriginalfilename(en.encryptString(file.getOriginalfilename()));
-        file.setModified(en.encryptString(file.getModified()));
+        file.setBackedup(en.encryptString(file.getBackedup()));
         file.setFilesize(en.encryptString(file.getFilesize()));
 
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();

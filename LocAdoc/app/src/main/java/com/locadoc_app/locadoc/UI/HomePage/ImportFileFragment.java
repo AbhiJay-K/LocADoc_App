@@ -23,6 +23,7 @@ import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.S3.S3Helper;
 import com.locadoc_app.locadoc.helper.Connectivity;
 
 import java.util.Map;
@@ -133,6 +134,12 @@ public class ImportFileFragment extends Fragment {
                     return;
                 }
 
+                if(S3Helper.getIsUploading()){
+                    Toast.makeText(getActivity(), "Another file is being uploaded, please try again later",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(radiusText.getText().toString().isEmpty()){
                     Toast.makeText(getActivity(), "New radius is empty",
                             Toast.LENGTH_SHORT).show();
@@ -207,6 +214,12 @@ public class ImportFileFragment extends Fragment {
                     return;
                 }
 
+                if(S3Helper.getIsUploading()){
+                    Toast.makeText(getActivity(), "Another file is being uploaded, please try again later",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Object obj = existingArea.getSelectedItem();
                 String filename = fileNameText.getText().toString();
                 int areaid = allAreaAround.get(obj.toString());
@@ -261,14 +274,8 @@ public class ImportFileFragment extends Fragment {
     }
 
     public void updateAreaAround(){
-        if(getActivity() == null){
-            return ;
-        }
-
         Location loc = listener.getLastKnownLoc();
-        if(loc == null) {
-            Toast.makeText(getActivity(), "Unable to get current location, please try again later",
-                    Toast.LENGTH_SHORT).show();
+        if(loc == null || getActivity() == null) {
             return;
         }
 

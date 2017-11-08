@@ -384,7 +384,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
 
         @Override
         public void onStateChanged(int id, TransferState state) {
-            if(state == TransferState.COMPLETED){
+            if(state.equals(TransferState.COMPLETED)){
                 updateDownloadProgress();
             }
         }
