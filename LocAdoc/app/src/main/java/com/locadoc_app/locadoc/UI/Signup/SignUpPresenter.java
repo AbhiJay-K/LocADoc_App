@@ -125,36 +125,6 @@ public class SignUpPresenter  implements SignUPPresenterInterface{
             //getting user credentials and creating a local record
             String password = activity.getPwdView().getText().toString();
             String email = activity.getEmailView().getText().toString();
-            String fname = activity.getFNameView().getText().toString();
-            String lname = activity.getLNameView().getText().toString();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
-            String TimeStamp = simpleDateFormat.format(new Date());
-            String random =  UUID.randomUUID().toString();
-            String Instance = Hash.Hash(TimeStamp,random);
-            ApplicationInstance.insert(Instance);
-            Password p = new Password();
-            String salt = Hash.SecureRandomGen();
-            String pwdDigest = Hash.Hash(password,salt);
-            p.setPasswordid(1);
-            p.setPassword(pwdDigest);
-            p.setSalt(salt);
-            Credential.setPassword(p);
-            Credential.setEmail(email);
-            User usr = new User();
-            usr.setUser(email);
-            usr.setFirstname(fname);
-            usr.setLastname(lname);
-            usr.setPasswordid(1);
-            usr.setAdminareaid(0);
-            UserSQLHelper.insert(usr,Credential.getPassword());
-            User usr2 = UserSQLHelper.getRecord(usr.getUser(),Credential.getPassword());
-            Log.d(">User ID",usr2.getUser());
-            Log.d(">User First Name",usr2.getFirstname());
-            Log.d(">User Last Name",usr2.getLastname());
-            Log.d(">User pwd ID",Integer.toString(usr2.getPasswordid()));
-            Log.d(">User Area ID",Integer.toString(usr2.getAdminareaid()));
-            String Instance4 = ApplicationInstance.getRecord();
-            Log.d(">Instance ",Instance4);
 
             //Cognito request
             Log.d("LocAdoc", "GetEmail");

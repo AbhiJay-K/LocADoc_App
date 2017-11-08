@@ -189,7 +189,10 @@ public class SignUp extends AppCompatActivity implements SignUPViewInterface{
     public void confirmSignUp(CognitoUserCodeDeliveryDetails cognitoUserCodeDeliveryDetails) {
         Intent intent = new Intent(this, Activity_SignUp_Confirm.class);
         intent.putExtra("source","signup");
+        intent.putExtra("pwd",PwdView.getText());
         intent.putExtra("name", EmailView.getText().toString());
+        intent.putExtra("fname", FNameView.getText().toString());
+        intent.putExtra("lname", LNameView.getText().toString());
         intent.putExtra("destination", cognitoUserCodeDeliveryDetails.getDestination());
         intent.putExtra("deliveryMed", cognitoUserCodeDeliveryDetails.getDeliveryMedium());
         intent.putExtra("attribute", cognitoUserCodeDeliveryDetails.getAttributeName());

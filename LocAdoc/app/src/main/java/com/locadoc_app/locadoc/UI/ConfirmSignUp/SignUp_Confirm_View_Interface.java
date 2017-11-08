@@ -13,4 +13,8 @@ public interface SignUp_Confirm_View_Interface {
     public void SetConfhandlerMessage();
     public void SetReConfCodeHandlerSuccessMessage();
     public void SetReConfCodeHandlerFailMessage();
+    String getUserName();
+    String getPassword();
+    String getfName();
+    String getlName();
 }

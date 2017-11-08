@@ -267,6 +267,11 @@ public class ImportFileFragment extends Fragment {
             Toast.makeText(getActivity(), "Hmm.. there no area available currently",
                     Toast.LENGTH_SHORT).show();
         }
+        else
+        {
+            existingArea.setEnabled(true);
+            btnSelectExistingArea.setEnabled(true);
+        }
         String[] strArr = allAreaAround.keySet().toArray(new String[allAreaAround.size()]);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
                 R.layout.spinnerlayout, strArr);

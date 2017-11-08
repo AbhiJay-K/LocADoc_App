@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GenericHandler;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.DynamoDB.AreaDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
@@ -141,7 +143,12 @@ public class HomePagePresenter {
             for(int id:fileList)
             {
                 File file = FileSQLHelper.getFile(id, Credential.getPassword());
-                S3Helper.getHelper().removeFile(file.getCurrentfilename());
+
+                //S3Helper.getHelper().removeFile(file.getCurrentfilename());
+                AmazonS3Client sS3Client = S3Helper.getInstance();
+                String key = Credential.getIdentity() + "/" + file.getCurrentfilename();
+                sS3Client.deleteObject(new DeleteObjectRequest(S3Helper.BUCKET_NAME, key));
+
                 java.io.File src = new java.io.File(LocAdocApp.getContext().getFilesDir().getAbsolutePath() +
                         "/vault/" + file.getCurrentfilename());
                 if(src.exists()) {
