@@ -137,6 +137,13 @@ public class NewAreaFragment extends Fragment {
                 area.setDescription(areaDesc);
                 area.setRadius(radius + "");
                 Location loc = activity.getLastKnownLoc();
+
+                if(loc == null) {
+                    Toast.makeText(getActivity(), "Unable to get current location, please try again later",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 area.setLatitude("" + loc.getLatitude());
                 area.setLongitude("" + loc.getLongitude());
 

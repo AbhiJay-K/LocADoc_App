@@ -617,6 +617,7 @@ public class HomePageActivity extends AppCompatActivity
     }*/
     @Override
     public void onConnected(Bundle bundle) {
+        Log.d("GPS", "CONNECTED");
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000);
         mLocationRequest.setFastestInterval(1000);
@@ -640,6 +641,7 @@ public class HomePageActivity extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
+        Log.d("GPS", "LAST LOC RECEIVED");
         if(requestFocus){
             gMapFrag.focusCamera(location);
             requestFocus = false;
@@ -1004,6 +1006,10 @@ public class HomePageActivity extends AppCompatActivity
 
     @Override
     public boolean isInArea (Area a){
+        if(mLastLocation == null){
+            return false;
+        }
+
         boolean inArea = false;
         Location loc = new Location("");
         loc.setLatitude(Double.parseDouble(a.getLatitude()));

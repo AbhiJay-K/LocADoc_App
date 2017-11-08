@@ -169,6 +169,13 @@ public class ImportFileFragment extends Fragment {
                 area.setDescription(areaDesc);
                 area.setRadius(radius + "");
                 Location loc = listener.getLastKnownLoc();
+
+                if(loc == null) {
+                    Toast.makeText(getActivity(), "Unable to get current location, please try again later",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 area.setLatitude("" + loc.getLatitude());
                 area.setLongitude("" + loc.getLongitude());
 
@@ -254,9 +261,15 @@ public class ImportFileFragment extends Fragment {
     }
 
     public void updateAreaAround(){
-        Location loc = listener.getLastKnownLoc();
-        if(loc == null || getActivity() == null){
+        if(getActivity() == null){
             return ;
+        }
+
+        Location loc = listener.getLastKnownLoc();
+        if(loc == null) {
+            Toast.makeText(getActivity(), "Unable to get current location, please try again later",
+                    Toast.LENGTH_SHORT).show();
+            return;
         }
 
         getAllAreaAround(loc);

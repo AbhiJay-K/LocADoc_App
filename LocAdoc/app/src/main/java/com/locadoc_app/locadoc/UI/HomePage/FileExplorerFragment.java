@@ -34,6 +34,7 @@ import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.S3.S3Helper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -160,7 +161,14 @@ public class FileExplorerFragment extends Fragment
     public void getAllAreaAround()
     {
         Location loc = listener.getLastKnownLoc();
-        allAreaAround = AreaSQLHelper.getAreaNameInLoc(loc, Credential.getPassword());
+
+        if(loc == null){
+            Toast.makeText(getActivity(), "Unable to get current location, please try again later",
+                    Toast.LENGTH_SHORT).show();
+            allAreaAround = new HashMap<>();
+        }else{
+            allAreaAround = AreaSQLHelper.getAreaNameInLoc(loc, Credential.getPassword());
+        }
     }
 
     public void removeFile(String filename){
