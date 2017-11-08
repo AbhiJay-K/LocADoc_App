@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.helper.Hash;
 
 import static android.R.attr.label;
 
@@ -153,16 +154,19 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Log.d("SUBMIT BUTTON CALL", "FOR RESET PASSWORD");
-
-
                 if(confPwdStatus) {
-                    Toast.makeText(ResetPassword.this, "Clicked Submit Button", Toast.LENGTH_SHORT).show();
+                    String hash = Hash.Hash(curPwd.getText().toString(), Credential.getPassword().getSalt());
+                    if(!hash.equals(Credential.getPassword().getPassword())){
+                        Toast.makeText(ResetPassword.this, "Wrong password",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     presenter.changePassword();
                 }
                 else {
-                    Toast.makeText(ResetPassword.this, "Confirmed New Password is not match with New Password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ResetPassword.this, "Confirmed New Password is not match with New Password",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -257,8 +261,10 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
             public void onClick(DialogInterface dialog, int which) {
                 try {
                     aDialog.dismiss();
-                    logout = false;
-                    exit(result);
+                    if(result) {
+                        logout = false;
+                        exit(result);
+                    }
                 } catch (Exception e) {
                     //
                 }

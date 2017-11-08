@@ -50,6 +50,7 @@ public class ImportFileFragment extends Fragment {
         void drawCircle(int radius);
         void hideAreaFragmentContainer();
         boolean isInArea(Area area);
+        boolean checkGPS();
     }
 
     //---empty constructor required
@@ -127,6 +128,11 @@ public class ImportFileFragment extends Fragment {
                     return;
                 }
 
+                if(!listener.checkGPS()){
+                    Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(radiusText.getText().toString().isEmpty()){
                     Toast.makeText(getActivity(), "New radius is empty",
                             Toast.LENGTH_SHORT).show();
@@ -188,6 +194,12 @@ public class ImportFileFragment extends Fragment {
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                if(!listener.checkGPS()){
+                    Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Object obj = existingArea.getSelectedItem();
                 String filename = fileNameText.getText().toString();
                 int areaid = allAreaAround.get(obj.toString());

@@ -45,7 +45,7 @@ public class FileExplorerFragment extends Fragment
         void openFile(int fileid,String arn,String fn);
         void showFileOperationFragment(int fileid);
         boolean isInArea (Area a);
-        void printOutOfAreaMsg();
+        boolean checkGPS();
     }
     private int areaID;
     private ListView listView;
@@ -58,6 +58,7 @@ public class FileExplorerFragment extends Fragment
     private String curFileName;
     private boolean isDownloading;
     private TransferObserver observer;
+    private FileExplorerFragmentListener listener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
@@ -71,13 +72,18 @@ public class FileExplorerFragment extends Fragment
         listView = (ListView) rootView.findViewById(R.id.ListView);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
+        listener = (FileExplorerFragmentListener) getActivity();
 
         fileExplorerfab = (FloatingActionButton) rootView.findViewById(R.id.floatingActionButton);
         fileExplorerfab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!listener.checkGPS()){
+                    Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(exploreArea){
-                    FileExplorerFragmentListener listener = (FileExplorerFragmentListener) getActivity();
                     listener.openGoogleMap();
                 } else{
                     getAllAreaAround();
@@ -95,17 +101,21 @@ public class FileExplorerFragment extends Fragment
 
     @Override
     public void onItemClick(AdapterView<?> args, View v, int position, long id) {
-        FileExplorerFragmentListener activity = (FileExplorerFragmentListener) getActivity();
+        if(!listener.checkGPS()){
+            Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if(exploreArea) {
             String data = (String) args.getItemAtPosition(position);
             areaID = allAreaAround.get(data);
             Area a = AreaSQLHelper.getRecord(areaID,Credential.getPassword());
             curAreaName = a.getName();
-            if(!activity.isInArea(a))
+            if(!listener.isInArea(a))
             {
                 //activity.printOutOfAreaMsg();
                 //fileExplorerfab.performClick();
-                activity.openGoogleMap();
+                listener.openGoogleMap();
             }
             else {
                 allFileInArea = FileSQLHelper.getFilesInArea(areaID, Credential.getPassword());
@@ -117,7 +127,7 @@ public class FileExplorerFragment extends Fragment
             }
         } else{
             Area a = AreaSQLHelper.getRecord(areaID,Credential.getPassword());
-            if(!activity.isInArea(a))
+            if(!listener.isInArea(a))
             {
                 //activity.printOutOfAreaMsg();
                 //fileExplorerfab.performClick();
@@ -137,7 +147,6 @@ public class FileExplorerFragment extends Fragment
                 java.io.File file = new java.io.File(LocAdocApp.getContext().getFilesDir().getAbsolutePath() + "/vault/" + key);
 
                 if (file.exists()) {
-                    FileExplorerFragmentListener listener = (FileExplorerFragmentListener) getActivity();
                     listener.openFile(fileid,curAreaName,curFileName);
                 } else {
                     Log.d("LocAdoc", "curr: " + fileInfo.getOriginalfilename());
@@ -150,8 +159,7 @@ public class FileExplorerFragment extends Fragment
 
     public void getAllAreaAround()
     {
-        FileExplorerFragmentListener activity = (FileExplorerFragmentListener) getActivity();
-        Location loc = activity.getLastKnownLoc();
+        Location loc = listener.getLastKnownLoc();
         allAreaAround = AreaSQLHelper.getAreaNameInLoc(loc, Credential.getPassword());
     }
 
@@ -277,8 +285,6 @@ public class FileExplorerFragment extends Fragment
                         int position = (Integer) v.getTag();
                         String filename = fileList.get(position);
                         int fileid = allFileInArea.get(filename);
-
-                        FileExplorerFragmentListener listener = (FileExplorerFragmentListener) getActivity();
                         listener.showFileOperationFragment(fileid);
 
                     }

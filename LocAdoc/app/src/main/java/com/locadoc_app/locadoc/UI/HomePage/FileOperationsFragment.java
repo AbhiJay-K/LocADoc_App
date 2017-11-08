@@ -50,11 +50,12 @@ public class FileOperationsFragment extends DialogFragment {
     private Spinner allAreaSpinner;
     private File file;
     private Area fileArea;
+    FileOperationDialogListener activity;
 
     public interface FileOperationDialogListener {
         void removeFile(String filename);
         boolean isInArea(Area area);
-        void changeFileSizeUsed(String size);
+        boolean checkGPS();
     }
 
     //---empty constructor required
@@ -86,6 +87,7 @@ public class FileOperationsFragment extends DialogFragment {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_dropdown_item_1line, allArea);
         allAreaSpinner.setAdapter(adapter);
+        activity = (FileOperationDialogListener) getActivity();
 
         //---event handler for the button
         btnCopyFile.setOnClickListener(new View.OnClickListener()
@@ -97,7 +99,11 @@ public class FileOperationsFragment extends DialogFragment {
                     return;
                 }
 
-                FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
+                if(!activity.checkGPS()){
+                    Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(!activity.isInArea(fileArea)){
                     Toast.makeText(getActivity(), "You are not within " + fileArea.getName() + "'s radius anymore",
                             Toast.LENGTH_SHORT).show();
@@ -190,7 +196,11 @@ public class FileOperationsFragment extends DialogFragment {
                     return;
                 }
 
-                final FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
+                if(!activity.checkGPS()){
+                    Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(!activity.isInArea(fileArea)){
                     Toast.makeText(getActivity(), "You are not within " + fileArea.getName() + "'s radius anymore",
                             Toast.LENGTH_SHORT).show();
@@ -244,7 +254,11 @@ public class FileOperationsFragment extends DialogFragment {
                     return;
                 }
 
-                final FileOperationDialogListener activity = (FileOperationDialogListener) getActivity();
+                if(!activity.checkGPS()){
+                    Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(!activity.isInArea(fileArea)){
                     Toast.makeText(getActivity(), "You are not within " + fileArea.getName() + "'s radius anymore",
                             Toast.LENGTH_SHORT).show();

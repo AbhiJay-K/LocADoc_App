@@ -38,6 +38,7 @@ public class NewAreaFragment extends Fragment {
         Location getLastKnownLoc();
         void hideAreaFragmentContainer();
         void drawCircle(int radius);
+        boolean checkGPS();
     }
 
     //---empty constructor required
@@ -96,6 +97,11 @@ public class NewAreaFragment extends Fragment {
                 if(!Connectivity.isNetworkAvailable()){
                     Toast.makeText(getActivity(), "Can not connect to internet. Please check your connection!",
                             Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(!activity.checkGPS()){
+                    Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
                     return;
                 }
 

@@ -32,6 +32,7 @@ import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.UI.Setting.SettingActivity;
 
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ public class GoogleMapFragment extends Fragment
         void showEditAreaFragment(String areaName);
         boolean isInArea(Area a);
         void hideAreaFragmentContainer();
+        boolean checkGPS();
     }
 
     private MapView mMapView;
@@ -71,6 +73,12 @@ public class GoogleMapFragment extends Fragment
             @Override
             public void onClick(View view) {
                 GoogleMapFragmentListener listener = (GoogleMapFragmentListener) getActivity();
+
+                if(!listener.checkGPS()){
+                    Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 listener.showImportFileFragment();
             }
         });
@@ -80,6 +88,12 @@ public class GoogleMapFragment extends Fragment
             @Override
             public void onClick(View view) {
                 GoogleMapFragmentListener listener = (GoogleMapFragmentListener) getActivity();
+
+                if(!listener.checkGPS()){
+                    Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 listener.openFileExplorer();
             }
         });
@@ -89,6 +103,12 @@ public class GoogleMapFragment extends Fragment
             @Override
             public void onClick(View view) {
                 GoogleMapFragmentListener listener = (GoogleMapFragmentListener) getActivity();
+
+                if(!listener.checkGPS()){
+                    Toast.makeText(getActivity(), "GPS is off, please turn on GPS", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 listener.showNewAreaFragment();
             }
         });

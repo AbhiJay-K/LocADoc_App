@@ -271,6 +271,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     public void openResetPasswordActivity() {
         Intent resetPassword = new Intent(this, ResetPassword.class);
         resetPassword.putExtra("Email", text_userEmail.getText().toString());
+        logout = false;
         startActivityForResult(resetPassword, 30);
     }
 
@@ -408,6 +409,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
                    if(result) {
                        Toast.makeText(SettingActivity.this, "Success to Change Password", Toast.LENGTH_SHORT).show();
                    }
+
                    Log.d("SQLITEHELPER","ResetPassword to SettingActivity--------------------------------------------------------------");
                    User userInSQLite = UserSQLHelper.getRecord(getEmail(), Credential.getPassword());
                    Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());

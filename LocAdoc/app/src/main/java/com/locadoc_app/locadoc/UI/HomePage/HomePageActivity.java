@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -103,6 +104,7 @@ public class HomePageActivity extends AppCompatActivity
     private final int OPENFILE = 2;
     private final int ABOUT = 3;
     private final int SETTING = 10;
+
     private List<String> AreaList;
     private RecyclerView mRecyclerView;
     private SearchView searchView;
@@ -961,6 +963,22 @@ public class HomePageActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public boolean checkGPS(){
+        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex) {}
+
+        return (gps_enabled || network_enabled);
+    }
+
     public void openFile(int fileid,String arn,String fn){
         logout = false;
         Intent PDFVIEWER = new Intent(this, PDFViewer.class);
@@ -1003,6 +1021,7 @@ public class HomePageActivity extends AppCompatActivity
     public void requestFocus(){
         requestFocus = true;
     }
+
     public void printOutOfAreaMsg()
     {
         Toast.makeText(this,"You have currently moved out of the area",Toast.LENGTH_LONG).show();
