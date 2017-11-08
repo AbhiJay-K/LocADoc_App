@@ -263,7 +263,7 @@ public class AreaSQLHelper implements BaseColumns {
         values.put(AreaSQLHelper.COLUMN_LONGITUDE, en.encryptString(ar.getLongitude()));
         values.put(AreaSQLHelper.COLUMN_RADIUS, en.encryptString(ar.getRadius()));
         String [] arg = {String.valueOf(ar.getAreaId())};
-        long newRowId = AreaSQLHelper.getDbHelper().WRITE.update(AreaSQLHelper.TABLE_NAME,values,"_id=?",arg);
+        long newRowId = AreaSQLHelper.getDbHelper().WRITE.update(AreaSQLHelper.TABLE_NAME,values,"_id = ?",arg);
         return newRowId;
     }
 
