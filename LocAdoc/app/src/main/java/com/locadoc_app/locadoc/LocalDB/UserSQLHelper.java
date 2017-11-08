@@ -116,7 +116,7 @@ public class UserSQLHelper implements BaseColumns{
     public static int deleteRecord(String user)
     {
         String [] arg = {user};
-        int deleted = UserSQLHelper.dbHelper.WRITE.delete(UserSQLHelper.TABLE_NAME,UserSQLHelper.COLUMN_EMAIL +"=?",arg);
+        int deleted = UserSQLHelper.dbHelper.WRITE.delete(UserSQLHelper.TABLE_NAME,UserSQLHelper.COLUMN_EMAIL + " = ?",arg);
         return deleted;
     }
     public static void clearRecord()
