@@ -166,6 +166,27 @@ public class FileSQLHelper implements BaseColumns {
 
     }
 
+    //Query to get all file id
+    public static List<String> getAllFilesName(Password password)
+    {
+        Encryption en = Encryption.getInstance(password.getPassword(), password.getSalt());
+        Cursor crs = FileSQLHelper.dbHelper.READ.rawQuery("SELECT " + COLUMN_CURRENT_NAME + " FROM file", null);
+        List<String> allCurrName = new ArrayList<>();
+        if (crs != null && crs.moveToFirst()) {
+            do {
+                String fileName = crs.getString(crs.getColumnIndex(COLUMN_CURRENT_NAME));
+                allCurrName.add(en.decrypttString(fileName));
+            } while (crs.moveToNext());
+            crs.close();
+            return allCurrName;
+        }
+        else {
+            crs.close();
+            return allCurrName;
+        }
+
+    }
+
     //Query to search file table using original area id and returns a list
     public static boolean checkFilesInAreaExist(int AreaID, Password pwd)
     {

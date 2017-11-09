@@ -37,7 +37,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +131,9 @@ public class FileOperationsFragment extends DialogFragment {
                 String originalFileName = getOriginalName(file.getOriginalfilename(), area.getAreaId());
 
                 int newFileId = FileSQLHelper.maxID() + 1;
-                String newFileName = Credential.getEmail() + newFileId;
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+                String TimeStamp = simpleDateFormat.format(new Date());
+                String newFileName = Credential.getEmail() + TimeStamp;
                 java.io.File src = new java.io.File(getActivity().getApplicationContext().getFilesDir().getAbsolutePath() +
                         "/vault/" + file.getCurrentfilename());
                 java.io.File dst = new java.io.File(getActivity().getApplicationContext().getFilesDir().getAbsolutePath() +

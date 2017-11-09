@@ -83,6 +83,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import com.locadoc_app.locadoc.UI.About.AboutActivity;
@@ -870,7 +872,9 @@ public class HomePageActivity extends AppCompatActivity
         }
 
         final int newFileId = FileSQLHelper.maxID() + 1;
-        String currFileName = Credential.getEmail() + newFileId;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+        String TimeStamp = simpleDateFormat.format(new Date());
+        String currFileName = Credential.getEmail() + TimeStamp;
 
         final File dst = new File(dir.getAbsolutePath() + "/" + currFileName);
         InputStream in = null;

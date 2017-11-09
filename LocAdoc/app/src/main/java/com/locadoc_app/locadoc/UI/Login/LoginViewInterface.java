@@ -1,5 +1,6 @@
 package com.locadoc_app.locadoc.UI.Login;
 
+import android.content.Context;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -25,4 +26,5 @@ public interface LoginViewInterface {
     void dismissProgressDialog();
     void clearFocus();
     void startDelay();
+    Context getAppContext();
 }

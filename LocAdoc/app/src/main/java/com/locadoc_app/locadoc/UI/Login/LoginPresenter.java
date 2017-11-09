@@ -526,6 +526,29 @@ public class LoginPresenter implements LoginPresenterInterface
                     }
             }
 
+            // remove deleted file from local storage
+            java.io.File dir = new java.io.File(loginAct.getAppContext().getFilesDir().getAbsolutePath()+"/vault");
+            if (dir.exists())
+            {
+                List<String> allFilesCurrName = FileSQLHelper.getAllFilesName(Credential.getPassword());
+                String[] allFiles = dir.list();
+                boolean found;
+
+                for (int i = 0; i < allFiles.length; i++)
+                {
+                    found = false;
+                    for (int j = 0; j < allFilesCurrName.size() && !found; j++){
+                        if(allFiles[i].equals(allFilesCurrName.get(j))){
+                            found = true;
+                        }
+                    }
+
+                    if(!found){
+                        new java.io.File(dir, allFiles[i]).delete();
+                    }
+                }
+            }
+
             // get all old password
             Credential.setOldPasswords(PasswordDynamoHelper.getInstance().getAllPassword());
 

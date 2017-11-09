@@ -1,6 +1,7 @@
 package com.locadoc_app.locadoc.UI.Login;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -340,6 +341,11 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     public EditText getPassView()
     {
         return passView;
+    }
+
+    @Override
+    public Context getAppContext(){
+        return getApplicationContext();
     }
 
     public void showWaitDialog(String message) {
