@@ -285,7 +285,7 @@ public class FileOperationsFragment extends DialogFragment {
 
                                 User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
                                 long totalSizeUsed = Long.parseLong(user.getTotalsizeused());
-                                totalSizeUsed -= src.length();
+                                totalSizeUsed -= Long.parseLong(file.getFilesize());
 
                                 if(totalSizeUsed < 0){
                                     totalSizeUsed = 0;

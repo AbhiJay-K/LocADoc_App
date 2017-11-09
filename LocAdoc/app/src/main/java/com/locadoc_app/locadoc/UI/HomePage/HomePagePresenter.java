@@ -35,8 +35,7 @@ import java.util.List;
 
 public class HomePagePresenter {
     private HomePage_View_Interface homepage;
-    int count;
-    private final int delay = 1000;
+    private final int delay = 30000;
     private long startTime;
     private String DBInstanceID;
     private boolean sameID;
@@ -44,38 +43,32 @@ public class HomePagePresenter {
     private Runnable timerRunnable = new Runnable() {
         @Override
         public void run() {
-            count++;
-            if(count == 30)
+            Log.d("Logout checkInstanceID","30 sec");
+            if(!Connectivity.isNetworkAvailable())
             {
-                Log.d("Logout checkInstanceID","30 sec");
-                if(!Connectivity.isNetworkAvailable())
-                {
-                    homepage.remindUserDialog();
-                    count = 0;
-                }
-                else
-                {
-                    new DBSynchronise().execute();
-                }
+                homepage.remindUserDialog();
             }
+            else
+            {
+                new DBSynchronise().execute();
+            }
+
             timerHandler.postDelayed(this, delay);
         }
     };
+
     public HomePagePresenter(HomePage_View_Interface home)
     {
         homepage = home;
-        count = 0;
         startTime = 0;
         startTime = System.currentTimeMillis();
         sameID = false;
-        timerHandler.postDelayed(timerRunnable, 0);
+        timerHandler.postDelayed(timerRunnable, delay);
     }
 
     private void doCheck()
     {
-        if (sameID && checkSpoofing()) {
-                count = 0;
-        } else {
+        if (!sameID || !checkSpoofing()) {
                 stopTimer();
                 homepage.Logout();
         }
@@ -168,7 +161,7 @@ public class HomePagePresenter {
             //Delete all user record from cloud and local
             User user = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
             UserDynamoHelper.getInstance().deleteFromDB(user);
-            UserSQLHelper.deleteRecord(Credential.getEmail());
+            UserSQLHelper.clearRecord();
 
             // 4. Delete all password record from cloud DB
             List<Password> passwordList = PasswordDynamoHelper.getInstance().getAllPassword();
