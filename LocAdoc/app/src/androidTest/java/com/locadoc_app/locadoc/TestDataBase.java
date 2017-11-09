@@ -2,6 +2,7 @@ package com.locadoc_app.locadoc;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
@@ -19,18 +20,21 @@ import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.helper.Hash;
 
+import org.junit.*;
+import org.junit.runner.RunWith;
+
 import java.util.Iterator;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Set;
-
-public class TestDataBase extends AppCompatActivity {
+@RunWith(AndroidJUnit4.class)
+public class TestDataBase extends AppCompatActivity{
     private Map<String,Integer> fileMap;
     private Map<String,Integer> AreaMap;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @org.junit.Test
+    public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_data_base);
         getApplicationContext().deleteDatabase("LocAdoc_database");
@@ -167,7 +171,7 @@ public class TestDataBase extends AppCompatActivity {
         file1.setCurrentfilename(usr.getUser()+"_"+file1.getFileId());
         file1.setOriginalfilename("something.pdf");
         file1.setPasswordId(p.getPasswordid());
-        file1.setModified("0");
+        //file1.setModified("0");
         FileSQLHelper.insert(file1,p2);
         Log.d("File MAXID",String.valueOf(FileSQLHelper.maxID()));
         File file3 = new File();
@@ -176,7 +180,7 @@ public class TestDataBase extends AppCompatActivity {
         file3.setCurrentfilename(usr.getUser()+"_"+file1.getFileId());
         file3.setOriginalfilename("Hello.pdf");
         file3.setPasswordId(p2.getPasswordid());
-        file3.setModified("0");
+        //file3.setModified("0");
         FileSQLHelper.insert(file3,p2);
         Log.d("File MAXID",String.valueOf(FileSQLHelper.maxID()));
         File file4 = new File();
@@ -185,7 +189,7 @@ public class TestDataBase extends AppCompatActivity {
         file4.setCurrentfilename(usr.getUser()+"_"+file1.getFileId());
         file4.setOriginalfilename("fyp.pdf");
         file4.setPasswordId(p2.getPasswordid());
-        file4.setModified("0");
+        //file4.setModified("0");
         FileSQLHelper.insert(file4,p);
         Log.d("File MAXID",String.valueOf(FileSQLHelper.maxID()));
         Log.d("File count",String.valueOf(FileSQLHelper.checkFileNameExist("fyp.pdf",p2)));
@@ -205,7 +209,7 @@ public class TestDataBase extends AppCompatActivity {
         Log.d(">File ID",String.valueOf(file2.getFileId()));
         Log.d(">File CUR Name",file2.getCurrentfilename());
         Log.d(">File ORG Name",file2.getOriginalfilename());
-        Log.d(">File Modified",file2.getModified());
+        //Log.d(">File Modified",file2.getModified());
         Log.d(">File PasswordID",String.valueOf(file2.getPasswordId()));
         Log.d(">File AreaID",String.valueOf(file2.getAreaId()));
         //====================================================
@@ -240,7 +244,7 @@ public class TestDataBase extends AppCompatActivity {
         Log.d(">File ID",String.valueOf(file5.getFileId()));
         Log.d(">File CUR Name",file5.getCurrentfilename());
         Log.d(">File ORG Name",file5.getOriginalfilename());
-        Log.d(">File Modified",file5.getModified());
+        //Log.d(">File Modified",file5.getModified());
         Log.d(">File PasswordID",String.valueOf(file5.getPasswordId()));
         Log.d(">File AreaID",String.valueOf(file5.getAreaId()));
 
@@ -248,36 +252,6 @@ public class TestDataBase extends AppCompatActivity {
         Log.d(">Delete PWD",String.valueOf(n));
         PasswordSQLHelper.DropTable();
         Log.d(">Delete Area",String.valueOf(AreaSQLHelper.deleteRecord(ar12.getAreaId())));
-
-
-
-
-
-
-
-
-        //======================password2========================
-        /*Password p2 = new Password();
-        p.setPassword("NewPWD123");
-        long l3 = PasswordSQLHelper.insert(p);
-        Log.d("Password added ",Long.toString(l));
-        Password pwd3 = PasswordSQLHelper.getRecord(2);
-        Log.d("testing passwordID",Integer.toString(pwd3.getPasswordid()));
-        Log.d("testing password",pwd3.getPassword());
-        Log.d("testing password",pwd3.getSalt());
-        User s3 = UserSQLHelper.getRecord("kabhijay@gmail.com");
-        s3.setPasswordid(pwd3.getPasswordid());
-        long l4 = UserSQLHelper.UpdateRecord(s3);
-        Log.d(">Password changed",s2.getUser());
-        Log.d(">Password changed",s2.getFirstname());
-        Log.d(">Password changed",s2.getLastname());
-        Log.d(">Password changed",s2.getLoggedin());
-        Log.d(">Password changed",s2.getMacaddress());
-        Log.d(">Password changed",Integer.toString(s2.getAdminareaid()));
-        Log.d(">Password changed",Integer.toString(s2.getPasswordid()));
-        Log.d(">Password changedC ",Long.toString(l));
-        Log.d(">PasswordTable Count ",Long.toString(PasswordSQLHelper.getNumberofRecords()));
-        Log.d(">UserTable Count ",Long.toString(UserSQLHelper.getNumberofRecords()));*/
 
     }
     public int GetKey(String filename)
