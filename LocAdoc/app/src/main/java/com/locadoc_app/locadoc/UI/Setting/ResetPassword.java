@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.helper.Connectivity;
 import com.locadoc_app.locadoc.helper.Hash;
 
 import static android.R.attr.label;
@@ -154,6 +155,11 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!Connectivity.isNetworkAvailable()){
+                    showNetErrToast();
+                    return;
+                }
+
                 if(confPwdStatus) {
                     String hash = Hash.Hash(curPwd.getText().toString(), Credential.getPassword().getSalt());
                     if(!hash.equals(Credential.getPassword().getPassword())){
@@ -183,6 +189,11 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
     }
     public EditText getConfirmNewPwd() {
         return this.confirmNewPwd;
+    }
+
+    public void showNetErrToast(){
+        Toast.makeText(this, "Can not connect to internet. Please check your connection!",
+                Toast.LENGTH_SHORT).show();
     }
 
     public void setLabelCurPwd(String str) {

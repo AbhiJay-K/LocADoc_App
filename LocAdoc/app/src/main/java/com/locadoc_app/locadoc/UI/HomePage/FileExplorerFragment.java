@@ -132,6 +132,8 @@ public class FileExplorerFragment extends Fragment
             {
                 //activity.printOutOfAreaMsg();
                 //fileExplorerfab.performClick();
+                Toast.makeText(getActivity(), "You are not within " + a.getName() + "'s radius anymore",
+                        Toast.LENGTH_SHORT).show();
                 getAllAreaAround();
                 ArrayList<String> areaList = new ArrayList<>(allAreaAround.keySet());
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),

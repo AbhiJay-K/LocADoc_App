@@ -243,8 +243,7 @@ public class AreaSQLHelper implements BaseColumns {
         if (crs != null && crs.moveToFirst()) {
             do {
                 String arname = crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME));
-                String arname2 = en.decrypttString(arname);
-                if(arname2.equals(name)) {
+                if(arname.equals(name)) {
                     count++;
                 }
             }while(crs.moveToNext());

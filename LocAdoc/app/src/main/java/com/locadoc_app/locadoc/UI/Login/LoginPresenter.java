@@ -369,6 +369,7 @@ public class LoginPresenter implements LoginPresenterInterface
                             }
 
                             usr.setInstanceID(instanceId);
+                            UserSQLHelper.UpdateRecord(usr, Credential.getPassword());
                             UserDynamoHelper.getInstance().insert(usr);
                         }
                     }

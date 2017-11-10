@@ -120,9 +120,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
                 String titleStr = item.getTitle();
                 String descStr = item.getDesc();
 
-                Log.d(Integer.toString(position), titleStr + "|" + descStr);
-                Toast.makeText(SettingActivity.this, titleStr, Toast.LENGTH_SHORT).show();
-
                 switch(position) {
                     case 0: changeUserName();               // Custom Alert Dialog
                         break;

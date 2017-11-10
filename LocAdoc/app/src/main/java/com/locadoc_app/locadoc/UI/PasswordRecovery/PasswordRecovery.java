@@ -3,7 +3,6 @@ package com.locadoc_app.locadoc.UI.PasswordRecovery;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,8 +10,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.helper.Connectivity;
 
 /**
  * Created by DainoMix on 9/18/2017.
@@ -130,11 +131,21 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!Connectivity.isNetworkAvailable()){
+                    networkErrToast();
+                    return;
+                }
+
                 presenter.continueTask(email, password.getText().toString(),
                 verifiCode.getText().toString());
             }
         });
 
+    }
+
+    public void networkErrToast(){
+        Toast.makeText(this, "Can not connect to internet. Please check your connection!",
+                Toast.LENGTH_SHORT).show();
     }
 
     public void exit(int result, String errorMessage) {

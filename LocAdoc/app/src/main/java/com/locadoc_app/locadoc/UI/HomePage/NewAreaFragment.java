@@ -128,8 +128,6 @@ public class NewAreaFragment extends Fragment {
                     return;
                 }
 
-
-
                 String areaDesc = newAreaDesc.getText().toString();
                 //---gets the calling activity
                 Area area = new Area();

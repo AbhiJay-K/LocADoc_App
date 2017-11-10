@@ -134,6 +134,13 @@ public class EditAreaFragment extends Fragment {
                     }
 
                     radius = Integer.parseInt(radiusText.getText().toString());
+
+                    if(radius < 5 || radius > 1000){
+                        Toast.makeText(getActivity(), "Radius has to be between 5 to 1000",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     area.setRadius(radius + "");
                     LatLng latLng = new LatLng(Double.parseDouble(area.getLatitude()), Double.parseDouble(area.getLongitude()));
                     activity.drawCircle(latLng, Integer.parseInt(area.getRadius()));
