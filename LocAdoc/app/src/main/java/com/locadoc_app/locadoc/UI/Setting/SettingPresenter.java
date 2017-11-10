@@ -41,18 +41,21 @@ public class SettingPresenter implements SettingPresenterInterface {
     }
 
     public void profileName(String firstName,String lastName) {
-        User s = UserSQLHelper.getRecord(Credential.getEmail(),Credential.getPassword());
-        Log.d("SettingsE",s.getFirstname());
-        String nameInitial = "";
-        if(!lastName.isEmpty()) {
-            nameInitial = Character.toString(lastName.charAt(0));
-        }
+        String nameInitial = new String();
+
+        // Initial in LastName
+        if(!lastName.isEmpty())
+            nameInitial = nameInitial.concat(Character.toString(lastName.charAt(0)));
+
         String[] arrayOfFirst =  firstName.split("\\s+");
 
+        // Initial in FirtName
         for(int i=0; i<arrayOfFirst.length; i++)
-            nameInitial = nameInitial.concat(Character.toString(arrayOfFirst[i].charAt(0)));
+            if(!arrayOfFirst[i].isEmpty())
+                nameInitial = nameInitial.concat(Character.toString(arrayOfFirst[i].charAt(0)));
 
         activity.setProfileInitial(nameInitial);
+
     }
 
     public int validName(String firstName, String lastName, View builderView) {

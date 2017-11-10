@@ -46,7 +46,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     private String userEmail;
     private TextView text_userEmail;
     private AlertDialog userDialog;
-    // String[] settingMenuListArray = {"User Name", "Password", "Download backup","Storage used"};
     private String[] settingMenuListArray = {"User Name", "Password", "Download backup"};
 
     // Change User Name Dialog
@@ -104,21 +103,12 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
 
         SettingListViewAdapter adapter = new SettingListViewAdapter();
 
-        /*
-        String size = "0KB";
-        if(!user.getTotalsizeused().isEmpty()) {
-            size = S3Helper.getBytesString(Long.parseLong(user.getTotalsizeused()));
-        }
-        size = size.concat(" of 1GB used");
-        */
-
         listView = (ListView) findViewById(R.id.setting_menuList);
         listView.setAdapter(adapter);
 
         adapter.addItem(settingMenuListArray[0], "Change Name");
         adapter.addItem(settingMenuListArray[1], "********");
         adapter.addItem(settingMenuListArray[2], "Recover files from cloud");
-        //adapter.addItem(settingMenuListArray[3], size);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -133,14 +123,12 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
                 Toast.makeText(SettingActivity.this, titleStr, Toast.LENGTH_SHORT).show();
 
                 switch(position) {
-                    case 0: changeUserName();      // Activity Num: 30
+                    case 0: changeUserName();               // Custom Alert Dialog
                         break;
                     case 1:	openResetPasswordActivity();    // Activity Num: 31
                         break;
-                    case 2: confirmRecover();               // Activity Num: 32
+                    case 2: confirmRecover();               // Alert Dialog
                         break;
-                    case 3:                // Activity Num: 32
-                            break;
                 }
             }
         });
@@ -400,8 +388,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
            }
 
            switch(requestCode) {
-               case 30:
-                   break;
                case 31:
                    boolean result = data.getBooleanExtra("result", false);
                    Log.d("RECEIVING RESULT","RESULT IS " + result);
@@ -415,12 +401,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
                    Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
                    Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
                    Log.d("SQLITEHELPER","ResetPassword to SettingActivity--------------------------------------------------------------");
-                   break;
-               case 32:
-                   break;
-               case 33:
-                   break;
-               case 34:
                    break;
            }
         }
