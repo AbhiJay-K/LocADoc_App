@@ -95,11 +95,19 @@ public class SettingPresenter implements SettingPresenterInterface {
     private class changeNameSyn extends
             AsyncTask<String, Void, Void> {
 
+        private String errorMessage;
+        private boolean status = true;
+
         @Override
         protected void onPostExecute(Void result){
-            User newNameUser = getUser();
-            String userName = newNameUser.getFirstname().concat(" ").concat(newNameUser.getLastname());
-            activity.setUserNameTextView(userName, newNameUser);
+            if(status) {
+                User newNameUser = getUser();
+                String userName = newNameUser.getFirstname().concat(" ").concat(newNameUser.getLastname());
+                activity.setUserNameTextView(userName, newNameUser);
+            }
+            else {
+                activity.showDialogMessage("Change Name Error", errorMessage);
+            }
 
             activity.dismissProgresDialog();
         }
@@ -109,12 +117,33 @@ public class SettingPresenter implements SettingPresenterInterface {
             //  ------------------------------------------------------------------------
             //                          Update in SQLite
             //  ------------------------------------------------------------------------
-            // user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
-                User user = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
+            User user;
+            try {
+                user = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
                 user.setFirstname(objects[0]);
                 user.setLastname(objects[1]);
-                UserSQLHelper.UpdateRecord(user, Credential.getPassword());
+            }
+            catch (Exception ex) {
+
+                errorMessage = AppHelper.formatException(ex);
+                status = false;
+
+                Log.d("CHANGENAME", errorMessage);
+                return null;
+            }
+
+            try {
                 UserDynamoHelper.getInstance().insertToDB(user);
+                UserSQLHelper.UpdateRecord(user, Credential.getPassword());
+            }
+            catch (Exception ex) {
+                errorMessage = AppHelper.formatException(ex);
+                status = false;
+
+                Log.d("CHANGENAME", errorMessage);
+                return null;
+            }
+
             return null;
         };
 

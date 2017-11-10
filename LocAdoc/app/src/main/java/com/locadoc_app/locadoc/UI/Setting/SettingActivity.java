@@ -50,6 +50,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
 
     // Change User Name Dialog
     private EditText dialog_FirstName, dialog_LastName;
+    private AlertDialog aDialog;
     private ProgressDialog pDialog;
 
     // File Recovery with S3
@@ -447,6 +448,25 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
         label.setText(str);
         dialog_FirstName.setBackground(getDrawable(R.drawable.text_border_selector));
         dialog_LastName.setBackground(getDrawable(R.drawable.text_border_selector));
+    }
+
+    public void showDialogMessage(String title, String body) {
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(title).setMessage(body).setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    aDialog.dismiss();
+                } catch (Exception e) {
+                    //
+                }
+            }
+        });
+        aDialog = builder.create();
+        aDialog.setCancelable(false);
+        aDialog.show();
     }
 
     public void showProgressDialog(String title, String msg) {
