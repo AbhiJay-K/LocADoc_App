@@ -89,6 +89,9 @@ public class SettingPresenter implements SettingPresenterInterface {
     }
 
     public void changeToNewName(String firstName, String lastName) {
+        Log.d("CHANGENAME", "FistName: " + firstName);
+        Log.d("CHANGENAME", "LastName: " + lastName);
+
         new changeNameSyn().execute(firstName, lastName);
     }
 
@@ -117,11 +120,16 @@ public class SettingPresenter implements SettingPresenterInterface {
             //  ------------------------------------------------------------------------
             //                          Update in SQLite
             //  ------------------------------------------------------------------------
-            User user;
+            User userDynamo, userSqlite;
             try {
-                user = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
-                user.setFirstname(objects[0]);
-                user.setLastname(objects[1]);
+                userDynamo = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
+                userSqlite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
+
+                userDynamo.setFirstname(objects[0]);
+                userDynamo.setLastname(objects[1]);
+
+                userSqlite.setFirstname(objects[0]);
+                userSqlite.setLastname(objects[1]);
             }
             catch (Exception ex) {
 
@@ -133,8 +141,8 @@ public class SettingPresenter implements SettingPresenterInterface {
             }
 
             try {
-                UserDynamoHelper.getInstance().insertToDB(user);
-                UserSQLHelper.UpdateRecord(user, Credential.getPassword());
+                UserDynamoHelper.getInstance().insertToDB(userDynamo);
+                UserSQLHelper.UpdateRecord(userSqlite, Credential.getPassword());
             }
             catch (Exception ex) {
                 errorMessage = AppHelper.formatException(ex);
