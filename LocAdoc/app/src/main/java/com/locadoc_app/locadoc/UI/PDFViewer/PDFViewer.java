@@ -176,6 +176,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
         try {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
+            createLocationRequest();
         } catch (SecurityException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
