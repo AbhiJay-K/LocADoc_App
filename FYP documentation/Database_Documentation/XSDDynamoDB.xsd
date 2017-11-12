@@ -39,6 +39,7 @@
 										<xsd:element name="CurrentFileName" type="xsd:string" maxOccurs="1"/>
 										<xsd:element name="OriginalFileName" type="xsd:string" maxOccurs="1"/>
 										<xsd:element name="BackedUp" type="xsd:string"/>
+										<xsd:element name="filesize" type="xsd:string"/>
 										<xsd:element name="Password">
 											<xsd:complexType>
 												<xsd:sequence>
