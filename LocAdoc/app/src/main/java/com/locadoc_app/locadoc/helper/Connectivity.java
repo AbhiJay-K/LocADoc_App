@@ -3,7 +3,6 @@ package com.locadoc_app.locadoc.helper;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-
 import com.locadoc_app.locadoc.LocAdocApp;
 
 /**

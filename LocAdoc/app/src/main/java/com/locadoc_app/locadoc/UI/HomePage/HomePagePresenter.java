@@ -1,10 +1,7 @@
 package com.locadoc_app.locadoc.UI.HomePage;
 
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.util.Log;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GenericHandler;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -36,14 +33,12 @@ import java.util.List;
 public class HomePagePresenter {
     private HomePage_View_Interface homepage;
     private final int delay = 30000;
-    private long startTime;
     private String DBInstanceID;
     private boolean sameID;
     private Handler timerHandler = new Handler();
     private Runnable timerRunnable = new Runnable() {
         @Override
         public void run() {
-            Log.d("Logout checkInstanceID","30 sec");
             if(!Connectivity.isNetworkAvailable())
             {
                 homepage.remindUserDialog();
@@ -60,8 +55,6 @@ public class HomePagePresenter {
     public HomePagePresenter(HomePage_View_Interface home)
     {
         homepage = home;
-        startTime = 0;
-        startTime = System.currentTimeMillis();
         sameID = false;
         timerHandler.postDelayed(timerRunnable, delay);
     }
@@ -82,37 +75,26 @@ public class HomePagePresenter {
     {
         if(homepage.isMockSettingsON(LocAdocApp.getContext()))
         {
-            Log.d("Logout checkSpoofing","False");
             return false;
         }
-        Log.d("Logout checkInstanceID","True");
         return true;
     }
-    /*private boolean checkInstanceID()
-    {
-        boolean n = DB.execute().get();
-        return false;
-    }*/
+
     private class DBSynchronise extends
             AsyncTask<String, Void, Void> {
         @Override
         protected Void doInBackground(String... objects) {
-            Log.d("Logout checkInstanceID","Check start");
             User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
             DBInstanceID = usr.getInstanceID();
             String InstanceID = ApplicationInstance.getRecord();
             if(InstanceID.equals(DBInstanceID))
             {
-                Log.d("Logout checkInstanceID","True");
                 sameID = true;
             }
             else
             {
                 sameID = false;
             }
-            Log.d("Logout checkInstanceID",InstanceID);
-            Log.d("Logout checkInstanceID",DBInstanceID);
-            //Log.d("Logout checkInstanceID","False");
             return null;
         }
 
@@ -136,8 +118,6 @@ public class HomePagePresenter {
             for(int id:fileList)
             {
                 File file = FileSQLHelper.getFile(id, Credential.getPassword());
-
-                //S3Helper.getHelper().removeFile(file.getCurrentfilename());
                 AmazonS3Client sS3Client = S3Helper.getInstance();
                 String key = Credential.getIdentity() + "/" + file.getCurrentfilename();
                 sS3Client.deleteObject(new DeleteObjectRequest(S3Helper.BUCKET_NAME, key));
@@ -186,8 +166,6 @@ public class HomePagePresenter {
         }
 
         @Override
-        public void onFailure(Exception exception) {
-
-        }
+        public void onFailure(Exception exception) {}
     };
 }

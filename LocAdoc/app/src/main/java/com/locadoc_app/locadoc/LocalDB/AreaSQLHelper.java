@@ -4,11 +4,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.location.Location;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Password;
-import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.Encryption;
 
 import java.util.ArrayList;
@@ -211,8 +209,6 @@ public class AreaSQLHelper implements BaseColumns {
         if (crs != null && crs.moveToFirst()) {
             do {
                 Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
-                int id = crs.getInt(crs.getColumnIndex("_id"));
-                String AreaName = en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_NAME)));
                 Double longitude = Double.parseDouble(en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LONGITUDE))));
                 Double latitude = Double.parseDouble(en.decrypttString(crs.getString(crs.getColumnIndex(AreaSQLHelper.COLUMN_LATITUDE))));
                 Location l1 = new Location("");
@@ -223,7 +219,6 @@ public class AreaSQLHelper implements BaseColumns {
                 l2.setLatitude(Double.parseDouble(ar.getLatitude()));
                 if(l1.distanceTo(l2) == 0.0f)
                 {
-                    Log.d("Distance Error","Same distance");
                     return 1;
                 }
             } while (crs.moveToNext());
@@ -238,7 +233,6 @@ public class AreaSQLHelper implements BaseColumns {
 
     public static int checkAreaNameExist(String name,Password pwd) {
         Cursor crs = AreaSQLHelper.dbHelper.READ.rawQuery("SELECT areaname FROM area",null);
-        Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
         int count = 0;
         if (crs != null && crs.moveToFirst()) {
             do {
@@ -283,7 +277,6 @@ public class AreaSQLHelper implements BaseColumns {
     public static void clearRecord()
     {
         dbHelper.WRITE.execSQL("delete from "+ TABLE_NAME);
-        //dbHelper.WRITE.execSQL("delete from sqlite_sequence where name='" + TABLE_NAME + "'");
     }
 
     public static Area getAreaName(String Arname,Password pwd) {

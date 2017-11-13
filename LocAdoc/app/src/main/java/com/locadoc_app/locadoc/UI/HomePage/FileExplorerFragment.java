@@ -3,12 +3,10 @@ package com.locadoc_app.locadoc.UI.HomePage;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +20,6 @@ import android.widget.Toast;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
@@ -35,7 +31,6 @@ import com.locadoc_app.locadoc.S3.S3Helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class FileExplorerFragment extends Fragment
@@ -48,6 +43,7 @@ public class FileExplorerFragment extends Fragment
         boolean isInArea (Area a);
         boolean checkGPS();
     }
+
     private int areaID;
     private ListView listView;
     private boolean exploreArea;
@@ -114,8 +110,6 @@ public class FileExplorerFragment extends Fragment
             curAreaName = a.getName();
             if(!listener.isInArea(a))
             {
-                //activity.printOutOfAreaMsg();
-                //fileExplorerfab.performClick();
                 listener.openGoogleMap();
             }
             else {
@@ -130,8 +124,6 @@ public class FileExplorerFragment extends Fragment
             Area a = AreaSQLHelper.getRecord(areaID,Credential.getPassword());
             if(!listener.isInArea(a))
             {
-                //activity.printOutOfAreaMsg();
-                //fileExplorerfab.performClick();
                 Toast.makeText(getActivity(), "You are not within " + a.getName() + "'s radius anymore",
                         Toast.LENGTH_SHORT).show();
                 getAllAreaAround();
@@ -274,11 +266,9 @@ public class FileExplorerFragment extends Fragment
     }
 
     private class DownloadListener implements TransferListener {
-        // Simply updates the list when notified.
+        // Simply updates the dialog when notified.
         @Override
-        public void onError(int id, Exception e) {
-            Log.e("LocAdoc", "onError: " + id, e);
-        }
+        public void onError(int id, Exception e) {}
 
         @Override
         public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
@@ -341,7 +331,5 @@ public class FileExplorerFragment extends Fragment
 
             return convertView;
         }
-
     }
-
 }

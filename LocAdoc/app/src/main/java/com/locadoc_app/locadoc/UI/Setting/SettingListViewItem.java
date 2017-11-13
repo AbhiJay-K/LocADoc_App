@@ -4,10 +4,7 @@ package com.locadoc_app.locadoc.UI.Setting;
  * Created by Dainomix on 10/2/2017.
  */
 
-import android.graphics.drawable.Drawable;
-
 public class SettingListViewItem {
-
     //private Drawable icon;
     private String title;
     private String desc;

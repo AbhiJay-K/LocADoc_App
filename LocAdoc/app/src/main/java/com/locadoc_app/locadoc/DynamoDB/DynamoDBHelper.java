@@ -2,20 +2,11 @@ package com.locadoc_app.locadoc.DynamoDB;
 
 import android.content.Context;
 import android.os.AsyncTask;
-
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.locadoc_app.locadoc.Cognito.AppHelper;
-import com.locadoc_app.locadoc.LocAdocApp;
-import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
-import com.locadoc_app.locadoc.R;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Admin on 9/25/2017.

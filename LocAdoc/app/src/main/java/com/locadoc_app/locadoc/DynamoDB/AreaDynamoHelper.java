@@ -1,20 +1,15 @@
 package com.locadoc_app.locadoc.DynamoDB;
 
 import android.os.AsyncTask;
-import android.util.Log;
-
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper.OperationType;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.helper.Encryption;
-
 import java.util.List;
 
 /**
@@ -66,9 +61,7 @@ public class AreaDynamoHelper {
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         try{
             mapper.save(area);
-        }catch (AmazonServiceException ex){
-            Log.e("LocAdoc", "Error: " + ex);
-        }
+        }catch (AmazonServiceException ex){}
     }
 
     public void insertToDBWithoutEncryption(Area area)
@@ -78,9 +71,7 @@ public class AreaDynamoHelper {
 
         try{
             mapper.save(area);
-        }catch (AmazonServiceException ex){
-            Log.e("LocAdoc", "Error: " + ex);
-        }
+        }catch (AmazonServiceException ex){}
     }
 
     public void delete (Area area)
@@ -96,24 +87,14 @@ public class AreaDynamoHelper {
         mapper.delete(area);
     }
 
-    public void getArea(int areaid)
-    {
-        OperationType operation = OperationType.GET_RECORD;
-        new AreaDynamoHelper.DynamoDBTask().execute(operation, areaid);
-    }
-
     public Area getAreaFromDB(int areaid)
     {
         String id = getIdentity();
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         try{
             Area area = mapper.load(Area.class, id, areaid);
-            Log.d("LocAdoc", "id: " + area.getAreaId() + ", lat: " + area.getLatitude()
-                    + ", long: " + area.getLongitude() + ", user: " + area.getOwner());
             return area;
-        } catch (AmazonServiceException ex){
-            Log.e("LocAdoc", "Error: " + ex);
-        }
+        } catch (AmazonServiceException ex){}
         return null;
     }
 
@@ -129,9 +110,8 @@ public class AreaDynamoHelper {
                     .withConsistentRead(false);
             DynamoDBMapper mapper = DynamoDBHelper.getMapper();
             result = mapper.query(Area.class, queryExpression);
-        } catch (AmazonServiceException ex){
-            Log.e("LocAdoc", "Error: " + ex);
-        }
+        } catch (AmazonServiceException ex){}
+
         return result;
     }
 
@@ -147,25 +127,9 @@ public class AreaDynamoHelper {
             } else if (operation == OperationType.DELETE) {
                 Area area = (Area) objects[1];
                 deleteFromDB(area);
-            } else if (operation == OperationType.GET_RECORD) {
-                int areaid = (Integer) objects[1];
-                getAreaFromDB(areaid);
-            } else if (operation == OperationType.GET_ALL){
-                List<Area> list = getAllArea();
-                if(list==null)
-                    return null;
-                for(Area area: list){
-                    Log.d("LocAdoc", "id: " + area.getAreaId() + ", lat: " + area.getLatitude()
-                            + ", long: " + area.getLongitude() + ", user: " + area.getOwner());
-                }
             }
 
             return null;
         }
-    }
-    public void getAll()
-    {
-        OperationType operation = OperationType.GET_ALL;
-        new DynamoDBTask().execute(operation);
     }
 }

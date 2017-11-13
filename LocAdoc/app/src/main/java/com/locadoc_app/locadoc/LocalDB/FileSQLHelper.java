@@ -3,12 +3,10 @@ package com.locadoc_app.locadoc.LocalDB;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.provider.BaseColumns;
-
 import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.Encryption;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -276,6 +274,5 @@ public class FileSQLHelper implements BaseColumns {
     public static void clearRecord()
     {
         dbHelper.WRITE.execSQL("delete from "+ TABLE_NAME);
-        //dbHelper.WRITE.execSQL("delete from sqlite_sequence where name='" + TABLE_NAME + "'");
     }
 }

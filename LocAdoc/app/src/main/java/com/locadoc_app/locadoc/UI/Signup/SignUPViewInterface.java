@@ -30,5 +30,4 @@ public interface SignUPViewInterface {
     void showWaitDialog(String message);
     void closeWaitDialog();
     void showDialogMessage(String title, String body, final boolean exit);
-
 }

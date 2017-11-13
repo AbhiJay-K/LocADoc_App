@@ -8,16 +8,11 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.locadoc_app.locadoc.Cognito.AppHelper;
-import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
-import com.locadoc_app.locadoc.LocAdocApp;
 import com.locadoc_app.locadoc.LocalDB.ApplicationInstance;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.DBHelper;
@@ -25,19 +20,13 @@ import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.GuestSession;
 import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Credential;
-import com.locadoc_app.locadoc.Model.File;
-import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
-import com.locadoc_app.locadoc.S3.S3Helper;
-import com.locadoc_app.locadoc.Test;
 import com.locadoc_app.locadoc.UI.ConfirmSignUp.Activity_SignUp_Confirm;
 import com.locadoc_app.locadoc.UI.HomePage.HomePageActivity;
 import com.locadoc_app.locadoc.UI.NewPassword.NewPasswordActivity;
 import com.locadoc_app.locadoc.UI.PasswordRecovery.PasswordRecovery;
 import com.locadoc_app.locadoc.UI.Signup.SignUp;
 import com.locadoc_app.locadoc.helper.Connectivity;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -60,12 +49,9 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     Button signupButton;
     Button chngUser;
 
-    private ProgressDialog dialog;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //AppEventsLogger.activateApp(this);
         loginPres = new LoginPresenter(this);
         setContentView(R.layout.activity_login);
         chngUser = (Button) findViewById(R.id.Login_Change_User_BTN);
@@ -95,7 +81,6 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     void onSignupClick(View v)
     {
         if(Connectivity.isNetworkAvailable()) {
-            Log.d("LocAdoc", "Sign up");
             Intent signUp = new Intent(this, SignUp.class);
             startActivityForResult(signUp, 1);
         }else{
@@ -224,9 +209,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     }
     public boolean checkLogin()
     {
-        Log.d("Number of User ",String.valueOf(UserSQLHelper.getNumberofRecords()));
         if(UserSQLHelper.getNumberofRecords() > 0){
-            Log.d("Number of User ",String.valueOf(UserSQLHelper.getNumberofRecords()));
             String email = UserSQLHelper.getUser();
             chngUser.setVisibility(View.VISIBLE);
             userIDView.setText(email);
@@ -239,9 +222,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         }
         return false;
     }
-    public static boolean isCurUSer() {
-        return curUSer;
-    }
+
     public void openForgotPasswordActivity() {
         Intent ForgetPasswordActivity = new Intent(this, PasswordRecovery.class);
         ForgetPasswordActivity.putExtra("name", userIDView.getText().toString());
@@ -250,7 +231,6 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //callbackManager.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK)
         {
             switch (requestCode) {
@@ -371,15 +351,6 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         userDialog.show();
     }
 
-    public void onPostExecute(String response) {
-        dialog.dismiss();
-        if (response != null) {
-            showDialogMessage("Facebook login", "Hello " + response);
-        } else {
-            showDialogMessage("Facebook login", "Unable to get user name from Facebook");
-        }
-    }
-
     public void clearFocus(){
         View current = getCurrentFocus();
         if (current != null){
@@ -400,7 +371,6 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
         final AlertDialog lockDialog = new AlertDialog.Builder(LoginActivity.this).create();
         lockDialog.setCancelable(false);
         long [] grecord = GuestSession.getRecord();
-        Log.e("Delay check3", String.valueOf(grecord[0]) + " " + String.valueOf(grecord[1]));
         long milliseconds = grecord[1];
         long seconds = milliseconds/1000;
         long minutes = seconds / 60;

@@ -1,21 +1,12 @@
 package com.locadoc_app.locadoc.UI.PasswordRecovery;
 
-import android.os.AsyncTask;
-import android.util.Log;
-
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.ForgotPasswordContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.ForgotPasswordHandler;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
-import com.locadoc_app.locadoc.DynamoDB.PasswordDynamoHelper;
-import com.locadoc_app.locadoc.DynamoDB.UserDynamoHelper;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.Password;
-import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.CheckPassword;
 import com.locadoc_app.locadoc.helper.Hash;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by DainoMix on 9/18/2017.
@@ -86,9 +77,6 @@ public class PasswordRecoveryPresenter implements PasswordRecoveryPresenterInter
     }
 
     public void forgotPwdCredential(String userEmail, String newPassword) {
-        Log.d("FORGOTPWD","======================================================================");
-        Log.d("FORGOTPWD","ForgotPwd Credential is Executed");
-
         Password newPwd = new Password();
         newPwd.setPasswordid(-1);
         String salt = Hash.SecureRandomGen();
@@ -99,13 +87,6 @@ public class PasswordRecoveryPresenter implements PasswordRecoveryPresenterInter
 
         Credential.setEmail(userEmail);
         Credential.setPassword(newPwd);
-
-        Log.d("FORGOTPWD", "Email: " + Credential.getEmail());
-        Log.d("FORGOTPWD", "PasswordID: " + Credential.getPassword().getPasswordid() + " | Password: " + Credential.getPassword().getPassword());
-
-        Log.d("FORGOTPWD", "NEW SALT:" + salt);
-        Log.d("FORGOTPWD","======================================================================");
-
     }
 
     // Callbacks
@@ -121,7 +102,6 @@ public class PasswordRecoveryPresenter implements PasswordRecoveryPresenterInter
 
         @Override
         public void onFailure(Exception e) {
-            Log.d("FORGOTPWD", e.getMessage());
             activity.exit(-1, AppHelper.formatException(e));
 
         }

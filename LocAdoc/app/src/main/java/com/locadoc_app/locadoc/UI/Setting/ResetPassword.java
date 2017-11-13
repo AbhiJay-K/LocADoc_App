@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,8 +19,6 @@ import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.helper.Connectivity;
 import com.locadoc_app.locadoc.helper.Hash;
-
-import static android.R.attr.label;
 
 public class ResetPassword extends AppCompatActivity implements ResetPasswordViewInterface {
 
@@ -45,11 +42,6 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
 
         TextView text = (TextView) findViewById(R.id.resetPwd_textViewConfirmSubtext_1);
         text.setText("Reset Password in " + Credential.getEmail());
-
-        Log.d("SQLITEHELPER","SettingActivity to ResetPasswordPresenter--------------------------------------------------------------");
-        Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
-        Log.d("SQLITEHELPER","SettingActivity to ResetPasswordPresenter--------------------------------------------------------------");
-
 
         init();
     }
@@ -240,8 +232,6 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
 
     //  ---------------------------------------------------------------------------------
     public void showProgressDialog(String title, String msg) {
-        Log.d("PROGRESSDIALOG","Progress Dialog is executed");
-
         pDialog = new ProgressDialog(ResetPassword.this);
         pDialog.setTitle(title);
         pDialog.setMessage(msg);
@@ -252,13 +242,8 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
 
     public void dismissProgresDialog() {
         if(pDialog.isShowing()){
-            Log.d("PROGRESSDIALOG","Progress Dialog is quit");
             pDialog.dismiss();
         }
-    }
-
-    public void ToastMessage(Exception e) {
-        Toast.makeText(ResetPassword.this, "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
     }
     //  ---------------------------------------------------------------------------------
 

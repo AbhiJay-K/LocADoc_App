@@ -7,5 +7,4 @@ package com.locadoc_app.locadoc.UI.ConfirmSignUp;
 public interface SignUp_Confirm_Presenter_Interface {
     void sendConfCode(String userName, String confirmCode, String uhint, String Chint);
     void reqConfCode(String userName,String uhint);
-
 }

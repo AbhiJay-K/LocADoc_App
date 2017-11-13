@@ -2,8 +2,6 @@ package com.locadoc_app.locadoc.DynamoDB;
 
 
 import android.os.AsyncTask;
-import android.util.Log;
-
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.locadoc_app.locadoc.Model.Credential;
@@ -72,9 +70,7 @@ public class UserDynamoHelper {
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         try{
             mapper.save(user);
-        }catch (AmazonServiceException ex){
-            Log.e("LocAdoc", "Error: " + ex);
-        }
+        }catch (AmazonServiceException ex){}
     }
 
     public void delete (User user)
@@ -88,12 +84,6 @@ public class UserDynamoHelper {
         user.setIdentity(getIdentity());
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         mapper.delete(user);
-    }
-
-    public void getUser(String email)
-    {
-        OperationType operation = OperationType.GET_RECORD;
-        new DynamoDBTask().execute(operation, email);
     }
 
     public User getUserFromDB(String email)
@@ -126,9 +116,6 @@ public class UserDynamoHelper {
             } else if (operation == OperationType.DELETE) {
                 User user = (User) objects[1];
                 deleteFromDB(user);
-            } else if (operation == OperationType.GET_RECORD) {
-                String email = (String) objects[1];
-                getUserFromDB(email);
             } else if (operation == OperationType.UPDATE_TOTAL_SIZE) {
                 String totalSizeUsed = (String) objects[1];
                 updateTotalSizeFromDB(totalSizeUsed);

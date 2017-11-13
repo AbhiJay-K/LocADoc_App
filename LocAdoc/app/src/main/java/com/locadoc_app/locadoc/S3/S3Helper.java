@@ -1,9 +1,6 @@
 package com.locadoc_app.locadoc.S3;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.support.v7.app.AlertDialog;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
@@ -110,7 +107,6 @@ public class S3Helper {
     public static void uploadFile(File file){
         String key = getIdentity();
         key = key + "/" + file.getName();
-        Log.d("LocAdoc", "UPLOAD: " + key);
         TransferObserver observer = transferUtility.upload(BUCKET_NAME, key, file);
         observer.setTransferListener(new UploadListener());
         observerId = observer.getId();

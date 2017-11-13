@@ -1,7 +1,6 @@
 package com.locadoc_app.locadoc.helper;
 
 import org.apache.commons.codec.binary.Hex;
-
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 

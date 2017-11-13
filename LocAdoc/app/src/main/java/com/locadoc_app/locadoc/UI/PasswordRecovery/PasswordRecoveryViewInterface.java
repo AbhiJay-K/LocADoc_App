@@ -7,7 +7,6 @@ import android.widget.EditText;
  */
 
 public interface PasswordRecoveryViewInterface {
-    void setLabelUserEmail(String str);
     void setLabelPassword(String str);
     void setLabelConfirmPassword(String str);
     void setLabelVerifiCode(String str);

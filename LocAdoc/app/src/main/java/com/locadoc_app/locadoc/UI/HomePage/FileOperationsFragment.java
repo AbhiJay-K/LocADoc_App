@@ -1,11 +1,9 @@
 package com.locadoc_app.locadoc.UI.HomePage;
 
 import android.content.DialogInterface;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +11,10 @@ import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.locadoc_app.locadoc.DynamoDB.AreaDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.FileDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.UserDynamoHelper;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
@@ -27,7 +23,6 @@ import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.File;
-import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.R;
 import com.locadoc_app.locadoc.S3.S3Helper;
@@ -38,11 +33,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FileOperationsFragment extends DialogFragment {
     private Button btnCopyFile;
@@ -170,25 +162,17 @@ public class FileOperationsFragment extends DialogFragment {
 
                     totalSizeUsed += dst.length();
                     user.setTotalsizeused("" + totalSizeUsed);
-                    //activity.changeFileSizeUsed(user.getTotalsizeused());
                     UserSQLHelper.UpdateRecord(user, Credential.getPassword());
                     UserDynamoHelper.getInstance().updateTotalSizeUsed(totalSizeUsed + "");
 
-                    Log.d("LocAdoc", "Total Size: " + totalSizeUsed);
-
-                    Log.d("LocAdoc", "Name: " + file.getOriginalfilename() + ", current: " + file.getCurrentfilename());
                     FileSQLHelper.insert(file, Credential.getPassword());
                     FileDynamoHelper.getInstance().insert(file);
-                } catch (Exception e){
-                    Log.e("LocAdoc", e.toString());
-                }
+                } catch (Exception e){}
                 finally {
                     try{
                         in.close();
                         out.close();
-                    } catch (Exception e){
-                        Log.e("LocAdoc", e.toString());
-                    }
+                    } catch (Exception e){}
                 }
 
                 S3Helper.setIsUploading(true);
@@ -295,11 +279,8 @@ public class FileOperationsFragment extends DialogFragment {
                                     totalSizeUsed = 0;
                                 }
 
-                                Log.d("LocAdoc", "Total Size: " + totalSizeUsed);
-
                                 user.setTotalsizeused("" + totalSizeUsed);
                                 UserSQLHelper.UpdateRecord(user, Credential.getPassword());
-                                //activity.changeFileSizeUsed(user.getTotalsizeused());
                                 UserDynamoHelper.getInstance().updateTotalSizeUsed(totalSizeUsed + "");
 
                                 if(src.exists()) {

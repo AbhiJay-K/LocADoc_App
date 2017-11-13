@@ -1,9 +1,7 @@
 package com.locadoc_app.locadoc.UI.Login;
 
 import android.content.Context;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-import android.widget.TextView;
 
 /**
  * Created by Admin on 9/12/2017.

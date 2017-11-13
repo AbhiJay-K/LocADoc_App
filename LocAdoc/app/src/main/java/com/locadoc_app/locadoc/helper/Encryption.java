@@ -1,13 +1,10 @@
 package com.locadoc_app.locadoc.helper;
 
 import android.util.Base64;
-import android.util.Log;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
-
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
@@ -152,16 +149,4 @@ public class Encryption {
 	public static void clear(){
 		encryption = null;
 	}
-	/*public static void main (String[] args)
-	{
-		Encryption e = Encryption.getInstance("pass123", "12364");
-		e.encryptFile("locadoc_logo.png", "CipherText1");
-		System.out.println("FINISH ENCRYPTION");
-		e.decryptFile("CipherText1", "PlainText1.png");
-		System.out.println("FINISH DECRYPTION");
-		String res = e.encryptString("testing!!!");
-		System.out.println("Cipher text: " + res);
-		res = e.decrypttString(res);
-		System.out.println("Plain text: " + res);
-	}*/
 }
