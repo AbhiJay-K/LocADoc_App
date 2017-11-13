@@ -1,17 +1,12 @@
 package com.locadoc_app.locadoc.UI.Login;
 
-import android.app.Application;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserSession;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.ChallengeContinuation;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.ForgotPasswordContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.NewPasswordContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
@@ -26,7 +21,6 @@ import com.locadoc_app.locadoc.LocalDB.ApplicationInstance;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.GuestSession;
-import com.locadoc_app.locadoc.LocalDB.PasswordSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
@@ -38,7 +32,6 @@ import com.locadoc_app.locadoc.helper.EmailValidation;
 import com.locadoc_app.locadoc.helper.Encryption;
 import com.locadoc_app.locadoc.helper.Hash;
 
-import java.sql.Array;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -54,10 +47,7 @@ public class LoginPresenter implements LoginPresenterInterface
 {
     private LoginViewInterface loginAct;
     //Continuations
-    private MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation;
-    private ForgotPasswordContinuation forgotPasswordContinuation;
     private NewPasswordContinuation newPasswordContinuation;
-    private final int RESETPWDCREDENTIALID = -1;
 
     public LoginPresenter (LoginViewInterface loginAct)
     {
@@ -73,7 +63,6 @@ public class LoginPresenter implements LoginPresenterInterface
 
         if (isValid)
         {
-            Log.d("LocAdoc", "Attempt Login");
             loginAct.showWaitDialog("Signing in...");
             String username = loginAct.getUserIDView().getText().toString();
             AppHelper.getPool().getUser(username).getSessionInBackground(authenticationHandler);
@@ -129,7 +118,6 @@ public class LoginPresenter implements LoginPresenterInterface
     AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
         @Override
         public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
-            //Log.e(TAG, "Auth Success");
             GuestSession.ResetReacord();
             loginAct.closeWaitDialog();
             loginAct.startProgressDialog();
@@ -156,16 +144,11 @@ public class LoginPresenter implements LoginPresenterInterface
         }
 
         @Override
-        public void getMFACode(MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation) {
-            //closeWaitDialog();
-            //mfaAuth(multiFactorAuthenticationContinuation);
-        }
+        public void getMFACode(MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation) {}
 
         @Override
         public void onFailure(Exception e) {
             loginAct.closeWaitDialog();
-
-            Log.d("FORGOTPWD", AppHelper.formatException(e));
 
             if (AppHelper.formatException(e).equals("User is not confirmed. ")){
                 loginAct.confirmUser();
@@ -173,9 +156,7 @@ public class LoginPresenter implements LoginPresenterInterface
             else {
                 //Add delay if the user guest try password many times
                 long [] grecord = GuestSession.getRecord();
-                Log.e("Delay check1", String.valueOf(grecord[0]) + " " + String.valueOf(grecord[1]));
                 grecord[0]++;
-                Log.e("Delay check2", String.valueOf(grecord[0]) + " " + String.valueOf(grecord[1]));
                 GuestSession.updateNumTries(grecord);
                 if(grecord[0] >= 3L)
                 {
@@ -229,17 +210,11 @@ public class LoginPresenter implements LoginPresenterInterface
 
             //-------- Common Login
                 if(numberUser > 0 &&  usr != null) {
-                    Log.d("FORGOTPWD","ACCESS TO COMMON LOGIN");
                     // ---------------------------------------------------------------------------------------------
                     //                          RESET PASSWORD IN COMMON LOGIN
                     // ---------------------------------------------------------------------------------------------
                     // Current Credential Password: old Password Info
                     if(Credential.getPassword() != null && newCredentialPwd.getPasswordid() == -1) {
-                        Log.d("FORGOTPWD","======================================================================");
-                        Log.d("FORGOTPWD","Common Login Case in Forgot PWD");
-                        Log.d("FORGOTPWD","Current Credential Password is old Password");
-                        Log.d("FORGOTPWD","======================================================================");
-
                         Encryption en = Encryption.getInstance(Credential.getPassword().getPassword(), Credential.getPassword().getSalt());
                         int oldPwdID = Credential.getPassword().getPasswordid();
 
@@ -277,8 +252,6 @@ public class LoginPresenter implements LoginPresenterInterface
 
                         // SET New Password into Credential and New Encryption Key AS New Password
                         Credential.setPassword(newCredentialPwd);
-                        Log.d("FORGOTPWD","Current Credential Password is new Password");
-
                         en.setKey(Credential.getPassword().getPassword(), Credential.getPassword().getSalt());
 
                         // UPDATE Password ID Credential based on DYNAMODB Password ID
@@ -327,27 +300,7 @@ public class LoginPresenter implements LoginPresenterInterface
                         // ---------------------------------------------------------------------------------------------
                         //                Common Login Process with Different Device After ForgetPassword
                         // ---------------------------------------------------------------------------------------------
-                        /*
-                        String instanceId = ApplicationInstance.getRecord();
 
-                        if(!instanceId.equals(userInSQLite.getInstanceID())) {
-                            FileSQLHelper.clearRecord();
-                            AreaSQLHelper.clearRecord();
-
-                            List<Area> areas = AreaDynamoHelper.getInstance().getAllArea();
-                            for(Area ar : areas) {
-                                AreaSQLHelper.insertWithoutEncryption(ar,Credential.getPassword());
-                            }
-
-                            List<File> files = FileDynamoHelper.getInstance().getAllFile();
-                            for(File file : files) {
-                                FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
-                            }
-
-                            userInSQLite.setInstanceID(instanceId);
-                            UserDynamoHelper.getInstance().insert(userInSQLite);
-                        }
-                        */
                     }
                     else {
                         Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(usr.getPasswordid());
@@ -375,7 +328,6 @@ public class LoginPresenter implements LoginPresenterInterface
                     }
             }   //-------- First Login
             else if(usr == null && numberUser > 0){
-                Log.d("FORGOTPWD","ACCESS TO FIRST TIME LOGIN");
                 User newusr = UserSQLHelper.getRecord(Credential.getEmail(),Credential.getPassword());
                 String instance = ApplicationInstance.getRecord();
                 newusr.setInstanceID(instance);
@@ -394,16 +346,11 @@ public class LoginPresenter implements LoginPresenterInterface
                 PasswordDynamoHelper.getInstance().insert(Credential.getPassword());
             }   //-------- Common Login with Different Device
             else if(usr != null && numberUser <= 0) {
-                Log.d("FORGOTPWD","ACCESS TO COMMON LOGIN WITH DIFFERENT DEVICE");
                 // ---------------------------------------------------------------------------------------------
                 //                     RESET PASSWORD IN COMMON LOGIN WITH DIFFERENT DEVICE
                 // ---------------------------------------------------------------------------------------------
 
                 if(Credential.getPassword() != null && newCredentialPwd.getPasswordid() == -1) {
-                        Log.d("FORGOTPWD","======================================================================");
-                        Log.d("FORGOTPWD","Common Login with Different Devices Case in Forgot PWD");
-                        Log.d("FORGOTPWD","Current Credential Password is old Password");
-                        Log.d("FORGOTPWD","======================================================================");
 
                         // User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
                         // long numberUser = UserSQLHelper.getNumberofRecords();
@@ -451,7 +398,6 @@ public class LoginPresenter implements LoginPresenterInterface
                         // ---------------------------------------------------------------------------------------------
                         // SET New Encryption Key AS New Password
                         Credential.setPassword(newCredentialPwd);
-                        Log.d("FORGOTPWD","Current Credential Password is new Password");
 
                         en.setKey(Credential.getPassword().getPassword(), Credential.getPassword().getSalt());
 
@@ -522,7 +468,6 @@ public class LoginPresenter implements LoginPresenterInterface
                         List<File> fileList = FileDynamoHelper.getInstance().getAllFile();
                         for(File file : fileList) {
                             FileSQLHelper.insertWithoutEncryption(file, Credential.getPassword());
-                            Log.d("LocAdoc", "File id: " + file.getFileId() + ", area id: " + file.getAreaId());
                         }
                     }
             }

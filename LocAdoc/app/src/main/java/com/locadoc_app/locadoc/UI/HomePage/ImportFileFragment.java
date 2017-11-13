@@ -1,11 +1,8 @@
 package com.locadoc_app.locadoc.UI.HomePage;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,9 +103,7 @@ public class ImportFileFragment extends Fragment {
             public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                //radiusText.setText(radius + "");
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
         existingArea = (Spinner) view.findViewById(R.id.ExistingArea);

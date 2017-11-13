@@ -1,8 +1,6 @@
 package com.locadoc_app.locadoc.UI.Setting;
 
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GenericHandler;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
@@ -18,17 +16,11 @@ import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
-import com.locadoc_app.locadoc.UI.ConfirmSignUp.Activity_SignUp_Confirm;
 import com.locadoc_app.locadoc.helper.CheckPassword;
 import com.locadoc_app.locadoc.helper.Encryption;
 import com.locadoc_app.locadoc.helper.Hash;
 
 import java.util.List;
-import java.util.Map;
-
-import static android.R.attr.description;
-import static android.R.attr.password;
-import static java.sql.DriverManager.println;
 
 /**
  * Created by Dainomix on 10/4/2017.
@@ -101,17 +93,8 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
     }
 
     public void changePassword() {
-        // oldUserPassword, newUserPassword, CallBack:GeneralHandler
-        Log.d("APPHELPER CALL", "changePassword (" + activity.getCurPwd().getText().toString() + ", " + activity.getNewPwd().getText().toString() + ", Handler) And the Credential PWD " + Credential.getPassword());
-        // Should password be hashed one?
-        // Old Pwd as Credential
-        // activity.showProgressDialog("Reset Password","Changing Password...");
-
-        AppHelper.getPool().getUser(Credential.getEmail()).changePasswordInBackground(activity.getCurPwd().getText().toString(), activity.getNewPwd().getText().toString(), changePwdHandler);
-        Log.d("UPDATE IN COGNITO","UPDATE IN " + Credential.getEmail() + " | OLDPWD: " +  activity.getCurPwd().getText().toString() + " | NEWPWD " + activity.getNewPwd().getText().toString());
-
-        // activity.dismissProgresDialog();
-
+        AppHelper.getPool().getUser(Credential.getEmail()).changePasswordInBackground(activity.getCurPwd().getText().toString(),
+                activity.getNewPwd().getText().toString(), changePwdHandler);
     }
 
 
@@ -128,9 +111,6 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
             Note in creating new password record:
             new password id: get password id in user table, increment the password id by 1
              */
-            Log.d("SUCCESS_RESET_PWD","UPDATE IN DYNAMODB IN CLOUD SERVER");
-            Log.d("SEPERATE", "SUCCESS--------------------------------------------------------------------------------");
-
             String newPassword = activity.getNewPwd().getText().toString();
             new resetPwdSyn().execute(newPassword);
 
@@ -140,11 +120,6 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
         @Override
         public void onFailure(Exception exception) {
             // Failure is due to Wrong OldPwd(or Current Pwd)
-            // activity.setLabelCurPwd("PasswordSQLHelper: incorrect Current Password");
-            Log.d("FAIL_RESET_PWD","UNMATCH OLD PWD");
-            Log.d("EXCEPTION MESSAGE", exception.toString());
-            Log.d("SEPERATE", "FAIL--------------------------------------------------------------------------------");
-
             activity.setLabelCurPwd("Incorrect Current Password");
 
             resultStatus = false;
@@ -160,7 +135,6 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
         protected void onPostExecute(Void result){
             activity.dismissProgresDialog();
             activity.showDialogMessage("Success","Change password success", resultStatus);
-            //super.onPostExecute(result);
         }
 
         @Override
@@ -175,14 +149,10 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
             int pwdIDUserTable = user.getPasswordid();
             int pwdIDPwdTable = password.getPasswordid();
 
-            Log.d("PWDID IN USER", "User Password ID in USER TABLE: " + pwdIDUserTable++);
-            Log.d("PWDID IN USER", "User Password ID in PASSWORD TABLE: " + pwdIDPwdTable++);
-
             // Check same Value B2 user and Password?
             // IF Different, Priority b2 User and Password: User
             if(pwdIDUserTable != pwdIDPwdTable) {
                 pwdIDPwdTable = pwdIDUserTable;
-                Log.d("PWDID UNMATCH", "Password ID in USER TABLE and PASSWORD TABLE is NOT MATCH");
             }
 
             // Update passwordID in User Table
@@ -229,9 +199,7 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
             }
 
             // Get User Data from Local DB
-            Log.d("SQLITEHELPER","BEFORE UPDATE, NUMBER OF USER Data: " + UserSQLHelper.getNumberofRecords());
             User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
-            Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
 
             // SET New Encryption Key AS New Password
             en.setKey(newPassword.getPassword(), newPassword.getSalt());
@@ -239,7 +207,6 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
             // Update and Insert user data encrypted with newPassword
             userInSQLite.setPasswordid(userInSQLite.getPasswordid() + 1);
             UserSQLHelper.UpdateRecord(userInSQLite, newPassword);
-            Log.d("SQLITEHELPER","AFTER UPDATE, NUMBER OF USER Data: " + UserSQLHelper.getNumberofRecords());
 
             // Update user dynamo
             UserDynamoHelper.getInstance().insert(user);
@@ -274,21 +241,11 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
                 FileDynamoHelper.getInstance().insertToDBWithoutEncryption(file);
             }
 
-            Log.d("BEFORE UPDATE CRDL", "OLD PWDID: " + Credential.getPassword().getPasswordid() + "| OLD PWD: " + Credential.getPassword().getPassword() + " | OLD SALT" + Credential.getPassword().getSalt());
-
-            Log.d("CREDENTIALCHECK","BEFORE CHANGE PASSWORD Email: " + Credential.getEmail() + "\t Password: " + Credential.getPassword().getPassword());
-
             // Update in Credential in App
             Credential.addAnOldPass(Credential.getPassword());
             Credential.setPassword(newPassword);
 
-            Log.d("AFTER UPDATE CRDL", "NEW PWDID: " + Credential.getPassword().getPasswordid() + "| NEW PWD: " + Credential.getPassword().getPassword() + " | NEW SALT" + Credential.getPassword().getSalt());
-            Log.d("CREDENTIALCHECK","AFTER CHANGE PASSWORD Email: " + Credential.getEmail() + "\t Password: " + Credential.getPassword().getPassword());
-
             return null;
-        };
-
-
+        }
     }
-
 }

@@ -1,7 +1,5 @@
 package com.locadoc_app.locadoc.UI.ConfirmSignUp;
 
-import android.util.Log;
-
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserCodeDeliveryDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GenericHandler;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.VerificationHandler;
@@ -72,8 +70,6 @@ public class SignUp_Confirm_Presenter implements SignUp_Confirm_Presenter_Interf
             usr.setFirstname(activity.getfName());
             usr.setLastname(activity.getlName());
             usr.setPasswordid(1);
-            usr.setAdminareaid(0);
-            Log.e("Error sC",usr.getLastname());
             UserSQLHelper.insert(usr,Credential.getPassword());
             activity.showDialogMessage("Success!",activity.getUsername()+" has been confirmed!", true);
         }

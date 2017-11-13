@@ -8,7 +8,5 @@ public interface ResetPasswordPresenterInterface {
     int isValidCurPwd();
     int isValidNewPwd();
     int isValidPwdWithNewPwd();
-
     void changePassword();
-
 }

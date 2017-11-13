@@ -9,10 +9,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -26,7 +23,6 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.LocAdocApp;
-import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.File;
 import com.locadoc_app.locadoc.Model.User;
@@ -35,7 +31,6 @@ import com.locadoc_app.locadoc.S3.S3Helper;
 
 import java.util.List;
 
-import static com.locadoc_app.locadoc.Model.Credential.getEmail;
 import static com.locadoc_app.locadoc.R.id.profile_usrEmail;
 import static com.locadoc_app.locadoc.R.id.profile_usrName;
 
@@ -43,7 +38,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
 
     // Setting Activity
     private ListView listView;
-    private String userEmail;
     private TextView text_userEmail;
     private AlertDialog userDialog;
     private String[] settingMenuListArray = {"User Name", "Password", "Download backup"};
@@ -80,8 +74,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     }
 
     public void init() {
-        Log.d("CREDENTIALCHECK","Setting Activity Email: " + getEmail() + "\t Password: " + Credential.getPassword().getPassword());
-
         // User Name
         User user = presenter.getUser();
         String userName = user.getFirstname().concat(" ").concat(user.getLastname());
@@ -114,12 +106,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View v, int position, long id) {
-                // get item
-                SettingListViewItem item = (SettingListViewItem) parent.getItemAtPosition(position);
-
-                String titleStr = item.getTitle();
-                String descStr = item.getDesc();
-
                 switch(position) {
                     case 0: changeUserName();               // Custom Alert Dialog
                         break;
@@ -156,7 +142,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     public void changeUserName() {
         // INTERNAL DIALOG
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater(); // builder.setView(inflater.inflate(R.layout.dialog_update_username, null))
+        LayoutInflater inflater = this.getLayoutInflater();
         final View builderView = inflater.inflate(R.layout.dialog_update_username, null);
         builder.setPositiveButton("OK", null);
         builder.setNegativeButton("cancel",null);
@@ -218,19 +204,11 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
                     @Override
                     public void onClick(View view) {
                         // TODO Do something
-                        Log.d("CHANGENAME", "First Name: " + dialog_FirstName.getText().toString());
-                        Log.d("CHANGENAME", "Last Name: " + dialog_LastName.getText().toString());
 
                         switch(presenter.validName(dialog_FirstName.getText().toString(), dialog_LastName.getText().toString(), builderView)) {
-                            case 0: Log.d("CHANGENAME", "FIRST NAME IS EMPTY!");
+                            case 2: changeNameDialog.dismiss();
                                     break;
-                            case 1: Log.d("CHANGENAME", "LAST NAME IS EMPTY!");
-                                    break;
-                            case 2: Log.d("CHANGENAME", "SAME NAME");
-                                    changeNameDialog.dismiss();
-                                    break;
-                            case 3: Log.d("CHANGENAME", "UPDATE IN NAME");
-                                    showProgressDialog("Change Name","Updating Name into Server...");
+                            case 3: showProgressDialog("Change Name","Updating Name into Server...");
                                     presenter.changeToNewName(dialog_FirstName.getText().toString(), dialog_LastName.getText().toString());
                                     changeNameDialog.dismiss();
                                     break;
@@ -355,9 +333,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     private class DownloadListener implements TransferListener {
         // Simply updates the list when notified.
         @Override
-        public void onError(int id, Exception e) {
-            Log.e("LocAdoc", "onError: " + id, e);
-        }
+        public void onError(int id, Exception e) {}
 
         @Override
         public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
@@ -388,17 +364,10 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
            switch(requestCode) {
                case 31:
                    boolean result = data.getBooleanExtra("result", false);
-                   Log.d("RECEIVING RESULT","RESULT IS " + result);
 
                    if(result) {
                        Toast.makeText(SettingActivity.this, "Success to Change Password", Toast.LENGTH_SHORT).show();
                    }
-
-                   Log.d("SQLITEHELPER","ResetPassword to SettingActivity--------------------------------------------------------------");
-                   User userInSQLite = UserSQLHelper.getRecord(getEmail(), Credential.getPassword());
-                   Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
-                   Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
-                   Log.d("SQLITEHELPER","ResetPassword to SettingActivity--------------------------------------------------------------");
                    break;
            }
         }
@@ -467,8 +436,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
     }
 
     public void showProgressDialog(String title, String msg) {
-        Log.d("CHANGENAME","Progress Dialog is executed");
-
         pDialog = new ProgressDialog(SettingActivity.this);
         pDialog.setTitle(title);
         pDialog.setMessage(msg);
@@ -479,7 +446,6 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
 
     public void dismissProgresDialog() {
         if(pDialog.isShowing()){
-            Log.d("CHANGENAME","Progress Dialog is quit");
             pDialog.dismiss();
         }
     }

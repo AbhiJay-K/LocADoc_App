@@ -11,7 +11,6 @@ import com.locadoc_app.locadoc.LocalDB.ApplicationInstance;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.DBHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
-import com.locadoc_app.locadoc.LocalDB.PasswordSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.File;
@@ -67,12 +66,10 @@ public class TestDataBase extends AppCompatActivity{
         Log.d(">Instance No. Record",String.valueOf(ApplicationInstance.getNumberofRecords()));
         //======================password========================
         Log.d(">password","==================Password===================");
-        Password p = new Password();
-        p.setPasswordid(1);
-        p.setSalt(Hash.SecureRandomGen());
-        p.setPassword(Hash.Hash("TestPWD",p.getSalt()));
-        PasswordSQLHelper.insert(p);
-        Password p2 = PasswordSQLHelper.getRecord(1);
+        Password p2 = new Password();
+        p2.setPasswordid(1);
+        p2.setSalt(Hash.SecureRandomGen());
+        p2.setPassword(Hash.Hash("TestPWD",p2.getSalt()));
         Log.d(">password ID",Integer.toString(p2.getPasswordid()));
         Log.d(">password pwd",p2.getPassword());
         Log.d(">password salt",p2.getSalt());
@@ -82,15 +79,13 @@ public class TestDataBase extends AppCompatActivity{
         usr.setUser("kabhijay@gmail.com");
         usr.setFirstname("Abhi Jay");
         usr.setLastname("Krishnan");
-        usr.setPasswordid(p.getPasswordid());
-        usr.setAdminareaid(1);
-        UserSQLHelper.insert(usr,p);
+        usr.setPasswordid(p2.getPasswordid());
+        UserSQLHelper.insert(usr,p2);
         User usr2 = UserSQLHelper.getRecord(usr.getUser(),p2);
         Log.d(">User ID",usr2.getUser());
         Log.d(">User First Name",usr2.getFirstname());
         Log.d(">User Last Name",usr2.getLastname());
         Log.d(">User pwd ID",Integer.toString(usr2.getPasswordid()));
-        Log.d(">User Area ID",Integer.toString(usr2.getAdminareaid()));
 
         //============================Area==================================
         Log.d(">Area","==================Area===================");
@@ -170,7 +165,7 @@ public class TestDataBase extends AppCompatActivity{
         file1.setFileId(1);
         file1.setCurrentfilename(usr.getUser()+"_"+file1.getFileId());
         file1.setOriginalfilename("something.pdf");
-        file1.setPasswordId(p.getPasswordid());
+        file1.setPasswordId(p2.getPasswordid());
         //file1.setModified("0");
         FileSQLHelper.insert(file1,p2);
         Log.d("File MAXID",String.valueOf(FileSQLHelper.maxID()));
@@ -190,7 +185,7 @@ public class TestDataBase extends AppCompatActivity{
         file4.setOriginalfilename("fyp.pdf");
         file4.setPasswordId(p2.getPasswordid());
         //file4.setModified("0");
-        FileSQLHelper.insert(file4,p);
+        FileSQLHelper.insert(file4,p2);
         Log.d("File MAXID",String.valueOf(FileSQLHelper.maxID()));
         Log.d("File count",String.valueOf(FileSQLHelper.checkFileNameExist("fyp.pdf",p2)));
         Log.d(">File ","========Search Area============");
@@ -247,10 +242,6 @@ public class TestDataBase extends AppCompatActivity{
         //Log.d(">File Modified",file5.getModified());
         Log.d(">File PasswordID",String.valueOf(file5.getPasswordId()));
         Log.d(">File AreaID",String.valueOf(file5.getAreaId()));
-
-        int n = PasswordSQLHelper.DeleteRecord(p2.getPasswordid());
-        Log.d(">Delete PWD",String.valueOf(n));
-        PasswordSQLHelper.DropTable();
         Log.d(">Delete Area",String.valueOf(AreaSQLHelper.deleteRecord(ar12.getAreaId())));
 
     }

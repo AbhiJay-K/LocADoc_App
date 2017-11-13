@@ -5,14 +5,13 @@ package com.locadoc_app.locadoc.UI.ConfirmSignUp;
  */
 
 public interface SignUp_Confirm_View_Interface {
-    public void showDialogMessage(String title, String body, final boolean exitActivity);
-    public void setLabelConfirmUserID(String str);
-    public void setLabelConfirmCode(String str);
-    public String getConfCode();
-    public String getUsername();
-    public void SetConfhandlerMessage();
-    public void SetReConfCodeHandlerSuccessMessage();
-    public void SetReConfCodeHandlerFailMessage();
+    void showDialogMessage(String title, String body, final boolean exitActivity);
+    void setLabelConfirmUserID(String str);
+    void setLabelConfirmCode(String str);
+    String getUsername();
+    void SetConfhandlerMessage();
+    void SetReConfCodeHandlerSuccessMessage();
+    void SetReConfCodeHandlerFailMessage();
     String getUserName();
     String getPassword();
     String getfName();

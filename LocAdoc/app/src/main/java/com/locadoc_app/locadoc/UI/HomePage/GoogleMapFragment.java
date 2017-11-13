@@ -1,16 +1,13 @@
 package com.locadoc_app.locadoc.UI.HomePage;
 
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +19,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -32,10 +28,8 @@ import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.R;
-import com.locadoc_app.locadoc.UI.Setting.SettingActivity;
 
 import java.util.List;
-import java.util.Map;
 
 public class GoogleMapFragment extends Fragment
         implements  OnMapReadyCallback,
@@ -133,9 +127,7 @@ public class GoogleMapFragment extends Fragment
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
-        } catch (Exception e) {
-            Log.e("LocAdoc", e.toString());
-        }
+        } catch (Exception e) {}
 
         mMapView.getMapAsync(this);
         return rootView;

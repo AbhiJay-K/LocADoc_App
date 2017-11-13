@@ -26,8 +26,4 @@ public interface SettingActivityViewInterface {
     void setLabelNameOK(String str, View v);
     void showProgressDialog(String title, String msg);
     void dismissProgresDialog();
-
-
-
-
 }

@@ -171,13 +171,6 @@ public class Activity_SignUp_Confirm extends AppCompatActivity implements SignUp
         this.username = username;
     }
 
-    public String getConfCode() {
-        return confCode.getText().toString();
-    }
-
-    public void setConfCode(EditText confCode) {
-        this.confCode = confCode;
-    }
     public void SetConfhandlerMessage()
     {
         TextView label = (TextView) findViewById(R.id.textViewConfirmUserIdMessage);

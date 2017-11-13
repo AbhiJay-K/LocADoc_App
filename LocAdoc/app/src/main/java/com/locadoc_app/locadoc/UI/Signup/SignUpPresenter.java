@@ -1,6 +1,5 @@
 package com.locadoc_app.locadoc.UI.Signup;
 
-import android.util.Log;
 import android.util.Patterns;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
@@ -8,22 +7,8 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttribu
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserCodeDeliveryDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.SignUpHandler;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
-import com.locadoc_app.locadoc.LocalDB.ApplicationInstance;
-import com.locadoc_app.locadoc.LocalDB.UserSQLHelper;
-import com.locadoc_app.locadoc.Model.Credential;
-import com.locadoc_app.locadoc.Model.Password;
-import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.CheckPassword;
 import com.locadoc_app.locadoc.helper.EmailValidation;
-import com.locadoc_app.locadoc.helper.Hash;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.UUID;
-
-/**
- *
- */
 
 public class SignUpPresenter  implements SignUPPresenterInterface{
     SignUPViewInterface activity;
@@ -69,7 +54,6 @@ public class SignUpPresenter  implements SignUPPresenterInterface{
     public int checkEmail()
     {
         String email = activity.getEmailView().getText().toString();
-        Log.d("LocAdoc", email);
         if(email.isEmpty())
         {
             activity.setEmailError(2);
@@ -86,7 +70,6 @@ public class SignUpPresenter  implements SignUPPresenterInterface{
     public int CheckContactNum()
     {
         String contactNum = activity.getContactNoView().getText().toString();
-        Log.d("LocAdoc", contactNum);
         if(contactNum.isEmpty())
         {
             activity.setContactNumErr (2);
@@ -117,7 +100,6 @@ public class SignUpPresenter  implements SignUPPresenterInterface{
 
     public void SignUpUser()
     {
-        Log.d("LocAdoc", "GetAttr");
         CognitoUserAttributes userAttributes = new CognitoUserAttributes();
         if(checkEmail() == 1 && isValidPassword() == 1 && checkPasswordSame() == 1 &&
                 checkFName() && checkLName() && CheckContactNum() == 1)
@@ -127,18 +109,13 @@ public class SignUpPresenter  implements SignUPPresenterInterface{
             String email = activity.getEmailView().getText().toString();
 
             //Cognito request
-            Log.d("LocAdoc", "GetEmail");
             userAttributes.addAttribute(AppHelper.getSignUpFieldsC2O().get("Email").toString(), email);
-            Log.d("LocAdoc", "GetConNum");
             userAttributes.addAttribute(AppHelper.getSignUpFieldsC2O().get("Phone number").toString(),
                     activity.getContactNoView().getText().toString());
-            Log.d("LocAdoc", "GetGivenName");
             userAttributes.addAttribute(AppHelper.getSignUpFieldsC2O().get("Given name").toString(),
                     activity.getFNameView().getText().toString());
-            Log.d("LocAdoc", "GetFamName");
             userAttributes.addAttribute(AppHelper.getSignUpFieldsC2O().get("Family name").toString(),
                     activity.getLNameView().getText().toString());
-            Log.d("LocAdoc", "Try Sign up");
             activity.showWaitDialog("Signing up...");
             AppHelper.getPool().signUpInBackground(email, password, userAttributes, null, signUpHandler);
         }

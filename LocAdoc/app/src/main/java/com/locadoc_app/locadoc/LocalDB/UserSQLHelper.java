@@ -3,7 +3,6 @@ package com.locadoc_app.locadoc.LocalDB;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.provider.BaseColumns;
-
 import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.Model.User;
 import com.locadoc_app.locadoc.helper.Encryption;
@@ -19,18 +18,16 @@ public class UserSQLHelper implements BaseColumns{
     public static final String COLUMN_LAST_NAME = "lastname";
     public static final String COLUMN_TOTAL_SIZE_USED = "totalsizeused";
     public static final String COLUMN_PWD = "password";
-    public static final String COLUMN_AREA = "adminarea";
     private static DBHelper dbHelper;
+
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + " (" +
             COLUMN_EMAIL + " TEXT PRIMARY KEY, " +
             COLUMN_FIRST_NAME + " TEXT, " +
             COLUMN_LAST_NAME + " TEXT, " +
             COLUMN_TOTAL_SIZE_USED + " TEXT, " +
-            COLUMN_PWD + " INTEGER, " +
-            COLUMN_AREA + " INTEGER, "+
-            " FOREIGN KEY ("+COLUMN_AREA+") REFERENCES "+ AreaSQLHelper.TABLE_NAME+"("+ AreaSQLHelper._ID +
-            "))";
+            COLUMN_PWD + " INTEGER" +
+            ")";
     public static DBHelper getDbHelper() {
         return dbHelper;
     }
@@ -38,6 +35,7 @@ public class UserSQLHelper implements BaseColumns{
     public static void setDbHelper(DBHelper Helper) {
         dbHelper = Helper;
     }
+
     public static long insert(User usr, Password pwd)
     {
         ContentValues values = new ContentValues();
@@ -47,10 +45,10 @@ public class UserSQLHelper implements BaseColumns{
         values.put(UserSQLHelper.COLUMN_LAST_NAME, en.encryptString(usr.getLastname()));
         values.put(UserSQLHelper.COLUMN_TOTAL_SIZE_USED, en.encryptString(usr.getTotalsizeused()));
         values.put(UserSQLHelper.COLUMN_PWD, usr.getPasswordid());
-        values.put(COLUMN_AREA,usr.getAdminareaid());
         long newRowId = UserSQLHelper.getDbHelper().WRITE.insert(UserSQLHelper.TABLE_NAME, null, values);
         return newRowId;
     }
+
     public static User getRecord(String usrID,Password pwd)
     {
         User user = new User();
@@ -63,7 +61,6 @@ public class UserSQLHelper implements BaseColumns{
             String ln = crs.getString(crs.getColumnIndex("lastname"));
             String totSizeUsed = crs.getString(crs.getColumnIndex("totalsizeused"));
             int pwdID = crs.getInt(crs.getColumnIndex("password"));
-            int admarea = crs.getInt(crs.getColumnIndex("adminarea"));
 
             Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
             user.setUser(email);
@@ -71,10 +68,10 @@ public class UserSQLHelper implements BaseColumns{
             user.setLastname(en.decrypttString(ln));
             user.setTotalsizeused(en.decrypttString(totSizeUsed));
             user.setPasswordid(pwdID);
-            user.setAdminareaid(admarea);
         }
         return user;
     }
+
     public static String getUser()
     {
         Cursor crs = dbHelper.READ.rawQuery("SELECT email FROM user ",null);
@@ -84,6 +81,7 @@ public class UserSQLHelper implements BaseColumns{
         }
         return email;
     }
+
     public static int getPWDID(){
         int ID = 0;
         Cursor crs = dbHelper.READ.rawQuery("SELECT password FROM user ",null);
@@ -92,6 +90,7 @@ public class UserSQLHelper implements BaseColumns{
         }
         return ID;
     }
+
     public static long UpdateRecord(User usr,Password pwd)
     {
         ContentValues values = new ContentValues();
@@ -100,11 +99,11 @@ public class UserSQLHelper implements BaseColumns{
         values.put(UserSQLHelper.COLUMN_LAST_NAME, en.encryptString(usr.getLastname()));
         values.put(UserSQLHelper.COLUMN_TOTAL_SIZE_USED, en.encryptString(usr.getTotalsizeused()));
         values.put(UserSQLHelper.COLUMN_PWD,usr.getPasswordid());
-        values.put(UserSQLHelper.COLUMN_AREA,usr.getAdminareaid());
         String [] arg = {usr.getUser()};
         long newRowId = UserSQLHelper.dbHelper.WRITE.update(UserSQLHelper.TABLE_NAME,values,UserSQLHelper.COLUMN_EMAIL+" = ?",arg);
         return newRowId;
     }
+
     public static long getNumberofRecords()
     {
         String countQuery = "SELECT  * FROM " + UserSQLHelper.TABLE_NAME;
@@ -113,15 +112,16 @@ public class UserSQLHelper implements BaseColumns{
         cursor.close();
         return cnt;
     }
+
     public static int deleteRecord(String user)
     {
         String [] arg = {user};
         int deleted = UserSQLHelper.dbHelper.WRITE.delete(UserSQLHelper.TABLE_NAME,UserSQLHelper.COLUMN_EMAIL + " = ?",arg);
         return deleted;
     }
+
     public static void clearRecord()
     {
         dbHelper.WRITE.execSQL("delete from "+ TABLE_NAME);
-        //dbHelper.WRITE.execSQL("delete from sqlite_sequence where name='" + TABLE_NAME + "'");
     }
 }

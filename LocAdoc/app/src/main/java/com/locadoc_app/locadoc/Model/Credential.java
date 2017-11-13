@@ -1,7 +1,5 @@
 package com.locadoc_app.locadoc.Model;
 
-import android.util.Log;
-
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
@@ -102,7 +100,6 @@ public class Credential {
     {
         if(identityId.isEmpty()){
             identityId = credentials.getIdentityId();
-            Log.d("ID",identityId);
         }
     }
 

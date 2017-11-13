@@ -4,11 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 
-import com.locadoc_app.locadoc.Model.Area;
-import com.locadoc_app.locadoc.Model.Password;
-import com.locadoc_app.locadoc.Model.User;
-import com.locadoc_app.locadoc.helper.Encryption;
-
 /**
  * Created by AbhiJay_PC on 17/10/2017.
  */
@@ -31,6 +26,7 @@ public class GuestSession implements BaseColumns {
     public static void setDbHelper(DBHelper Helper) {
         dbHelper = Helper;
     }
+
     public static long insert()
     {
         ContentValues values = new ContentValues();
@@ -39,6 +35,7 @@ public class GuestSession implements BaseColumns {
         long newRowId = GuestSession.getDbHelper().WRITE.insert(GuestSession.TABLE_NAME, null, values);
         return newRowId;
     }
+
     public static long ResetReacord() {
         ContentValues values = new ContentValues();
         values.put(GuestSession.COLUMN_TRY, 0L);
@@ -47,6 +44,7 @@ public class GuestSession implements BaseColumns {
         long newRowId = GuestSession.getDbHelper().WRITE.update(GuestSession.TABLE_NAME,values,"_id=?",arg);
         return newRowId;
     }
+
     public static long updateNumTries(long [] val) {
         ContentValues values = new ContentValues();
         values.put(GuestSession.COLUMN_TRY, val[0]);
@@ -55,6 +53,7 @@ public class GuestSession implements BaseColumns {
         long newRowId = GuestSession.getDbHelper().WRITE.update(GuestSession.TABLE_NAME,values,"_id=?",arg);
         return newRowId;
     }
+
     public static long [] getRecord() {
         String[] args = {String.valueOf(1)};
         Cursor crs = dbHelper.READ.rawQuery("SELECT * FROM guestsession WHERE _id = ?", args);
@@ -67,6 +66,7 @@ public class GuestSession implements BaseColumns {
         crs.close();
         return val;
     }
+
     public static long getNumberofRecords()
     {
         String countQuery = "SELECT  * FROM " + GuestSession.TABLE_NAME;

@@ -45,7 +45,6 @@ public class SignUp extends AppCompatActivity implements SignUPViewInterface{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
-        Button signUpBtn = (Button) findViewById(R.id.sign_up_btn);
         ButterKnife.bind(this);
         informPrecentor();
     }

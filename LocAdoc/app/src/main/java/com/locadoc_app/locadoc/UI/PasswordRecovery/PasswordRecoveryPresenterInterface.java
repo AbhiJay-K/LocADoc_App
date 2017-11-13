@@ -9,6 +9,4 @@ public interface PasswordRecoveryPresenterInterface {
     int isValidPassword();
     int checkPasswordSame();
     void forgotPassword(String email);
-
-
 }

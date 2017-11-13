@@ -2,19 +2,14 @@ package com.locadoc_app.locadoc.UI.HomePage;
 
 import android.app.Activity;
 import android.app.SearchManager;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,7 +17,6 @@ import android.os.SystemClock;
 import android.provider.BaseColumns;
 import android.provider.OpenableColumns;
 import android.provider.Settings;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
@@ -36,12 +30,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.support.v7.widget.SearchView;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.widget.EditText;
@@ -49,7 +41,6 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
@@ -79,15 +70,12 @@ import com.locadoc_app.locadoc.UI.Setting.SettingActivity;
 import com.locadoc_app.locadoc.helper.Encryption;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import com.locadoc_app.locadoc.UI.About.AboutActivity;
 
 public class HomePageActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -108,9 +96,7 @@ public class HomePageActivity extends AppCompatActivity
     private final int SETTING = 10;
 
     private List<String> AreaList;
-    private RecyclerView mRecyclerView;
     private SearchView searchView;
-    private SearchView.OnQueryTextListener queryTextListener;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
@@ -130,9 +116,6 @@ public class HomePageActivity extends AppCompatActivity
     // create area
     private Uri filePathUri;
     private String deletetext;
-    private Menu menu;
-    private static final int MENUITEM = Menu.FIRST;
-    private boolean isChangedStat;
     private boolean logout;
     private long startTime;
 
@@ -140,7 +123,6 @@ public class HomePageActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
-        isChangedStat = false;
         S3Helper.init();
         isEditArea = false;
         logout = true;
@@ -322,15 +304,10 @@ public class HomePageActivity extends AppCompatActivity
         if (searchMenuItem == null) {
             return true;
         }
-        SearchManager searchManager = (SearchManager)
-                getSystemService(getApplicationContext().SEARCH_SERVICE);
+
         searchView = (SearchView) searchMenuItem.getActionView();
-        //searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconified(false);
         searchView.setSuggestionsAdapter(mAdapter);
-        //searchView.setSubmitButtonEnabled(true);
-        //searchView.setOnQueryTextListener(HomePageActivity.this);
-        // Getting selected (clicked) item suggestion
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionClick(int position) {
@@ -349,7 +326,6 @@ public class HomePageActivity extends AppCompatActivity
 
             @Override
             public boolean onSuggestionSelect(int position) {
-                // Your code here
                 return true;
             }
         });
@@ -358,59 +334,17 @@ public class HomePageActivity extends AppCompatActivity
             public boolean onQueryTextSubmit(String s) {return false;}
             @Override
             public boolean onQueryTextChange(String s) {
-                Log.d("Search1 ",s);
                 populateAdapter(s);
                 return false;
             }
 
         });
 
-        /*MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                // Set styles for expanded state here
-                if (getSupportActionBar() != null) {
-
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                // Set styles for collapsed state here
-                if (getSupportActionBar() != null) {
-
-                }
-                return true;
-            }
-        });*/
-
         return true;
     }
 
-    /*@Override
-    public boolean onPrepareOptionsMenu(Menu menu){
-
-        User user = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
-        String size = "0KB";
-
-        if(!user.getTotalsizeused().isEmpty()) {
-            size = S3Helper.getBytesString(Long.parseLong(user.getTotalsizeused()));
-        }
-
-        this.menu = menu;
-
-        size = size + " of 1GB used";
-        changeFileSizeUsed(size);
-
-        return true;
-    }*/
-
-
     // You must implements your logic to get data using OrmLite
     private void populateAdapter(String query) {
-        //AreaList.clear();
-        //AreaList = AreaSQLHelper.getSearchValue();
         mAdapter.notifyDataSetChanged();
         final MatrixCursor c = new MatrixCursor(new String[]{BaseColumns._ID, "AreaName" });
         for (int i=0; i<AreaList.size(); i++) {
@@ -418,23 +352,9 @@ public class HomePageActivity extends AppCompatActivity
                 c.addRow(new Object[]{i, AreaList.get(i)});
             }
         }
-        //mAdapter.changeCursor(c);
         mAdapter.swapCursor(c);
     }
-   /* @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
    @Override
    public boolean onQueryTextSubmit(String query) {
        return false;
@@ -442,32 +362,20 @@ public class HomePageActivity extends AppCompatActivity
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        //friendListAdapter.getFilter().filter(newText);
         return true;
     }
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_import) {
             showImportFileFragment();
         } else if (id == R.id.nav_Settings) {
-
-            Log.d("SQLITEHELPER","HomePageActivity To SettingActivty--------------------------------------------------------------");
-            User userInSQLite = UserSQLHelper.getRecord(Credential.getEmail(), Credential.getPassword());
-            Log.d("SQLITEHELPER","User Email: " + userInSQLite.getUser() + " | User Name: " + userInSQLite.getLastname() + " " + userInSQLite.getFirstname());
-            Log.d("SQLITEHELPER","User Credential Password: " + Credential.getPassword().getPassword());
-            Log.d("SQLITEHELPER","HomePageActivity To SettingActivty--------------------------------------------------------------");
-
-            // Test code to access Setting Activity
+            // Code to access Setting Activity
             logout = false;
             Intent settingActivity = new Intent(this, SettingActivity.class);
             startActivityForResult(settingActivity, SETTING);
-            //startActivity(settingActivity);
-
-
         } else if (id == R.id.nav_about) {
             logout = false;
             Intent AboutActivity = new Intent(this, AboutActivity.class);
@@ -485,11 +393,6 @@ public class HomePageActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    public void changeFileSizeUsed(String size)
-    {
-        //For Listener
     }
 
     public void showDeleteAccountDialog()
@@ -539,14 +442,11 @@ public class HomePageActivity extends AppCompatActivity
     {
         presenter.stopTimer();
         Credential.clearAll();
-        Log.d("Logout","Logout called");
         AppHelper.getPool().getCurrentUser().signOut();
         // --------------------------------------------------------------------------------- TMP METHOD TO AVOID CRASH
         try {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }catch(Exception e) {
-            Log.d("Logout", e.getMessage());
-        }
+        }catch(Exception e) {}
         // --------------------------------------------------------------------------------- TMP METHOD TO AVOID CRASH
         mGoogleApiClient.disconnect();
         exit(1);
@@ -555,7 +455,6 @@ public class HomePageActivity extends AppCompatActivity
     {
 
         presenter.stopTimer();
-        Log.d("Logout","Logout called");
         AppHelper.getPool().getCurrentUser().signOut();
         mGoogleApiClient.disconnect();
         exit(2);
@@ -586,41 +485,6 @@ public class HomePageActivity extends AppCompatActivity
         return isMock;
     }
 
-    /*public boolean areThereMockPermissionApps(Context context) {
-        int count = 0;
-
-        PackageManager pm = context.getPackageManager();
-        List<ApplicationInfo> packages =
-                pm.getInstalledApplications(PackageManager.GET_META_DATA);
-
-        for (ApplicationInfo applicationInfo : packages) {
-            try {
-                PackageInfo packageInfo = pm.getPackageInfo(applicationInfo.packageName,
-                        PackageManager.GET_PERMISSIONS);
-
-                // Get Permissions
-                String[] requestedPermissions = packageInfo.requestedPermissions;
-
-                if (requestedPermissions != null) {
-                    for (int i = 0; i < requestedPermissions.length; i++) {
-                        if (requestedPermissions[i]
-                                .equals("android.permission.ACCESS_MOCK_LOCATION")
-                                && !applicationInfo.packageName.equals(context.getPackageName())) {
-                            count++;
-                        }
-                    }
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.e("Got exception " , e.getMessage());
-            }
-        }
-
-        if (count > 0) {
-            Log.d("Logout MockApps","True");
-            return true;
-        }
-        return false;
-    }*/
     @Override
     public void onConnected(Bundle bundle) {
         mLocationRequest = new LocationRequest();
@@ -632,7 +496,6 @@ public class HomePageActivity extends AppCompatActivity
                 == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
-
     }
 
     @Override
@@ -736,7 +599,6 @@ public class HomePageActivity extends AppCompatActivity
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/pdf");
-        //intent.setType("image/*");
         startActivityForResult(intent, PICKFILE);
     }
 
@@ -898,21 +760,16 @@ public class HomePageActivity extends AppCompatActivity
             totalSizeUsed += dst.length();
             user.setTotalsizeused("" + totalSizeUsed);
             UserSQLHelper.UpdateRecord(user, Credential.getPassword());
-            //changeFileSizeUsed(user.getTotalsizeused());
             UserDynamoHelper.getInstance().updateTotalSizeUsed(totalSizeUsed + "");
 
             FileSQLHelper.insert(file, Credential.getPassword());
             FileDynamoHelper.getInstance().insert(file);
-        } catch (Exception e){
-            Log.e("LocAdoc", e.toString());
-        }
+        } catch (Exception e){}
         finally {
             try{
                 in.close();
                 out.close();
-            } catch (Exception e){
-                Log.e("LocAdoc", e.toString());
-            }
+            } catch (Exception e){}
         }
 
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -955,9 +812,7 @@ public class HomePageActivity extends AppCompatActivity
 
     private class UploadListener implements TransferListener {
         @Override
-        public void onError(int id, Exception e) {
-            Log.e("LocAdoc", "onError: " + id, e);
-        }
+        public void onError(int id, Exception e) {}
 
         @Override
         public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
@@ -1042,11 +897,6 @@ public class HomePageActivity extends AppCompatActivity
     @Override
     public void requestFocus(){
         requestFocus = true;
-    }
-
-    public void printOutOfAreaMsg()
-    {
-        Toast.makeText(this,"You have currently moved out of the area",Toast.LENGTH_LONG).show();
     }
 
     public void exit(int result)

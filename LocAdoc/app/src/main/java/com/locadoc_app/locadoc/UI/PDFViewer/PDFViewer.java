@@ -1,23 +1,17 @@
 package com.locadoc_app.locadoc.UI.PDFViewer;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -26,19 +20,16 @@ import com.github.barteksc.pdfviewer.listener.OnPageChangeListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.locadoc_app.locadoc.DynamoDB.PasswordDynamoHelper;
 import com.locadoc_app.locadoc.LocalDB.AreaSQLHelper;
 import com.locadoc_app.locadoc.LocalDB.FileSQLHelper;
 import com.locadoc_app.locadoc.Model.Area;
 import com.locadoc_app.locadoc.Model.Credential;
 import com.locadoc_app.locadoc.Model.Password;
 import com.locadoc_app.locadoc.R;
-import com.locadoc_app.locadoc.UI.Setting.ResetPassword;
 import com.locadoc_app.locadoc.helper.Encryption;
 import com.shockwave.pdfium.PdfDocument;
 
@@ -63,8 +54,6 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
     private String curArea;
     private String curFile;
     private GoogleApiClient mGoogleApiClient;
-    private static int REQUEST_CODE_RECOVER_PLAY_SERVICES = 200;
-    private LocationManager locationManager;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private Area ar;
@@ -84,11 +73,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
                 closeActivity();
             }
         });
-        /*if(!isLocationEnabled())
-        {
-            Toast.makeText(this, "Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
-                    "use this app (for added security)", Toast.LENGTH_LONG).show();
-        }*/
+
         pdfView = (PDFView)findViewById(R.id.pdfView);
         int fileid = 0;
         Bundle extras = getIntent().getExtras();
@@ -258,15 +243,11 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
 
     @Override
     public void loadComplete(int nbPages) {
-        PdfDocument.Meta meta = pdfView.getDocumentMeta();
         printBookmarksTree(pdfView.getTableOfContents(), "-");
     }
 
     public void printBookmarksTree(List<PdfDocument.Bookmark> tree, String sep) {
         for (PdfDocument.Bookmark b : tree) {
-
-            Log.e(TAG, String.format("%s %s, p %d", sep, b.getTitle(), b.getPageIdx()));
-
             if (b.hasChildren()) {
                 printBookmarksTree(b.getChildren(), sep + "-");
             }
@@ -283,7 +264,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         } catch (Exception e){}
 
-        mGoogleApiClient.disconnect();
+        stopLocationUpdates();
         Intent intent = new Intent();
         setResult(RESULT_OK, intent);
         intent.putExtra("logout", logout);
@@ -337,7 +318,6 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
                 en.setCurrKey(currKey);
             }
 
-
             return null;
         }
 
@@ -357,16 +337,12 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
             out = new FileOutputStream(dst);
             Password password = Credential.getPassword();
             Encryption.getInstance(password.getPassword(), password.getSalt()).decryptFile(in,out);
-        } catch (Exception e){
-            Log.e("LocAdoc", e.toString());
-        }
+        } catch (Exception e){}
         finally {
             try{
                 in.close();
                 out.close();
-            } catch (Exception e){
-                Log.e("LocAdoc", e.toString());
-            }
+            } catch (Exception e){}
         }
     }
 }

@@ -2,7 +2,6 @@ package com.locadoc_app.locadoc.Model;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
@@ -19,7 +18,6 @@ public class User {
     private String instanceid;
     private String totalsizeused;
     private int passwordid;
-    private int adminareaid;
 
     @DynamoDBHashKey(attributeName = "identity")
     public String getIdentity() {
@@ -82,14 +80,5 @@ public class User {
 
     public void setPasswordid(int passwordid) {
         this.passwordid = passwordid;
-    }
-
-    @DynamoDBAttribute(attributeName = "adminareaid")
-    public int getAdminareaid() {
-        return adminareaid;
-    }
-
-    public void setAdminareaid(int adminareaid) {
-        this.adminareaid = adminareaid;
     }
 }

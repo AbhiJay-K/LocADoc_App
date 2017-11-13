@@ -1,8 +1,6 @@
 package com.locadoc_app.locadoc.UI.NewPassword;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,13 +9,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
 
 public class NewPasswordActivity extends AppCompatActivity implements NewPasswordViewInterface {
@@ -34,7 +30,6 @@ public class NewPasswordActivity extends AppCompatActivity implements NewPasswor
     TextView rePassLabel;
     @BindView(R.id.UserName)
     TextView userName;
-    private AlertDialog userDialog;
     private NewPasswordPresenterInterface presenter;
 
     @Override
@@ -91,14 +86,8 @@ public class NewPasswordActivity extends AppCompatActivity implements NewPasswor
     public EditText getPwdView() {
         return PwdView;
     }
-    public void setPwdView(EditText pwdView) {
-        PwdView = pwdView;
-    }
     public EditText getRPwdView() {
         return RPwdView;
-    }
-    public void setRPwdView(EditText RPwdView) {
-        this.RPwdView = RPwdView;
     }
 
     public void exit(boolean continueWithSignIn)

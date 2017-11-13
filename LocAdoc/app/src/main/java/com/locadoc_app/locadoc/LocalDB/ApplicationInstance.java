@@ -3,12 +3,6 @@ package com.locadoc_app.locadoc.LocalDB;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.provider.BaseColumns;
-import android.util.Log;
-
-import com.locadoc_app.locadoc.Model.Area;
-import com.locadoc_app.locadoc.Model.Password;
-import com.locadoc_app.locadoc.helper.Encryption;
-import com.locadoc_app.locadoc.helper.Hash;
 
 /**
  * Created by AbhiJay_PC on 3/10/2017.
@@ -47,10 +41,9 @@ public class ApplicationInstance implements BaseColumns {
         Cursor crs = ApplicationInstance.dbHelper.READ.rawQuery("SELECT * FROM applicationinstance",null);
         String instance = new String();
         if (crs != null &&  crs.moveToFirst()) {
-                instance = crs.getString(crs.getColumnIndex(ApplicationInstance.COLUMN_INSTANCE));
-            Log.d("CHECK INSTANCE ID", "INSTANCE: " + instance);
-                crs.close();
-                return instance;
+            instance = crs.getString(crs.getColumnIndex(ApplicationInstance.COLUMN_INSTANCE));
+            crs.close();
+            return instance;
         }
         else
         {

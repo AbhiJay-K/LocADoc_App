@@ -24,11 +24,8 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
     private EditText password;
     private EditText confrimPassword;
     private EditText verifiCode;
-
     private String email;
-
     private Button submit;
-    //private AlertDialog userDialog;
     private PasswordRecoveryPresenterInterface presenter;
 
     /******************** Normal Method ********************/
@@ -165,7 +162,6 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
     public void setLabelUserEmail(String str) {
         TextView label = (TextView) findViewById(R.id.textViewEmailMessage);
         label.setText(str);
-        //username.setBackground(getDrawable(R.drawable.text_border_error));
     }
 
     public void setLabelPassword(String str) {
@@ -204,7 +200,4 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
     public EditText getRPwdView() {
         return confrimPassword;
     }
-
-
-
 }
