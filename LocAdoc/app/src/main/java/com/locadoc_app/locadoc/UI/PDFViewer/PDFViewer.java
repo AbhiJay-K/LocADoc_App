@@ -256,10 +256,10 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
 
     public void closeActivity(){
         logout = false;
-        exit();
+        exit(1);
     }
 
-    public void exit(){
+    public void exit(int n){
         try {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         } catch (Exception e){}
@@ -267,6 +267,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
         stopLocationUpdates();
         Intent intent = new Intent();
         setResult(RESULT_OK, intent);
+        intent.putExtra("exittype",n);
         intent.putExtra("areaname",ar.getName());
         intent.putExtra("logout", logout);
         finish();
@@ -280,14 +281,13 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
         if(dst.exists()) {
             dst.delete();
         }
-
-        exit();
+        exit(2);
     }
 
     @Override
     public void onBackPressed(){
         logout = false;
-        exit();
+        exit(1);
     }
 
     private class DecryptTask extends
@@ -300,7 +300,6 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
             int passwordid = file.getPasswordId();
             Encryption en = Encryption.getInstance("", "");
             SecretKey currKey = null;
-
             boolean differentPass = false;
             if(passwordid != Credential.getPassword().getPasswordid()){
                 currKey = en.getCurrentKey();

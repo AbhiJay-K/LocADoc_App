@@ -649,9 +649,12 @@ public class HomePageActivity extends AppCompatActivity
                     break;
                 case SETTING:
                 case OPENFILE:
-                    String areaname = resultData.getStringExtra("areaname");
-                    Toast.makeText(this, "You have moved out of the " + areaname,
-                            Toast.LENGTH_LONG).show();
+                    int type = resultData.getIntExtra("exittype",0);
+                    if(type == 2) {
+                        String areaname = resultData.getStringExtra("areaname");
+                        Toast.makeText(this, "You have moved out of the " + areaname,
+                                Toast.LENGTH_LONG).show();
+                    }
                 case ABOUT:
                     if (resultData != null) {
                         boolean logOut = resultData.getBooleanExtra("logout", true);
