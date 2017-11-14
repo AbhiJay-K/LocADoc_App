@@ -585,7 +585,6 @@ public class HomePageActivity extends AppCompatActivity
                     }
 
                 } else {
-
                     // Permission denied, Disable the functionality that depends on this permission.
                     ActivityCompat.requestPermissions(this,
                             new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -650,6 +649,9 @@ public class HomePageActivity extends AppCompatActivity
                     break;
                 case SETTING:
                 case OPENFILE:
+                    String areaname = resultData.getStringExtra("areaname");
+                    Toast.makeText(this, "You have moved out of the " + areaname,
+                            Toast.LENGTH_LONG).show();
                 case ABOUT:
                     if (resultData != null) {
                         boolean logOut = resultData.getBooleanExtra("logout", true);

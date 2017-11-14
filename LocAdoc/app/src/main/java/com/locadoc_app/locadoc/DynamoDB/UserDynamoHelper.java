@@ -91,7 +91,6 @@ public class UserDynamoHelper {
         String id = getIdentity();
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
         User user = mapper.load(User.class, id, email);
-
         if (user != null) {
             Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(user.getPasswordid());
             Credential.setPassword(pwd);

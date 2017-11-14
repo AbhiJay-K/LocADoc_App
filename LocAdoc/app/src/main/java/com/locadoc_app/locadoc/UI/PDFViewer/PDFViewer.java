@@ -267,6 +267,7 @@ public class PDFViewer extends AppCompatActivity implements OnPageChangeListener
         stopLocationUpdates();
         Intent intent = new Intent();
         setResult(RESULT_OK, intent);
+        intent.putExtra("areaname",ar.getName());
         intent.putExtra("logout", logout);
         finish();
     }
