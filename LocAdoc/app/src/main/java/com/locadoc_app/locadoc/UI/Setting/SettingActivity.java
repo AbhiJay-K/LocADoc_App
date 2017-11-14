@@ -313,7 +313,7 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
 
             final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
             builder.setTitle("Download Finished")
-                    .setMessage("ALl files have been downloaded");
+                    .setMessage("All files have been downloaded");
             userDialog = builder.create();
             userDialog.setCancelable(true);
             userDialog.show();
