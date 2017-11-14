@@ -20,14 +20,11 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    // code generator for view
 
-    // AWS
-    // google map
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'commons-codec:commons-codec:1.3'
     compile 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.2'

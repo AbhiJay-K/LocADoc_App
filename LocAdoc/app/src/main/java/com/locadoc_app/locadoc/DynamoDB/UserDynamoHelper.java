@@ -90,15 +90,19 @@ public class UserDynamoHelper {
     {
         String id = getIdentity();
         DynamoDBMapper mapper = DynamoDBHelper.getMapper();
-        User user = mapper.load(User.class, id, email);
-        if (user != null) {
-            Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(user.getPasswordid());
-            Credential.setPassword(pwd);
-            Encryption en = Encryption.getInstance(pwd.getPassword(),pwd.getSalt());
-            user.setFirstname(en.decrypttString(user.getFirstname()));
-            user.setLastname(en.decrypttString(user.getLastname()));
-            user.setTotalsizeused(en.decrypttString(user.getTotalsizeused()));
-        }
+        User user = null;
+
+        try {
+            user = mapper.load(User.class, id, email);
+            if (user != null) {
+                Password pwd = PasswordDynamoHelper.getInstance().getPasswordFromDB(user.getPasswordid());
+                Credential.setPassword(pwd);
+                Encryption en = Encryption.getInstance(pwd.getPassword(), pwd.getSalt());
+                user.setFirstname(en.decrypttString(user.getFirstname()));
+                user.setLastname(en.decrypttString(user.getLastname()));
+                user.setTotalsizeused(en.decrypttString(user.getTotalsizeused()));
+            }
+        } catch(Exception e){}
 
         return user;
     }

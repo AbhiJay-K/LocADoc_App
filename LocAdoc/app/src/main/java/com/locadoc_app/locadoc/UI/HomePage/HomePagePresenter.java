@@ -85,6 +85,13 @@ public class HomePagePresenter {
         @Override
         protected Void doInBackground(String... objects) {
             User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
+
+            if(usr == null){
+                homepage.remindUserDialog();
+                sameID = true;
+                return null;
+            }
+
             DBInstanceID = usr.getInstanceID();
             String InstanceID = ApplicationInstance.getRecord();
             if(InstanceID.equals(DBInstanceID))
