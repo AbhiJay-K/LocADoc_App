@@ -16,4 +16,5 @@ public interface SignUp_Confirm_View_Interface {
     String getPassword();
     String getfName();
     String getlName();
+    boolean getContainDetails();
 }

@@ -30,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.text.method.PasswordTransformationMethod;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,7 +68,9 @@ import com.locadoc_app.locadoc.S3.S3Helper;
 import com.locadoc_app.locadoc.UI.About.AboutActivity;
 import com.locadoc_app.locadoc.UI.PDFViewer.PDFViewer;
 import com.locadoc_app.locadoc.UI.Setting.SettingActivity;
+import com.locadoc_app.locadoc.helper.Connectivity;
 import com.locadoc_app.locadoc.helper.Encryption;
+import com.locadoc_app.locadoc.helper.Hash;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -399,7 +402,8 @@ public class HomePageActivity extends AppCompatActivity
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete Account");
-        builder.setMessage("Please eneter 'DELETE' to delete your account !(WARNING all your backup data will also be deleted)");
+        builder.setMessage("Please enter your current password to delete your account! (WARNING all your backup data will also be deleted, " +
+            "please use change account in login page if you want to delete it only for this device)");
         LinearLayout layout = new LinearLayout(this);
         LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -410,7 +414,8 @@ public class HomePageActivity extends AppCompatActivity
         layout.setPadding(40,40,40,40);
 
         final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        input.setTransformationMethod(PasswordTransformationMethod.getInstance());
         layout.addView(input, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
         builder.setView(layout);
@@ -418,13 +423,18 @@ public class HomePageActivity extends AppCompatActivity
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                deletetext = input.getText().toString();
-                if(deletetext.equals("DELETE"))
-                {
-                    presenter.deleteAccount();
+                if(!Connectivity.isNetworkAvailable()){
+                    Toast.makeText(HomePageActivity.this, "Can not connect to internet. Please check your connection!",
+                            Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                else{
-                   showDeleteAccountDialog();
+
+                String hash = Hash.Hash(input.getText().toString(), Credential.getPassword().getSalt());
+                if(hash.equals(Credential.getPassword().getPassword())){
+                    presenter.deleteAccount();
+                } else{
+                    Toast.makeText(HomePageActivity.this, "Wrong password",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });

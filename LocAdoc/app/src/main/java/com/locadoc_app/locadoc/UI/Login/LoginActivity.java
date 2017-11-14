@@ -144,7 +144,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
     public void remindUserDialog(){
         AlertDialog.Builder builder = new  AlertDialog.Builder(LoginActivity.this);
         builder.setTitle("There is no network connection");
-        builder.setMessage("Make sure you are connected to a Wi-Fi or" +
+        builder.setMessage("Make sure you are connected to a Wi-Fi or " +
                 "mobile network and try again");
         builder.setCancelable(false);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -394,6 +394,9 @@ public class LoginActivity extends AppCompatActivity implements LoginViewInterfa
             @Override
             public void onFinish() {
                 lockDialog.dismiss();
+                long [] grecord2 = GuestSession.getRecord();
+                grecord2[1] = 0L;
+                GuestSession.updateNumTries(grecord2);
             }
         }.start();
     }

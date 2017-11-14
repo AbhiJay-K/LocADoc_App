@@ -52,25 +52,28 @@ public class SignUp_Confirm_Presenter implements SignUp_Confirm_Presenter_Interf
     GenericHandler confHandler = new GenericHandler() {
         @Override
         public void onSuccess() {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
-            String TimeStamp = simpleDateFormat.format(new Date());
-            String random =  UUID.randomUUID().toString();
-            String Instance = Hash.Hash(TimeStamp,random);
-            ApplicationInstance.insert(Instance);
-            Password p = new Password();
-            String salt = Hash.SecureRandomGen();
-            String pwdDigest = Hash.Hash(activity.getPassword(),salt);
-            p.setPasswordid(1);
-            p.setPassword(pwdDigest);
-            p.setSalt(salt);
-            Credential.setPassword(p);
-            Credential.setEmail(activity.getUserName());
-            User usr = new User();
-            usr.setUser(activity.getUserName());
-            usr.setFirstname(activity.getfName());
-            usr.setLastname(activity.getlName());
-            usr.setPasswordid(1);
-            UserSQLHelper.insert(usr,Credential.getPassword());
+            if(activity.getContainDetails()) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+                String TimeStamp = simpleDateFormat.format(new Date());
+                String random = UUID.randomUUID().toString();
+                String Instance = Hash.Hash(TimeStamp, random);
+                ApplicationInstance.insert(Instance);
+                Password p = new Password();
+                String salt = Hash.SecureRandomGen();
+                String pwdDigest = Hash.Hash(activity.getPassword(), salt);
+                p.setPasswordid(1);
+                p.setPassword(pwdDigest);
+                p.setSalt(salt);
+                Credential.setPassword(p);
+                Credential.setEmail(activity.getUserName());
+                User usr = new User();
+                usr.setUser(activity.getUserName());
+                usr.setFirstname(activity.getfName());
+                usr.setLastname(activity.getlName());
+                usr.setPasswordid(1);
+                UserSQLHelper.insert(usr, Credential.getPassword());
+            }
+
             activity.showDialogMessage("Success!",activity.getUsername()+" has been confirmed!", true);
         }
 

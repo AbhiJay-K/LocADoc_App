@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">LocAdoc</string>
 
+    <string name="LocAdoc_GoogleAPIKey" templateMergeStrategy="preserve" translatable="false">
+        AIzaSyCMdg0snBe6r4pzWQBo3kQ4mFr1ChFG1gs
+    </string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -81,6 +84,6 @@
     <string name="file_operation_ButtonMove">Move File</string>
     <string name="file_operation_ButtonDelete">Delete File</string>
     <string name="file_operation_ButtonBack">Back</string>
-    <string name="About_description"><p>LocAdoc aims to provide its user a way to store confidential documents in mobile devices and access it only in the area he/she find it is safe. By including two factor protections, one being password\n(what the user knows) and second being the location (where the user is currently),hence providing secure vault for document storage so the it does not get into wrong hands even if the device is compromised.</p></string>
+    <string name="About_description"><p>LocAdoc aims to provide its user a way to store confidential documents in mobile devices and access it only in the area he/she find it is safe. By including two factor protections, one being password\n(what the user knows) and second being the location (where the user is currently),hence providing secure vault for document storage so that it does not get into wrong hands even if the device is compromised.</p></string>
     <string name="About_version">Version 1.0</string>
 </resources>

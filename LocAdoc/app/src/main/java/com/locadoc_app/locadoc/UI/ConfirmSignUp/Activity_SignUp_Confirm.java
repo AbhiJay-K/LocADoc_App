@@ -19,12 +19,13 @@ public class Activity_SignUp_Confirm extends AppCompatActivity implements SignUp
     private TextView username;
     private EditText confCode;
     private Button confirm;
-    TextView reqCode;
+    private TextView reqCode;
 
-    String userName;
-    String password;
-    String fName;
-    String lName;
+    private String userName;
+    private String password;
+    private String fName;
+    private String lName;
+    private boolean containDetails;
     private AlertDialog userDialog;
     private SignUp_Confirm_Presenter presenter;
 
@@ -45,9 +46,16 @@ public class Activity_SignUp_Confirm extends AppCompatActivity implements SignUp
                 userName = extras.getString("name");
                 username = (TextView) findViewById(R.id.editTextConfirmUserId);
                 username.setText(userName);
-                password = extras.getString("pwd");
-                fName = extras.getString("fname");
-                lName = extras.getString("lname");
+
+                if(extras.containsKey("pwd")) {
+                    password = extras.getString("pwd");
+                    fName = extras.getString("fname");
+                    lName = extras.getString("lname");
+                    containDetails = true;
+                } else{
+                    containDetails = false;
+                }
+
                 confCode = (EditText) findViewById(R.id.editTextConfirmCode);
                 confCode.requestFocus();
 
@@ -148,6 +156,10 @@ public class Activity_SignUp_Confirm extends AppCompatActivity implements SignUp
 
     public String getlName() {
         return lName;
+    }
+
+    public boolean getContainDetails(){
+        return containDetails;
     }
 
     public void setLabelConfirmUserID(String str)

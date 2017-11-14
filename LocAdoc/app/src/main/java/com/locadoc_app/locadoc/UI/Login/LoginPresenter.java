@@ -1,8 +1,10 @@
 package com.locadoc_app.locadoc.UI.Login;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserSession;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationDetails;
@@ -10,6 +12,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.Chal
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.NewPasswordContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
 import com.locadoc_app.locadoc.Cognito.AppHelper;
 import com.locadoc_app.locadoc.DynamoDB.AreaDynamoHelper;
 import com.locadoc_app.locadoc.DynamoDB.DynamoDBHelper;
@@ -48,6 +51,7 @@ public class LoginPresenter implements LoginPresenterInterface
     private LoginViewInterface loginAct;
     //Continuations
     private NewPasswordContinuation newPasswordContinuation;
+    private String password;
 
     public LoginPresenter (LoginViewInterface loginAct)
     {
@@ -115,6 +119,45 @@ public class LoginPresenter implements LoginPresenterInterface
         }
     }
 
+    GetDetailsHandler handler = new GetDetailsHandler() {
+        @Override
+        public void onSuccess(CognitoUserDetails cognitoUserDetails) {
+            String given_name = cognitoUserDetails.getAttributes().getAttributes().get("given_name");
+            String email = cognitoUserDetails.getAttributes().getAttributes().get("email");
+            String last_name = cognitoUserDetails.getAttributes().getAttributes().get("family_name");
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+            String TimeStamp = simpleDateFormat.format(new Date());
+            String random =  UUID.randomUUID().toString();
+            String Instance = Hash.Hash(TimeStamp,random);
+            ApplicationInstance.insert(Instance);
+
+            if(Credential.getPassword() == null){
+                Password p = new Password();
+                String salt = Hash.SecureRandomGen();
+                String pwdDigest = Hash.Hash(password, salt);
+                p.setPasswordid(1);
+                p.setPassword(pwdDigest);
+                p.setSalt(salt);
+                Credential.setPassword(p);
+            }
+
+            User usr = new User();
+            usr.setUser(email);
+            usr.setFirstname(given_name);
+            usr.setLastname(last_name);
+            usr.setPasswordid(1);
+            UserSQLHelper.insert(usr,Credential.getPassword());
+            new DBSynchronise().execute(password);
+        }
+
+        @Override
+        public void onFailure(Exception exception) {
+            loginAct.closeWaitDialog();
+            loginAct.showDialogMessage("Sign-in failed", AppHelper.formatException(exception));
+        }
+    };
+
     AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
         @Override
         public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
@@ -125,7 +168,7 @@ public class LoginPresenter implements LoginPresenterInterface
             AppHelper.newDevice(device);
             Credential.setEmail(loginAct.getUserIDView().getText().toString());
             loginAct.checkLogin();
-            new DBSynchronise().execute(loginAct.getPassView().getText().toString());
+            new CheckDetails().execute();
         }
 
 
@@ -136,6 +179,7 @@ public class LoginPresenter implements LoginPresenterInterface
                     loginAct.getUserIDView().getText().toString(),
                     loginAct.getPassView().getText().toString(), null);
 
+            password = loginAct.getPassView().getText().toString();
             loginAct.getPassView().setText("");
             loginAct.clearFocus();
 
@@ -193,6 +237,35 @@ public class LoginPresenter implements LoginPresenterInterface
             }
         }
     };
+
+    private class CheckDetails extends
+            AsyncTask<Void, Void, Void> {
+        boolean getDetails;
+
+        @Override
+        protected Void doInBackground(Void... objects) {
+            DynamoDBHelper.init(LocAdocApp.getContext());
+            User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
+            long numberUser = UserSQLHelper.getNumberofRecords();
+
+            if(usr == null && numberUser <= 0){
+                getDetails = true;
+            } else{
+                getDetails = false;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if(getDetails){
+                AppHelper.getPool().getCurrentUser().getDetailsInBackground(handler);
+            } else{
+                new DBSynchronise().execute(password);
+            }
+        }
+    }
 
     private class DBSynchronise extends
             AsyncTask<String, Void, Void> {
@@ -500,11 +573,11 @@ public class LoginPresenter implements LoginPresenterInterface
 
             return null;
         }
+
         @Override
         protected void onPostExecute(Void result) {
             loginAct.dismissProgressDialog();
             loginAct.openMainActivity();
         }
     }
-
 }
