@@ -402,7 +402,7 @@ public class HomePageActivity extends AppCompatActivity
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete Account");
-        builder.setMessage("Please enter your current password to delete your account! (WARNING all your backup data will also be deleted, " +
+        builder.setMessage("Please enter your current password to delete your account!\n(WARNING: all your backup data will also be deleted, " +
             "please use change account in login page if you want to delete it only for this device)");
         LinearLayout layout = new LinearLayout(this);
         LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
