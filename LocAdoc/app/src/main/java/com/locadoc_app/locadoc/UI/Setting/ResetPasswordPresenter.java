@@ -120,10 +120,7 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
         @Override
         public void onFailure(Exception exception) {
             // Failure is due to Wrong OldPwd(or Current Pwd)
-            activity.setLabelCurPwd("Incorrect Current Password");
-
             resultStatus = false;
-
             activity.showDialogMessage("Fail","Fail to change password\n" + AppHelper.formatException(exception), resultStatus);
         }
     };

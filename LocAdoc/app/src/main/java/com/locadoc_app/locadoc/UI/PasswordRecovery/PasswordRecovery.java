@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.locadoc_app.locadoc.R;
+import com.locadoc_app.locadoc.UI.Setting.ResetPassword;
 import com.locadoc_app.locadoc.helper.Connectivity;
 
 /**
@@ -22,7 +24,7 @@ import com.locadoc_app.locadoc.helper.Connectivity;
 public class PasswordRecovery extends AppCompatActivity implements PasswordRecoveryViewInterface{
 
     private EditText password;
-    private EditText confrimPassword;
+    private EditText confirmPassword;
     private EditText verifiCode;
     private String email;
     private Button submit;
@@ -76,12 +78,12 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
         });
 
         /* Verification Code */
-        confrimPassword = (EditText) findViewById(R.id.pwdrecovery_confrimpwd);
-        confrimPassword.addTextChangedListener(new TextWatcher() {
+        confirmPassword = (EditText) findViewById(R.id.pwdrecovery_confrimpwd);
+        confirmPassword.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 setLabelConfirmPassword("");
-                confrimPassword.setBackground(getDrawable(R.drawable.text_border_selector));
+                confirmPassword.setBackground(getDrawable(R.drawable.text_border_selector));
                 presenter.checkPasswordSame();
             }
 
@@ -133,8 +135,13 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
                     return;
                 }
 
-                presenter.continueTask(email, password.getText().toString(),
-                verifiCode.getText().toString());
+                Log.d("PWDRECOVERY", "newPassword: " + password.getText().toString());
+                Log.d("PWDRECOVERY", "Confirmed New Password: " + confirmPassword.getText().toString());
+
+                if(confirmPassword.getText().toString().equals(password.getText().toString()))
+                    presenter.continueTask(email, password.getText().toString(),verifiCode.getText().toString());
+                else
+                    Toast.makeText(PasswordRecovery.this, "Confirmed New Password doesn't match with New Password", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -177,12 +184,12 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
     public void setLabelConfirmPassword(String str) {
         TextView label = (TextView) findViewById(R.id.textViewConfirmNewPasswordMessage);
         label.setText(str);
-        confrimPassword.setBackground(getDrawable(R.drawable.text_border_error));
+        confirmPassword.setBackground(getDrawable(R.drawable.text_border_error));
     }
     public void setLabelConfirmPasswordOK(String str) {
         TextView label = (TextView) findViewById(R.id.textViewConfirmNewPasswordMessage);
         label.setText(str);
-        confrimPassword.setBackground(getDrawable(R.drawable.text_border_selector));
+        confirmPassword.setBackground(getDrawable(R.drawable.text_border_selector));
     }
     public void setLabelVerifiCode(String str) {
         TextView label = (TextView) findViewById(R.id.textViewVerifiCodeMessage);
@@ -198,6 +205,6 @@ public class PasswordRecovery extends AppCompatActivity implements PasswordRecov
         return password;
     }
     public EditText getRPwdView() {
-        return confrimPassword;
+        return confirmPassword;
     }
 }

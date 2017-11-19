@@ -29,8 +29,6 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
     private ProgressDialog pDialog;
     private boolean logout;
 
-    private boolean confPwdStatus;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,19 +150,19 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
                     return;
                 }
 
-                if(confPwdStatus) {
-                    String hash = Hash.Hash(curPwd.getText().toString(), Credential.getPassword().getSalt());
-                    if(!hash.equals(Credential.getPassword().getPassword())){
-                        Toast.makeText(ResetPassword.this, "Wrong password",
-                                Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                if(confirmNewPwd.getText().toString().equals(newPwd.getText().toString())) {
+
+                    // Check Current Password
+                    //String hash = Hash.Hash(curPwd.getText().toString(), Credential.getPassword().getSalt());
+                    //if(!hash.equals(Credential.getPassword().getPassword())){
+                    //    Toast.makeText(ResetPassword.this, "Wrong password", Toast.LENGTH_SHORT).show();
+                    //    return;
+                    //}
 
                     presenter.changePassword();
                 }
                 else {
-                    Toast.makeText(ResetPassword.this, "Confirmed New Password is not match with New Password",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ResetPassword.this, "Confirmed New Password doesn't match with New Password", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -213,18 +211,12 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
     }
 
     public void setLabelConfirmNewPwd(String str) {
-
-        confPwdStatus = false;
-
         TextView label = (TextView) findViewById(R.id.resetPwd_textViewConfirmNewPwdMessage);
         label.setText(str);
         confirmNewPwd.setBackground(getDrawable(R.drawable.text_border_error));
     }
 
     public void setLabelConfirmNewPwdOK(String str) {
-
-        confPwdStatus = true;
-
         TextView label = (TextView) findViewById(R.id.resetPwd_textViewConfirmNewPwdMessage);
         label.setText(str);
         confirmNewPwd.setBackground(getDrawable(R.drawable.text_border_selector));

@@ -18,11 +18,12 @@
             android:background="@color/LocadocC"
             android:fontFamily="sans-serif-smallcaps"
 
-            android:text="user name update"
+            android:padding="10dp"
 
+            android:text="user name update"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textSize="38sp"
+            android:textSize="30sp"
             android:textStyle="bold"/>
 
     </LinearLayout>
