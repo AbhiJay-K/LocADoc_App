@@ -143,8 +143,8 @@ public class ResetPasswordPresenter implements ResetPasswordPresenterInterface {
             User user = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
             Password password = Credential.getPassword();
 
-            int pwdIDUserTable = user.getPasswordid();
-            int pwdIDPwdTable = password.getPasswordid();
+            int pwdIDUserTable = user.getPasswordid() + 1;
+            int pwdIDPwdTable = password.getPasswordid() + 1;
 
             // Check same Value B2 user and Password?
             // IF Different, Priority b2 User and Password: User
