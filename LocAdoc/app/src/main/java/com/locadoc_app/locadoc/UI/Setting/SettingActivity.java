@@ -206,11 +206,16 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
                         // TODO Do something
 
                         switch(presenter.validName(dialog_FirstName.getText().toString(), dialog_LastName.getText().toString(), builderView)) {
-                            case 2: changeNameDialog.dismiss();
+                            case 2: if(changeNameDialog.isShowing())
+                                        changeNameDialog.dismiss();
                                     break;
+
                             case 3: showProgressDialog("Change Name","Updating Name into Server...");
                                     presenter.changeToNewName(dialog_FirstName.getText().toString(), dialog_LastName.getText().toString());
-                                    changeNameDialog.dismiss();
+
+                                    if(changeNameDialog.isShowing())
+                                        changeNameDialog.dismiss();
+
                                     break;
                         }
 
@@ -229,7 +234,8 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
 
         });
 
-        changeNameDialog.show();
+        if(!changeNameDialog.isShowing())
+            changeNameDialog.show();
     }
 
     public void openResetPasswordActivity() {
@@ -441,7 +447,9 @@ public class SettingActivity extends AppCompatActivity implements SettingActivit
         pDialog.setMessage(msg);
         pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         pDialog.setCancelable(false);
-        pDialog.show();
+
+        if(!pDialog.isShowing())
+            pDialog.show();
     }
 
     public void dismissProgresDialog() {
