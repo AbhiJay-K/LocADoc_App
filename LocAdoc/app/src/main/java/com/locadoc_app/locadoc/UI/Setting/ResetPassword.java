@@ -151,14 +151,6 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
                 }
 
                 if(confirmNewPwd.getText().toString().equals(newPwd.getText().toString())) {
-
-                    // Check Current Password
-                    //String hash = Hash.Hash(curPwd.getText().toString(), Credential.getPassword().getSalt());
-                    //if(!hash.equals(Credential.getPassword().getPassword())){
-                    //    Toast.makeText(ResetPassword.this, "Wrong password", Toast.LENGTH_SHORT).show();
-                    //    return;
-                    //}
-
                     presenter.changePassword();
                 }
                 else {
@@ -229,7 +221,9 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
         pDialog.setMessage(msg);
         pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         pDialog.setCancelable(false);
-        pDialog.show();
+
+        if(!pDialog.isShowing())
+            pDialog.show();
     }
 
     public void dismissProgresDialog() {
@@ -248,7 +242,10 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    aDialog.dismiss();
+
+                    if(aDialog.isShowing())
+                        aDialog.dismiss();
+
                     if(result) {
                         logout = false;
                         exit(result);
@@ -260,7 +257,9 @@ public class ResetPassword extends AppCompatActivity implements ResetPasswordVie
         });
         aDialog = builder.create();
         aDialog.setCancelable(false);
-        aDialog.show();
+
+        if(!aDialog.isShowing())    // Check for Leaking Error
+            aDialog.show();
     }
 
     public void exit(boolean result) {
