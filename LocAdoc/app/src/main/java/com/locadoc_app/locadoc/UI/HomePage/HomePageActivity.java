@@ -779,7 +779,13 @@ public class HomePageActivity extends AppCompatActivity
 
             FileSQLHelper.insert(file, Credential.getPassword());
             FileDynamoHelper.getInstance().insert(file);
-        } catch (Exception e){}
+        } catch (Exception e){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Error!!!")
+                    .setMessage("Unable to import file! Please try again or try another file)")
+                    .show();
+            return;
+        }
         finally {
             try{
                 in.close();
