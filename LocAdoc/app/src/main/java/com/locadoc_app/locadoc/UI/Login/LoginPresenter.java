@@ -1,7 +1,6 @@
 package com.locadoc_app.locadoc.UI.Login;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserDetails;
@@ -52,6 +51,7 @@ public class LoginPresenter implements LoginPresenterInterface
     //Continuations
     private NewPasswordContinuation newPasswordContinuation;
     private String password;
+    private Password newPass;
 
     public LoginPresenter (LoginViewInterface loginAct)
     {
@@ -148,6 +148,8 @@ public class LoginPresenter implements LoginPresenterInterface
             usr.setLastname(last_name);
             usr.setPasswordid(1);
             UserSQLHelper.insert(usr,Credential.getPassword());
+
+            Credential.setPassword(newPass);
             new DBSynchronise().execute(password);
         }
 
@@ -245,6 +247,7 @@ public class LoginPresenter implements LoginPresenterInterface
         @Override
         protected Void doInBackground(Void... objects) {
             DynamoDBHelper.init(LocAdocApp.getContext());
+            newPass = Credential.getPassword();
             User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
             long numberUser = UserSQLHelper.getNumberofRecords();
 
@@ -262,6 +265,7 @@ public class LoginPresenter implements LoginPresenterInterface
             if(getDetails){
                 AppHelper.getPool().getCurrentUser().getDetailsInBackground(handler);
             } else{
+                Credential.setPassword(newPass);
                 new DBSynchronise().execute(password);
             }
         }
@@ -424,7 +428,6 @@ public class LoginPresenter implements LoginPresenterInterface
                 // ---------------------------------------------------------------------------------------------
 
                 if(Credential.getPassword() != null && newCredentialPwd.getPasswordid() == -1) {
-
                         // User usr = UserDynamoHelper.getInstance().getUserFromDB(Credential.getEmail());
                         // long numberUser = UserSQLHelper.getNumberofRecords();
                         // ---------------------------------------------------------------------------------------------
